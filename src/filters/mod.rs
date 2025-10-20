@@ -283,7 +283,7 @@ impl FilterGrid {
             "f9", "var1", "var2",
         ];
 
-        for (_i, &label) in labels.iter().enumerate() {
+        for &label in labels.iter() {
             let id = format!("{}_button", label);
             let button: Button = builder
                 .object(id)

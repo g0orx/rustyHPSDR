@@ -53,8 +53,8 @@ impl Audio {
         let output = None;
         let output_underruns = 0;
 
-        let audio = Audio{remote_input, local_input, input_device, input, period_size, remote_output, local_output, output_device, output, output_underruns};
-        audio
+        
+        Audio{remote_input, local_input, input_device, input, period_size, remote_output, local_output, output_device, output, output_underruns}
     }
 
     pub fn init(&mut self) {
@@ -80,7 +80,7 @@ impl Audio {
             hwp.set_format(Format::s16())?;
             hwp.set_access(Access::RWInterleaved)?;
             pcm.hw_params(&hwp)?;
-            let period_size = match hwp.get_period_size() {
+            match hwp.get_period_size() {
                 Ok(s) => {
                     self.period_size = s;
                     println!("audio::open_input period_size={}", s);
@@ -103,7 +103,7 @@ impl Audio {
             Ok(i) => i,
             Err(e) => {
                 eprintln!("Failed to get io_i16: {}", e);
-                let audio_data = buffer[..frames_read as usize].to_vec();
+                let audio_data = buffer[..frames_read].to_vec();
                 return audio_data;
             }
         };
@@ -111,13 +111,13 @@ impl Audio {
             Ok(f) => f,
             Err(e) => {
                 eprintln!("Failed to read frames: {}", e);
-                let audio_data = buffer[..frames_read as usize].to_vec();
+                let audio_data = buffer[..frames_read].to_vec();
                 return audio_data;
             }
         };
         println!("audio::read_input frames read={}", frames_read);
-        let audio_data = buffer[..frames_read as usize].to_vec();
-        audio_data
+        
+        buffer[..frames_read].to_vec()
     }
 
     pub fn close_input(&mut self) ->  Result<(), Error> {
@@ -162,7 +162,7 @@ impl Audio {
                             Ok(_frames) => {
                             }
                             Err(e) => {
-                                self.output_underruns = self.output_underruns + 1;
+                                self.output_underruns += 1;
                                 match self.output.as_ref().expect("output failed for prepare").prepare() {
                                     Ok(()) => {
                                     }
@@ -175,11 +175,11 @@ impl Audio {
 
                     }
                 } else {
-                    match io.writei(&buffer) {
+                    match io.writei(buffer) {
                         Ok(_frames) => {
                         }
                         Err(e) => {
-                            self.output_underruns = self.output_underruns + 1;
+                            self.output_underruns += 1;
                             match self.output.as_ref().expect("output failed for prepare").prepare() {
                                 Ok(()) => {
                                 }

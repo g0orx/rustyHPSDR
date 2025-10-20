@@ -17,7 +17,6 @@
 
 use gtk::cairo::{Context, Format, ImageSurface};
 
-use crate::radio::RadioMutex;
 
 #[derive(Clone)]
 pub struct Meter {

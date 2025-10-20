@@ -135,7 +135,7 @@ impl BandGrid {
         let callback = Rc::new(RefCell::new(Box::new(|_| {}) as Box<dyn Fn(usize)>));
 
         let band_info = BandInfo::new();
-        for (_i, info) in band_info.iter().enumerate() {
+        for info in band_info.iter() {
             let id = format!("{}_button", info.label);
             let button: Button = builder
                 .object(id)

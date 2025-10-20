@@ -89,7 +89,7 @@ impl ModeGrid {
         ];
 
         let mut buttons = Vec::with_capacity(12);
-        for (_i, &label) in labels.iter().enumerate() {
+        for &label in labels.iter() {
             let id = format!("{}_button", label);
             let button: Button = builder
                 .object(id)

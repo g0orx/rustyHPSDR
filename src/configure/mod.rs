@@ -17,7 +17,7 @@
 
 use alsa::Direction;
 use gtk::prelude::*;
-use gtk::{Adjustment, ApplicationWindow, Box, Builder, Button, CheckButton, ComboBoxText, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, ToggleButton, Window};
+use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, ComboBoxText, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, ToggleButton, Window};
 
 use crate::bands::Bands;
 use crate::radio::{Keyer, RadioModels, RadioMutex};

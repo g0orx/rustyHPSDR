@@ -16,7 +16,6 @@
 */
 
 use gtk::prelude::*;
-use gtk::Label;
 use gtk::cairo::{Context, LineCap, LineJoin}; 
 use glib::source::SourceId;
 use gdk_pixbuf::Pixbuf;
@@ -37,7 +36,6 @@ use serde::{Deserialize, Serialize};
 
 
 use crate::discovery::{Boards,Device};
-use crate::bands::BandInfo;
 use crate::modes::Modes;
 use crate::receiver::Receiver;
 use crate::transmitter::Transmitter;
@@ -479,7 +477,7 @@ impl Radio {
         } 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 0, pixels.as_mut_ptr(), &mut flag);
             }
@@ -493,7 +491,7 @@ impl Radio {
         let pixels_len = width * zoom;
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 0, pixels.as_mut_ptr(), &mut flag);
             }
@@ -516,7 +514,7 @@ impl Radio {
 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 1, pixels.as_mut_ptr(), &mut flag);
             }
@@ -539,7 +537,7 @@ impl Radio {
 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 1, pixels.as_mut_ptr(), &mut flag);
             }
@@ -605,13 +603,11 @@ impl Radio {
 
     pub fn save(&self, device: Device) {
         let path = Self::config_file_path(device);
-        if let Some(parent) = path.parent() {
-            if !parent.exists() {
-                if let Err(_e) = create_dir_all(parent) {
+        if let Some(parent) = path.parent()
+            && !parent.exists()
+                && let Err(_e) = create_dir_all(parent) {
                     return;
                 }
-            }
-        }
 
         match serde_json::to_string_pretty(self) {
             Ok(s) => {
@@ -664,7 +660,7 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
             let offset=(pixel_len as f32 / 2.0)-(spectrum_width as f32 / 2.0);
             for i in 0..spectrum_width {
                 let pixel = pixels[(i + offset as i32) as usize];
-                let y = ((spectrum_high - pixel as f32) * dbm_per_line).floor();
+                let y = ((spectrum_high - pixel) * dbm_per_line).floor();
                 cr.line_to(i as f64, y.into());
             }
             cr.line_to(spectrum_width as f64, height as f64);
@@ -674,8 +670,8 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
         // draw the filter
         cr.set_source_rgba (0.5, 0.5, 0.5, 0.50);
         let center = spectrum_width / 2;
-        let filter_left = center as f32 + (r.transmitter.filter_low as f32 / hz_per_pixel);
-        let filter_right = center as f32 + (r.transmitter.filter_high as f32 / hz_per_pixel);
+        let filter_left = center as f32 + (r.transmitter.filter_low / hz_per_pixel);
+        let filter_right = center as f32 + (r.transmitter.filter_high / hz_per_pixel);
         cr.rectangle(filter_left.into(), 0.0, (filter_right-filter_left).into(), height.into());
         let _ = cr.fill();
 
@@ -704,7 +700,7 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
             let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[rx].pan as f32;
             let display_frequency_low = frequency_low + display_frequency_offset;
             let display_frequency_high = frequency_high + display_frequency_offset;
-            let display_hz_per_pixel = display_frequency_range as f32 / width as f32;
+            let display_hz_per_pixel = display_frequency_range / width as f32;
 
             cr.set_source_rgb(0.5, 0.5, 0.5);
             let mut step = 25000.0;  
@@ -751,7 +747,7 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
                 let (text_width, _text_height) = pango_layout.pixel_size();
                 cr.move_to( (x - (text_width as f32 / 2.0)).into(), 20.0);
                 let _ = cr.show_text(&text);
-                f = f + step as f32;
+                f += step as f32;
             }
 
             // draw the band limits
@@ -793,7 +789,7 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
             cr.move_to(0.0, height as f64);
             for i in 0..spectrum_width {
                 let pixel = pixels[i as usize + pan as usize];
-                let y = ((spectrum_high - pixel as f32) * dbm_per_line).floor();  
+                let y = ((spectrum_high - pixel) * dbm_per_line).floor();  
                 cr.line_to(i as f64, y.into());
             }
             cr.line_to(width as f64, height as f64);
@@ -821,9 +817,9 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
                 frequency = r.receiver[rx].ctun_frequency;
             }
             if r.receiver[rx].mode == Modes::CWL.to_usize() {
-                frequency = frequency + r.receiver[rx].cw_pitch;
+                frequency += r.receiver[rx].cw_pitch;
             } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
-                frequency = frequency - r.receiver[rx].cw_pitch;
+                frequency -= r.receiver[rx].cw_pitch;
             }
 
          
@@ -857,7 +853,7 @@ pub fn draw_spectrum(radio_mutex: &RadioMutex, cr: &Context, width: i32, height:
             let res = RXANBPAddNotch (notch.rx, self.notch, notch.frequency, notch.width, notch.active);
         }
         eprintln!("add notch {} at {} for {} active={}", self.notch, notch.frequency, notch.width, notch.active);
-        self.notch = self.notch + 1;
+        self.notch += 1;
     }
 
     // only called when radio is running protocol 1
@@ -878,7 +874,7 @@ fn format_u32_with_separators(value: u32) -> String {
 
     // Iterate over the characters and insert separators
     for (i, ch) in value_str.chars().enumerate() {
-        if (len - i) % 3 == 0 && i != 0 {
+        if (len - i).is_multiple_of(3) && i != 0 {
             write!(&mut result, ".").unwrap();
         }
         write!(&mut result, "{}", ch).unwrap();

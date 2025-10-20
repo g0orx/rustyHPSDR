@@ -27,6 +27,12 @@ pub struct Adc {
     pub attenuation: i32,
 }
 
+impl Default for Adc {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Adc {
 
     pub fn new() -> Adc {

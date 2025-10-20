@@ -23,7 +23,6 @@ use std::os::raw::{c_char, c_int};
 use serde::{Deserialize, Serialize};
 
 use crate::alex::*;
-use crate::bands::Bands;
 use crate::discovery::Boards;
 use crate::modes::Modes;
 use crate::wdsp::*;
@@ -102,15 +101,15 @@ impl Transmitter {
 //        let local_microphone_buffer_size = 1024 as usize;
 //        let local_microphone_buffer = vec![0u8; local_microphone_buffer_size];
 
-        let microphone_buffer_size = 1024 as usize;
-        let microphone_buffer = vec![0.0f64; (microphone_buffer_size * 2) as usize];
+        let microphone_buffer_size = 1024_usize;
+        let microphone_buffer = vec![0.0f64; (microphone_buffer_size * 2)];
         let microphone_samples = 0;
 
 
         let fft_size = 8192;
 
         let iq_buffer = vec![0.0f64; (output_samples * 2) as usize];
-        let iq_samples = 0 as usize;
+        let iq_samples = 0_usize;
 
         let low_latency = false;
         let use_rx_filter = false;
@@ -183,7 +182,9 @@ impl Transmitter {
         }
 
 
-        let tx = Transmitter{ protocol,
+        
+
+        Transmitter{ protocol,
             board,
             channel,
             sample_rate,
@@ -221,14 +222,12 @@ impl Transmitter {
             pa_calibration,
             c1,
             c2,
-        };
-
-        tx
+        }
     }
 
     pub fn init(&mut self) {
         //self.local_microphone_buffer = vec![0u8; self.local_microphone_buffer_size * 2 as usize];
-        self.microphone_buffer = vec![0.0f64; (self.microphone_buffer_size * 2) as usize];
+        self.microphone_buffer = vec![0.0f64; (self.microphone_buffer_size * 2)];
         self.iq_buffer = vec![0.0f64; (self.output_samples * 2) as usize];
         self.init_wdsp();
 
@@ -249,7 +248,7 @@ impl Transmitter {
         let mut flp = [0];
         let keep_time: f32 = 0.1;
         let max_w = self.fft_size + min((keep_time * self.fps) as i32, (keep_time * self.fft_size as f32  * self.fps) as i32);
-        let buffer_size: i32 = (self.buffer_size  * 4) as i32;
+        let buffer_size: i32 = self.buffer_size  * 4;
         let mut multiplier = 3; // protocol1
         if self.protocol == 2 {
             multiplier = 12; // protocol2
@@ -369,7 +368,7 @@ impl Transmitter {
     pub fn set_tuning(&self, state: bool, cw_keyer_sidetone_frequency: i32) {
         unsafe {
             if state {
-                let mut frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
+                let frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
                 if self.mode == Modes::CWL.to_usize() {
                     let frequency = -cw_keyer_sidetone_frequency as f64;
                 } else if self.mode == Modes::CWU.to_usize() {

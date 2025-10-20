@@ -18,14 +18,11 @@
 use nix::sys::socket::setsockopt;
 use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
 use std::net::{UdpSocket};
-use std::os::raw::c_int;
-use std::sync::{Arc, Mutex};
 
 use crate::discovery::Device;
 use crate::modes::Modes;
 use crate::receiver::{AudioOutput, Receiver};
 use crate::radio::{Keyer, RadioMutex};
-use crate::wdsp::*;
 use crate::alex::*;
 
 const HEADER_SIZE: usize  = 16;  // 16 byte header
@@ -49,8 +46,8 @@ const RX_2_IN: u32 =       0x00000200;
 const RX_1_IN: u32 =       0x00000400;
 const RX_1_OUT: u32 =      0x00000800;
 const BYPASS: u32 =        0x00001000;
-const ATTEN_20_dB: u32 =   0x00002000;
-const ATTEN_10_dB: u32 =   0x00004000;
+const ATTEN_20_D_B: u32 =   0x00002000;
+const ATTEN_10_D_B: u32 =   0x00004000;
 const RX_RED_LED: u32 =    0x00008000;
 const UNUSED_2: u32 =      0x00010000;
 const UNUSED_3: u32 =      0x00020000;
@@ -99,7 +96,9 @@ impl Protocol2 {
         let previous_filter: u32 = 0;
         let previous_filter1: u32 = 0;
 
-        let p2 = Protocol2{device,
+        
+
+        Protocol2{device,
                            socket,
                            general_sequence,
                            high_priority_sequence,
@@ -109,19 +108,17 @@ impl Protocol2 {
                            tx_iq_sequence,
                            previous_filter,
                            previous_filter1,
-        };
-
-        p2
+        }
 
     }
 
     pub fn run(&mut self, radio_mutex: &RadioMutex) {
         let r = radio_mutex.radio.lock().unwrap();
         let mut buffer = vec![0; 65536];
-        let mut microphone_buffer: Vec<f64> = vec![0.0; (r.transmitter.microphone_buffer_size * 2) as usize];
-        let mut microphone_samples: usize = 0;
-        let mut microphone_iq_buffer: Vec<f64> = vec![0.0; (r.transmitter.output_samples * 2) as usize];
-        let mut microphone_iq_buffer_offset: usize = 0;
+        let microphone_buffer: Vec<f64> = vec![0.0; (r.transmitter.microphone_buffer_size * 2)];
+        let microphone_samples: usize = 0;
+        let microphone_iq_buffer: Vec<f64> = vec![0.0; (r.transmitter.output_samples * 2) as usize];
+        let microphone_iq_buffer_offset: usize = 0;
         let mut tx_iq_buffer: Vec<f64> = vec![0.0; IQ_BUFFER_SIZE*2];
         let mut tx_iq_buffer_offset: usize = 0;
         drop(r);
@@ -184,7 +181,7 @@ impl Protocol2 {
                                             } else {
                                                 sample = u32::from_be_bytes([0, 0, buffer[b], buffer[b+1]]) as f64;
                                             }
-                                            b = b + 2;
+                                            b += 2;
                                             iq_buffer = self.microphone_sample(sample, radio_mutex);
                                         }
                                         r = radio_mutex.radio.lock().unwrap();
@@ -196,7 +193,7 @@ impl Protocol2 {
                                         let ox = tx_iq_buffer_offset * 2;
                                         tx_iq_buffer[ox] = microphone_iq_buffer[ix as usize] as f64;
                                         tx_iq_buffer[ox+1] = microphone_iq_buffer[(ix+1) as usize] as f64;
-                                        tx_iq_buffer_offset = tx_iq_buffer_offset + 1;
+                                        tx_iq_buffer_offset += 1;
                                         if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
                                             self.send_iq_buffer(tx_iq_buffer.clone());
                                             tx_iq_buffer_offset = 0;
@@ -206,14 +203,7 @@ impl Protocol2 {
                                 r.received = true;
                                 },
                         1027 => {}, // Wide Band IQ samples
-                        1035 |
-                        1036 |
-                        1037 |
-                        1038 |
-                        1039 |
-                        1040 |
-                        1041 |
-                        1042 => { // RX IQ samples
+                        1035..=1042 => { // RX IQ samples
                             let ddc = (src.port()-1035) as usize;
                             let mut r = radio_mutex.radio.lock().unwrap();
 
@@ -232,25 +222,25 @@ impl Protocol2 {
                                     } else {
                                         i_sample = u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
                                     }
-                                    b = b + 3;
+                                    b += 3;
                                     if buffer[b] & 0x80 != 0 {
                                         q_sample = u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
                                     } else {
                                         q_sample = u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
                                     }
-                                    b = b + 3;
+                                    b += 3;
 
                                     let i = r.receiver[ddc].samples*2;
                                     r.receiver[ddc].iq_input_buffer[i]=i_sample as f64/16777215.0;
                                     r.receiver[ddc].iq_input_buffer[i+1]=q_sample as f64/16777215.0;
-                                    r.receiver[ddc].samples = r.receiver[ddc].samples+1;
+                                    r.receiver[ddc].samples += 1;
                                     if r.receiver[ddc].samples >= r.receiver[ddc].buffer_size {
                                         r.receiver[ddc].process_iq_samples();
                                         r.receiver[ddc].samples = 0;
                                         for i in 0..r.receiver[ddc].output_samples {
                                             let ix = i * 2;
                                             let left_sample: i32 = (r.receiver[ddc].audio_buffer[ix] * 32767.0) as i32;
-                                            let mut right_sample: i32 = (r.receiver[ddc].audio_buffer[ix+1] * 32767.0) as i32;
+                                            let right_sample: i32 = (r.receiver[ddc].audio_buffer[ix+1] * 32767.0) as i32;
                                             let rox = r.receiver[ddc].remote_audio_buffer_offset;
 
                                             // always stereo to radio
@@ -287,7 +277,7 @@ impl Protocol2 {
                                             }
                                             */
 
-                                            r.receiver[ddc].remote_audio_buffer_offset = r.receiver[ddc].remote_audio_buffer_offset + 4;
+                                            r.receiver[ddc].remote_audio_buffer_offset += 4;
                                             if r.receiver[ddc].remote_audio_buffer_offset >= r.receiver[ddc].remote_audio_buffer_size {
                                                 if r.receiver[ddc].active {
                                                     self.send_audio(r.receiver[ddc].clone());
@@ -315,7 +305,7 @@ impl Protocol2 {
                                                         r.receiver[ddc].local_audio_buffer[lox+1]=0;
                                                     },
                                                 }
-                                                r.receiver[ddc].local_audio_buffer_offset = r.receiver[ddc].local_audio_buffer_offset + 1;
+                                                r.receiver[ddc].local_audio_buffer_offset += 1;
                                                 if r.receiver[ddc].local_audio_buffer_offset == r.receiver[ddc].local_audio_buffer_size {
                                                     r.receiver[ddc].local_audio_buffer_offset = 0;
                                                     let buffer_clone = r.receiver[ddc].local_audio_buffer.clone();
@@ -359,7 +349,7 @@ impl Protocol2 {
         let x = r.transmitter.microphone_samples * 2;
         r.transmitter.microphone_buffer[x] = sample;
         r.transmitter.microphone_buffer[x+1] = 0.0;
-        r.transmitter.microphone_samples = r.transmitter.microphone_samples + 1;
+        r.transmitter.microphone_samples += 1;
         if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
             r.transmitter.process_mic_samples();
             r.transmitter.microphone_samples = 0;
@@ -409,7 +399,7 @@ impl Protocol2 {
     
         buf[4] = 0x01; // running
         if r.is_transmitting() {
-            buf[4] = buf[4] | 0x02;
+            buf[4] |= 0x02;
         }
     
         // receiver frequency
@@ -419,9 +409,9 @@ impl Protocol2 {
             // convert frequency to phase
             f = r.receiver[i as usize].frequency;
             if r.receiver[i as usize].mode == Modes::CWL.to_usize() {
-                 f = f + r.receiver[i as usize].cw_pitch;
+                 f += r.receiver[i as usize].cw_pitch;
             } else if r.receiver[i as usize].mode == Modes::CWU.to_usize() {
-                 f = f - r.receiver[i as usize].cw_pitch;
+                 f -= r.receiver[i as usize].cw_pitch;
             }
 
             phase = ((4294967296.0*f)/122880000.0) as u32;
@@ -439,9 +429,9 @@ impl Protocol2 {
                 f = r.receiver[1].ctun_frequency;
             }
             if r.receiver[1].mode == Modes::CWL.to_usize() {
-                 f = f + r.receiver[1].cw_pitch;
+                 f += r.receiver[1].cw_pitch;
             } else if r.receiver[1].mode == Modes::CWU.to_usize() {
-                 f = f - r.receiver[1].cw_pitch;
+                 f -= r.receiver[1].cw_pitch;
             }
         } else {
             f = r.receiver[0].frequency;
@@ -449,9 +439,9 @@ impl Protocol2 {
                 f = r.receiver[0].ctun_frequency;
             }
             if r.receiver[0].mode == Modes::CWL.to_usize() {
-                 f = f + r.receiver[0].cw_pitch;
+                 f += r.receiver[0].cw_pitch;
             } else if r.receiver[0].mode == Modes::CWU.to_usize() {
-                 f = f - r.receiver[0].cw_pitch;
+                 f -= r.receiver[0].cw_pitch;
             }
         }
         phase = ((4294967296.0*f)/122880000.0) as u32;
@@ -532,23 +522,20 @@ impl Protocol2 {
             } else {
                 filter |= LPF_160; // 160M
             }
+        } else if f > 35600000.0 {
+            filter |= 0x08;
+        } else if f > 24000000.0 {
+            filter |= 0x04;
+        } else if f > 16500000.0 {
+            filter |= 0x02;
+        } else if f > 8000000.0 {
+            filter |= 0x10;
+        } else if f > 5000000.0 {
+            filter |= 0x20;
+        } else if f > 2500000.0 {
+            filter |= 0x40;
         } else {
-            if f > 35600000.0 {
-                filter |= 0x08;
-            } else if f > 24000000.0 {
-                filter |= 0x04;
-            } else if f > 16500000.0 {
-                filter |= 0x02;
-            } else if f > 8000000.0 {
-                filter |= 0x10;
-            } else if f > 5000000.0 {
-                filter |= 0x20;
-            } else if f > 2500000.0 {
-                filter |= 0x40;
-            } else {
-                filter |= 0x40;
-            }
-
+            filter |= 0x40;
         }
 
         
@@ -575,22 +562,20 @@ impl Protocol2 {
             } else {
                 filter1 |= PREAMP_6M;
             }
+        } else if f < 1500000.0 {
+            filter1 |= 0x1000;
+        } else if f < 2100000.0 {
+            filter1 |= 0x40;
+        } else if f < 5500000.0 {
+            filter1 |= 0x20;
+        } else if f < 11000000.0 {
+            filter1 |= 0x10;
+        } else if f < 22000000.0 {
+            filter1 |= 0x02;
+        } else if f < 35000000.0 {
+            filter1 |= 0x04;
         } else {
-            if f < 1500000.0 {
-                filter1 |= 0x1000;
-            } else if f < 2100000.0 {
-                filter1 |= 0x40;
-            } else if f < 5500000.0 {
-                filter1 |= 0x20;
-            } else if f < 11000000.0 {
-                filter1 |= 0x10;
-            } else if f < 22000000.0 {
-                filter1 |= 0x02;
-            } else if f < 35000000.0 {
-                filter1 |= 0x04;
-            } else {
-                filter1 |= 0x08;
-            }
+            filter1 |= 0x08;
         }
 
         buf[1430] = ((filter1>>8)&0xFF) as u8;
@@ -734,7 +719,7 @@ impl Protocol2 {
         // send 240 24 bit I/Q samples
         let mut b = 4;
         for x in 0..IQ_BUFFER_SIZE {
-            let mut ix = x * 2;
+            let ix = x * 2;
             let mut isample = buffer[ix] * 8388607.0;
             if isample>=0.0 {
                 isample = (isample + 0.5).floor();
@@ -751,14 +736,14 @@ impl Protocol2 {
             let i = isample as i32;
             let q = qsample as i32;
 
-            buf[b]=(i >> 16) as u8 &0xFF;
-            buf[b+1]=(i >> 8) as u8 &0xFF;
-            buf[b+2]=i as u8 &0xFF;
-            buf[b+3]=(q >> 16) as u8 &0xFF;
-            buf[b+4]=(q >> 8) as u8 &0xFF;
-            buf[b+5]=q as u8 &0xFF;
+            buf[b]=(i >> 16) as u8;
+            buf[b+1]=(i >> 8) as u8;
+            buf[b+2]=i as u8;
+            buf[b+3]=(q >> 16) as u8;
+            buf[b+4]=(q >> 8) as u8;
+            buf[b+5]=q as u8;
 
-            b = b + 6;
+            b += 6;
         }
 
         self.device.address.set_port(1029);
