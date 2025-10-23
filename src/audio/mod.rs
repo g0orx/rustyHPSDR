@@ -30,14 +30,8 @@ unsafe impl Send for Audio {}
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Audio {
-    pub remote_input: bool,
-    pub local_input: bool,
-    pub input_device: String,
     #[serde(skip_serializing, skip_deserializing)]
     input_stream: Option<Stream>,
-    pub remote_output: bool,
-    pub local_output: bool,
-    pub output_device: String,
     #[serde(skip_serializing, skip_deserializing)]
     output_stream: Option<Stream>,
     #[serde(skip_serializing, skip_deserializing)]
@@ -51,25 +45,13 @@ pub struct Audio {
 impl Audio {
 
     pub fn new() -> Audio {
-        let remote_input = true;
-        let local_input = false;
-        let input_device = String::from("default");
         let input_stream = None;
-        let remote_output = true;
-        let local_output = false;
-        let output_device = String::from("default");
         let output_stream = None;
         let output_underruns = 0;
         let input_buffer = None;
         let output_buffer = None;
         Audio {
-            remote_input,
-            local_input,
-            input_device,
             input_stream,
-            remote_output,
-            local_output,
-            output_device,
             output_stream,
             output_underruns,
             input_buffer,
@@ -82,25 +64,18 @@ impl Audio {
         self.input_stream = None;
         self.output_stream = None;
         self.output_underruns = 0;
-
-        if self.local_input {
-            let _ = self.open_input();
-        }
-        if self.local_output {
-            let _ = self.open_output();
-        }
     }
 
-    pub fn open_input(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn open_input(&mut self, device_name: &String) -> Result<(), Box<dyn std::error::Error>> {
         println!("audio::open_input");
         let host = cpal::default_host();
 
         // Find the input device
-        let device = if self.input_device == "default" {
+        let device = if device_name == "default" {
             host.default_input_device()
         } else {
             host.input_devices()?
-                .find(|d| d.name().map(|n| n == self.input_device).unwrap_or(false))
+                .find(|d| d.name().map(|n| n == *device_name).unwrap_or(false))
         }
         .ok_or("No input device found")?;
 
@@ -152,16 +127,16 @@ impl Audio {
         Ok(())
     }
 
-    pub fn open_output(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn open_output(&mut self, device_name: &String) -> Result<(), Box<dyn std::error::Error>> {
         println!("audio::open_output");
         let host = cpal::default_host();
 
         // Find the output device
-        let device = if self.output_device == "default" {
+        let device = if device_name == "default" {
             host.default_output_device()
         } else {
             host.output_devices()?
-                .find(|d| d.name().map(|n| n == self.output_device).unwrap_or(false))
+                .find(|d| d.name().map(|n| n == *device_name).unwrap_or(false))
         }
         .ok_or("No output device found")?;
 
@@ -174,7 +149,8 @@ impl Audio {
         let mut stream_config: StreamConfig = config.clone().into();
         stream_config.channels = 2;
         stream_config.sample_rate = SampleRate(48000);
-        let (prod, mut cons) = HeapRb::new(4800).split();
+        //let (prod, mut cons) = HeapRb::new(4800).split();
+        let (prod, mut cons) = HeapRb::new(9600).split();
         self.output_buffer = Some(prod);
 
         let stream = device.build_output_stream(

@@ -13,6 +13,12 @@
   color: Lime;
   min-width: 180px;
 }
+.vfo-tx-label {
+  font-family: FreeSans;
+  font-size: 40px;
+  color: Red;
+  min-width: 180px;
+}
 .tx-power {
   font-family: FreeSans;
   font-size: 25px;

@@ -28,74 +28,6 @@
     <child>
       <object class="GtkNotebook" id="notebook">
       
-        <!-- Audio -->
-        <child>
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
-            <property name="margin-top">5</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-end">5</property>
-            <child>
-              <object class="GtkFrame">
-                <property name="label">Audio Input</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">horizontal</property>
-                        <child>
-                          <object class="GtkCheckButton" id="local_input_check_button">
-                            <property name="label">Enable Local Mic Input Device:</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="input_combo_box">
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame">
-                <property name="label">Audio Output</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkCheckButton" id="remote_output_check_button">
-                        <property name="label">Enable Remote Output to Radio</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">horizontal</property>
-                        <child>
-                          <object class="GtkCheckButton" id="local_output_check_button">
-                            <property name="label">Enable Local Output Device:</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="output_combo_box">
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child type="tab">
-          <object class="GtkLabel" id="audio_label">
-            <property name="label">Audio</property>
-          </object>
-        </child>
         
         <!-- Display -->
         <child>
@@ -148,6 +80,46 @@
         <child type="tab">
           <object class="GtkLabel" id="display_label">
             <property name="label">Display</property>
+          </object>
+        </child>
+
+        <!-- Microphone -->
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <child>
+              <object class="GtkFrame">
+                <property name="label">Audio Input</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkCheckButton" id="local_input_check_button">
+                            <property name="label">Enable Local Mic Input Device:</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkDropDown" id="input_dropdown">
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="audio_label">
+            <property name="label">Microphone</property>
           </object>
         </child>
 
@@ -1155,149 +1127,179 @@
             <child>
               <object class="GtkFrame">
                 <property name="label">RX1</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">horizontal</property>
                 <child>
-                  <object class="GtkFrame" id="rx0_adc_frame">
-                    <property name="label">ADC</property>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox">
-                      <property name="orientation">horizontal</property>
+                      <object class="GtkFrame" id="rx0_adc_frame">
+                        <property name="label">ADC</property>
                         <child>
-                          <object class="GtkSpinButton" id="rx0_adc_spinbutton">
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="rx0_adc_adjustment">
-                                <property name="lower">0</property>
-                                <property name="upper">1</property>
-                                <property name="step-increment">1</property>
+                          <object class="GtkBox">
+                          <property name="orientation">horizontal</property>
+                            <child>
+                              <object class="GtkSpinButton" id="rx0_adc_spinbutton">
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="rx0_adc_adjustment">
+                                    <property name="lower">0</property>
+                                    <property name="upper">1</property>
+                                    <property name="step-increment">1</property>
+                                  </object>
+                                </property>
                               </object>
-                            </property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkDropDown" id="rx0_sample_rate_dropdown">
-                            <property name="model">
-                            <object class="GtkStringList">
-                            <items>
-                              <item>48000</item>
-                              <item>96000</item>
-                              <item>192000</item>
-                              <item>384000</item>
-                              <item>768000</item>
-                              <item>1536000</item>
-                            </items>
-                            </object>
-                            </property>
-                            <property name="selected">3</property>
+                            </child>
+                            <child>
+                              <object class="GtkDropDown" id="rx0_sample_rate_dropdown">
+                                <property name="model">
+                                <object class="GtkStringList">
+                                <items>
+                                  <item>48000</item>
+                                  <item>96000</item>
+                                  <item>192000</item>
+                                  <item>384000</item>
+                                  <item>768000</item>
+                                  <item>1536000</item>
+                                </items>
+                                </object>
+                                </property>
+                                <property name="selected">3</property>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame">
-                    <property name="label">Audio</property>
                     <child>
-                      <object class="GtkBox">
-                        <property name="orientation">horizontal</property>
+                      <object class="GtkFrame">
+                        <property name="label">Audio</property>
                         <child>
-                          <object class="GtkDropDown" id="rx0_audio_dropdown">
-                            <property name="model">
-                            <object class="GtkStringList">
-                            <items>
-                              <item>Stereo</item>
-                              <item>Left</item>
-                              <item>Right</item>
-                              <item>Mute</item>
-                            </items>
-                            </object>
-                            </property>
-                            <property name="selected">0</property>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <child>
+                              <object class="GtkDropDown" id="rx0_audio_dropdown">
+                                <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                    <item>Stereo</item>
+                                    <item>Left</item>
+                                    <item>Right</item>
+                                    <item>Mute</item>
+                                  </items>
+                                </object>
+                                </property>
+                                <property name="selected">0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="rx0_remote_output_check_button">
+                                <property name="label">Enable Remote Output to Radio</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="rx0_local_output_check_button">
+                                <property name="label">Enable Local Output Device:</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkDropDown" id="rx0_output_dropdown">
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>
                     </child>
                   </object>
                 </child>
-                    </object>
-                    </child>
               </object>
             </child>
+
             <child>
               <object class="GtkFrame">
                 <property name="label">RX2</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">horizontal</property>
                 <child>
-                  <object class="GtkFrame" id="rx1_adc_frame">
-                    <property name="label">ADC</property>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox">
-                      <property name="orientation">horizontal</property>
+                      <object class="GtkFrame" id="rx1_adc_frame">
+                        <property name="label">ADC</property>
                         <child>
-                          <object class="GtkSpinButton" id="rx1_adc_spinbutton">
-                            <property name="adjustment">
-                            <object class="GtkAdjustment" id="rx1_adc_adjustment">
-                              <property name="lower">0</property>
-                              <property name="upper">1</property>
-                              <property name="step-increment">1</property>
-                            </object>
-                          </property>
+                          <object class="GtkBox">
+                          <property name="orientation">horizontal</property>
+                            <child>
+                              <object class="GtkSpinButton" id="rx1_adc_spinbutton">
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="rx1_adc_adjustment">
+                                    <property name="lower">0</property>
+                                    <property name="upper">1</property>
+                                    <property name="step-increment">1</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkDropDown" id="rx1_sample_rate_dropdown">
+                                <property name="model">
+                                <object class="GtkStringList">
+                                <items>
+                                  <item>48000</item>
+                                  <item>96000</item>
+                                  <item>192000</item>
+                                  <item>384000</item>
+                                  <item>768000</item>
+                                  <item>1536000</item>
+                                </items>
+                                </object>
+                                </property>
+                                <property name="selected">3</property>
+                              </object>
+                            </child>
                           </object>
                         </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame">
+                        <property name="label">Audio</property>
                         <child>
-                          <object class="GtkDropDown" id="rx1_sample_rate_dropdown">
-                            <property name="model">
-                            <object class="GtkStringList">
-                            <items>
-                              <item>48000</item>
-                              <item>96000</item>
-                              <item>192000</item>
-                              <item>384000</item>
-                              <item>768000</item>
-                              <item>1536000</item>
-                            </items>
-                            </object>
-                            </property>
-                            <property name="selected">3</property>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <child>
+                              <object class="GtkDropDown" id="rx1_audio_dropdown">
+                                <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                    <item>Stereo</item>
+                                    <item>Left</item>
+                                    <item>Right</item>
+                                    <item>Mute</item>
+                                  </items>
+                                </object>
+                                </property>
+                                <property name="selected">0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="rx1_remote_output_check_button">
+                                <property name="label">Enable Remote Output to Radio</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="rx1_local_output_check_button">
+                                <property name="label">Enable Local Output Device:</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkDropDown" id="rx1_output_dropdown">
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>
                     </child>
                   </object>
                 </child>
-                <child>
-                  <object class="GtkFrame">
-                    <property name="label">Audio</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">horizontal</property>
-                        <child>
-                          <object class="GtkDropDown" id="rx1_audio_dropdown">
-                            <property name="model">
-                            <object class="GtkStringList">
-                            <items>
-                              <item>Stereo</item>
-                              <item>Left</item>
-                              <item>Right</item>
-                              <item>Mute</item>
-                            </items>
-                            </object>
-                            </property>
-                            <property name="selected">0</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                    </object>
-                  </child>
               </object>
             </child>
+
           </object>
         </child>
         <child type="tab">

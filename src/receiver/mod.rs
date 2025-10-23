@@ -114,7 +114,6 @@ pub struct Receiver {
 #[serde(skip_serializing, skip_deserializing)]
     pub iq_input_buffer: Vec<f64>,
     pub samples: usize,
-    pub local_output: bool,
     pub audio_output: AudioOutput,
 #[serde(skip_serializing, skip_deserializing)]
     pub audio_buffer: Vec<f64>,
@@ -143,6 +142,13 @@ pub struct Receiver {
     pub spectrum_average_time: f32,
     pub waterfall_average_time: f32,
     pub band_info: Vec<BandInfo>,
+
+    pub remote_output: bool,
+    pub local_output: bool,
+    pub output_device: String,
+
+    pub local_output_changed: bool,
+    pub local_output_device_changed: bool,
 
 }
 
@@ -202,7 +208,6 @@ impl Receiver {
         let filter = Filters::F6.to_usize(); // 2.4k
         let iq_input_buffer = vec![0.0; (buffer_size * 2) as usize];
         let samples: usize = 0;
-        let local_output: bool = false;
         let audio_output: AudioOutput = AudioOutput::Stereo;
         let audio_buffer = vec![0.0; (output_samples * 2) as usize];
         let local_audio_buffer_size: usize = 2048;
@@ -226,6 +231,11 @@ impl Receiver {
         let waterfall_average_time: f32 = DEFAULT_WATERFALL_AVERAGE_TIME;
         let band_info = BandInfo::new();
 
+        let remote_output = true;
+        let local_output = false;
+        let output_device = String::from("default");
+        let local_output_changed = false;
+        let local_output_device_changed = false;
 
         let rx = Receiver { protocol,
                             channel,
@@ -280,7 +290,6 @@ impl Receiver {
                             filter,
                             iq_input_buffer,
                             samples,
-                            local_output,
                             audio_output,
                             audio_buffer,
                             local_audio_buffer_size,
@@ -302,6 +311,12 @@ impl Receiver {
                             spectrum_average_time,
                             waterfall_average_time,
                             band_info,
+                            remote_output,
+                            local_output,
+                            output_device,
+                            local_output_changed,
+                            local_output_device_changed,
+
         };
 
         rx

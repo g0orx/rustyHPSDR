@@ -75,6 +75,10 @@ pub struct Transmitter {
     pub pa_calibration: Vec<f32>,
     pub c1: f32,
     pub c2: f32,
+    pub remote_input: bool,
+    pub local_input: bool,
+    pub input_device: String,
+    pub local_input_device_changed: bool,
 }
 
 impl Transmitter {
@@ -180,6 +184,10 @@ impl Transmitter {
                 c2 = 0.09;
             },
         }
+        let remote_input = true;
+        let local_input = false;
+        let input_device = String::from("default");
+        let local_input_device_changed = false;
 
 
         let tx = Transmitter{ protocol,
@@ -220,6 +228,10 @@ impl Transmitter {
             pa_calibration,
             c1,
             c2,
+            remote_input,
+            local_input,
+            input_device,
+            local_input_device_changed,
         };
 
         tx

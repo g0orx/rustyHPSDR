@@ -18,11 +18,14 @@
 use nix::sys::socket::setsockopt;
 use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
 use std::net::{UdpSocket};
+use std::os::raw::c_int;
 
+use crate::audio::Audio;
 use crate::receiver::AudioOutput;
 use crate::discovery::Device;
 use crate::modes::Modes;
 use crate::radio::RadioMutex;
+use crate::wdsp::*;
 
 const OZY_BUFFER_SIZE: usize = 512;
 const METIS_BUFFER_SIZE: usize = (OZY_BUFFER_SIZE * 2) + 8;
@@ -45,6 +48,8 @@ pub struct Protocol1 {
     ozy_command: u8,
     metis_buffer: Vec<u8>,
     metis_buffer_offset: usize,
+    rx_audio: Vec<Audio>,
+    tx_audio: Audio,
 }
 
 impl Protocol1 {
@@ -69,6 +74,12 @@ impl Protocol1 {
         let metis_buffer: Vec<u8> = vec![0; METIS_BUFFER_SIZE];
         let metis_buffer_offset: usize = 8;
 
+        let mut rx_audio: Vec<Audio> = Vec::new();
+        for _i in 0..receivers {
+            rx_audio.push(Audio::new());
+        }
+        let tx_audio: Audio = Audio::new();
+
         let p1 = Protocol1{device,
                            socket,
                            receive_sequence,
@@ -85,12 +96,24 @@ impl Protocol1 {
                            ozy_command,
                            metis_buffer,
                            metis_buffer_offset,
+                           rx_audio,
+                           tx_audio,
                           };
 
         p1
     }
 
     pub fn run(&mut self, radio_mutex: &RadioMutex) {
+
+        // setup local audio nput and output if configured
+        let mut r = radio_mutex.radio.lock().unwrap();
+        if r.receiver[0].local_output {
+            self.rx_audio[0].open_output(&r.receiver[0].output_device);
+        }
+        if r.receiver[1].local_output {
+            self.rx_audio[1].open_output(&r.receiver[1].output_device);
+        }
+        drop(r);
 
         // start the radio running
         loop {
@@ -149,9 +172,21 @@ impl Protocol1 {
                     eprintln!("Error receiving UDP packet: {}", e);
                 }
             }
+
+            // check for any changes that we need to handle here
             let mut r = radio_mutex.radio.lock().unwrap();
             let sample_rate_changed = r.sample_rate_changed;
             r.sample_rate_changed = false;
+            let rx1_local_output_changed = r.receiver[0].local_output_changed;
+            let rx1_local_output = r.receiver[0].local_output;
+            let rx1_local_output_device_changed = r.receiver[0].local_output_device_changed;
+            let rx1_output_device = r.receiver[0].output_device.clone();
+            r.receiver[0].local_output_changed = false;
+            r.receiver[0].local_output_device_changed = false;
+            let rx2_local_output_changed = r.receiver[1].local_output_changed;
+            let rx2_local_output = r.receiver[1].local_output;
+            let rx2_output_device = r.receiver[1].output_device.clone();
+            r.receiver[1].local_output_changed = false;
             drop(r);
             if sample_rate_changed {
                 self.metis_stop();
@@ -159,6 +194,26 @@ impl Protocol1 {
                 // transmitter change mic sample rate
                 self.metis_start();
                 // PS set sample rate
+            }
+            if rx1_local_output_changed {
+                if rx1_local_output {
+                    self.rx_audio[0].open_output(&rx1_output_device);
+                } else {
+                    self.rx_audio[0].close_output();
+                }
+            }
+            if rx1_local_output_device_changed {
+                if rx1_local_output {
+                    self.rx_audio[0].close_output();
+                    self.rx_audio[0].open_output(&rx1_output_device);
+                }
+            }
+            if rx2_local_output_changed {
+                if rx2_local_output {
+                    self.rx_audio[1].open_output(&rx2_output_device);
+                } else {
+                    self.rx_audio[1].close_output();
+                }
             }
         }
     }
@@ -272,6 +327,26 @@ impl Protocol1 {
                 }
             }
             // MIC Audio samples
+            /*
+            if r.audio[0].local_input & !r.tune {
+                let mic_buffer = r.audio[0].read_input();
+                if mic_buffer.len() != 0 {
+                    eprintln!("mic samples {}", mic_buffer.len());
+                    for i in 0..mic_buffer.len() {
+                        let x = r.transmitter.microphone_samples * 2;
+                        r.transmitter.microphone_buffer[x] = mic_buffer[i] as f64 / 32768.0;
+                        r.transmitter.microphone_buffer[x+1] = 0.0;
+                        r.transmitter.microphone_samples += 1;
+                        if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
+                            r.transmitter.process_mic_samples();
+                            r.transmitter.microphone_samples = 0;
+                            process_tx_iq = true;
+                        }
+                    }
+                }
+            } else {
+            */
+            if !r.transmitter.local_input || r.tune {
             if buffer[b] & 0x80 != 0 {
                 mic_sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as i32;
             } else {
@@ -295,11 +370,15 @@ impl Protocol1 {
                     process_tx_iq = true;
                 }
             }
+            }
+            /*
+            }
+            */
         }
 
         // full RX audio buffers
         let output_samples = r.receiver[0].output_samples;
-        // check each receiver has same output samples
+        // check each receiver has same output samples?
         if process_rx_audio {
             if !r.is_transmitting() {
                 for i in 0..output_samples {
@@ -337,7 +416,7 @@ impl Protocol1 {
                             right_sample = i16::MIN as i32;
                         }
 
-                        if r.audio[rx as usize].local_output {
+                        if r.receiver[rx as usize].local_output {
                             let lox=r.receiver[rx as usize].local_audio_buffer_offset * 2;
                             match r.receiver[rx as usize].audio_output {
                                 AudioOutput::Stereo => {
@@ -361,7 +440,7 @@ impl Protocol1 {
                             if r.receiver[rx as usize].local_audio_buffer_offset == r.receiver[rx as usize].local_audio_buffer_size {
                                 r.receiver[rx as usize].local_audio_buffer_offset = 0;
                                 let buffer_clone = r.receiver[rx as usize].local_audio_buffer.clone();
-                                r.audio[rx as usize].write_output(&buffer_clone);
+                                self.rx_audio[rx as usize].write_output(&buffer_clone);
                             }
                         }
                         }
@@ -463,7 +542,7 @@ impl Protocol1 {
              frequency_b = frequency_b - r.receiver[1].cw_pitch;
         }
 
-        let attenuation = r.adc[rx as usize].attenuation;
+        let mut attenuation = r.adc[rx as usize].attenuation;
 
         if self.metis_buffer_offset == 8 {
             c0 = 0x00;
@@ -535,7 +614,7 @@ impl Protocol1 {
                         let power = r.transmitter.drive;
 
                         let mut target_dbm = 10.0 * ((power * 1000.0).log10());
-                        let gbb = r.transmitter.pa_calibration[b];
+                        let mut gbb = r.transmitter.pa_calibration[b];
                         target_dbm = target_dbm - gbb;
                         let target_volts = (10.0_f32.powf(target_dbm * 0.1) * 0.05).sqrt();
                         let volts=(target_volts / 0.8).min(1.0);

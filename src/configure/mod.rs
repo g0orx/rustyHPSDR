@@ -16,7 +16,7 @@
 */
 
 use gtk::prelude::*;
-use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, ComboBoxText, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, ToggleButton, Window};
+use gtk::{Adjustment, ApplicationWindow, Box, Builder, Button, CheckButton, ComboBoxText, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
 
 use crate::bands::Bands;
 use crate::radio::{Keyer, RadioModels, RadioMutex};
@@ -37,14 +37,16 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     
     // AUDIO
     let r = radio_mutex.radio.lock().unwrap();
-        let local_input = r.audio[0].local_input;
-        let input_device = r.audio[0].input_device.clone();
-        let remote_output1 = r.audio[0].remote_output;
-        let local_output1 = r.audio[0].local_output;
-        let output_device1 = r.audio[0].output_device.clone();
-        let remote_output2 = r.audio[1].remote_output;
-        let local_output2 = r.audio[1].local_output;
-        let output_device2 = r.audio[1].output_device.clone();
+        let remote_output1 = r.receiver[0].remote_output;
+        let local_output1 = r.receiver[0].local_output;
+        let output_device1 = r.receiver[0].output_device.clone();
+
+        let remote_output2 = r.receiver[1].remote_output;
+        let local_output2 = r.receiver[1].local_output;
+        let output_device2 = r.receiver[1].output_device.clone();
+
+        let input_device = r.transmitter.input_device.clone();
+        let local_input = r.transmitter.local_input;
     drop(r);
 
     let input_devices = Audio::list_pcm_devices(true);
@@ -71,86 +73,134 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
         let is_active = button.is_active();
         let mut r = radio_mutex_clone.radio.lock().unwrap();
         if is_active {
-            r.audio[0].open_input();
+            //r.transmitter.audio.open_input();
+        } else {
+            //r.transmitter.audio.close_input();
         }
-        r.audio[0].local_input = is_active;
+        r.transmitter.local_input = is_active;
     });
 
-    let input_combo_box: ComboBoxText = builder
-            .object("input_combo_box")
-            .expect("Could not get object `input_combo_box` from builder.");
+    let input_dropdown: DropDown = builder
+            .object("input_dropdown")
+            .expect("Could not get object `input_dropdown` from builder.");
+    let string_list_model = StringList::new(&[]);
+
+    input_dropdown.set_model(Some(&string_list_model));
+
     for i in 0..input_devices.len() {
-        input_combo_box.append_text(&input_devices[i]);
+        string_list_model.append(&input_devices[i]);
         if input_devices[i] == input_device {
-            input_combo_box.set_active(Some(i as u32));
+            input_dropdown.set_selected(i as u32);
         }
     }
+
     let radio_mutex_clone = radio_mutex.clone();
-    input_combo_box.connect_changed(move |combo_box| {
-        let input = combo_box.active_text();
-        if let Some(input_string) = input {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.audio[0].input_device = input_string.to_string();
+    input_dropdown.connect_selected_notify(move |dropdown| {
+        let i = dropdown.selected();
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.transmitter.input_device = input_devices[i as usize].clone();
+        if r.transmitter.local_input {
+            r.transmitter.local_input_device_changed = true;
         }
     });
 
     let output_devices = Audio::list_pcm_devices(false);
 
-    let remote_output_check_button: CheckButton = builder
-            .object("remote_output_check_button")
-            .expect("Could not get object `remote_output_check_button` from builder.");
-    remote_output_check_button.set_active(remote_output1);
+    let rx0_remote_output_check_button: CheckButton = builder
+            .object("rx0_remote_output_check_button")
+            .expect("Could not get object `rx0_remote_output_check_button` from builder.");
+    rx0_remote_output_check_button.set_active(remote_output1);
     let radio_mutex_clone = radio_mutex.clone();
-    remote_output_check_button.connect_toggled(move |button| {
+    rx0_remote_output_check_button.connect_toggled(move |button| {
         let is_active = button.is_active();
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        r.audio[0].remote_output = is_active;
-        r.audio[1].remote_output = is_active;
+        r.receiver[0].remote_output = is_active;
     });
 
-    let local_output_check_button: CheckButton = builder
-            .object("local_output_check_button")
-            .expect("Could not get object `local_output_check_button` from builder.");
-    local_output_check_button.set_active(local_output1);
+    let rx0_local_output_check_button: CheckButton = builder
+            .object("rx0_local_output_check_button")
+            .expect("Could not get object `rx0_local_output_check_button` from builder.");
+    rx0_local_output_check_button.set_active(local_output1);
     let radio_mutex_clone = radio_mutex.clone();
-    local_output_check_button.connect_toggled(move |button| {
+    rx0_local_output_check_button.connect_toggled(move |button| {
         let is_active = button.is_active();
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        r.audio[0].local_output = is_active;
-        r.audio[1].local_output = is_active;
-        if is_active {
-            r.audio[0].open_output();
-            r.audio[1].open_output();
-        } else {
-            r.audio[0].close_output();
-            r.audio[1].close_output();
-        }
+        r.receiver[0].local_output = is_active;
+        r.receiver[0].local_output_changed = true;
     });
 
-    let output_combo_box: ComboBoxText = builder
-            .object("output_combo_box")
-            .expect("Could not get object `output_combo_box` from builder.");
+    let rx0_output_dropdown: DropDown = builder
+            .object("rx0_output_dropdown")
+            .expect("Could not get object `rx0_output_dropdown` from builder.");
+    // populate the output devices
+    let string_list_model = StringList::new(&[]);
+
+    rx0_output_dropdown.set_model(Some(&string_list_model));
+
     for i in 0..output_devices.len() {
-        output_combo_box.append_text(&output_devices[i]);
+        string_list_model.append(&output_devices[i]);
         if output_devices[i] == output_device1 {
-            output_combo_box.set_active(Some(i as u32));
+            rx0_output_dropdown.set_selected(i as u32);
         }
     }
+
     let radio_mutex_clone = radio_mutex.clone();
-    output_combo_box.connect_changed(move |combo_box| {
-        let output = combo_box.active_text();
-        if let Some(output_string) = output {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            if r.audio[0].local_output {
-                r.audio[0].close_output();
-                r.audio[1].close_output();
-            }
-            r.audio[0].output_device = output_string.to_string();
-            r.audio[1].output_device = output_string.to_string();
-            if r.audio[0].local_output {
-                r.audio[0].open_output();
-                r.audio[1].open_output();
-            }
+    let output_devices_clone = output_devices.clone();
+    rx0_output_dropdown.connect_selected_notify(move |dropdown| {
+        let i = dropdown.selected();
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].output_device = output_devices_clone[i as usize].clone();
+        if r.receiver[0].local_output {
+            r.receiver[0].local_output_device_changed = true;
+        }
+     });
+
+    let rx1_remote_output_check_button: CheckButton = builder
+            .object("rx1_remote_output_check_button")
+            .expect("Could not get object `rx1_remote_output_check_button` from builder.");
+    rx1_remote_output_check_button.set_active(remote_output1);
+    let radio_mutex_clone = radio_mutex.clone();
+    rx1_remote_output_check_button.connect_toggled(move |button| {
+        let is_active = button.is_active();
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[1].remote_output = is_active;
+    });
+
+    let rx1_local_output_check_button: CheckButton = builder
+            .object("rx1_local_output_check_button")
+            .expect("Could not get object `rx1_local_output_check_button` from builder.");
+    rx1_local_output_check_button.set_active(local_output1);
+    let radio_mutex_clone = radio_mutex.clone();
+    rx1_local_output_check_button.connect_toggled(move |button| {
+        let is_active = button.is_active();
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[1].local_output = is_active;
+        r.receiver[1].local_output_changed = true;
+    });
+
+    let rx1_output_dropdown: DropDown = builder
+            .object("rx1_output_dropdown")
+            .expect("Could not get object `rx1_output_dropdown` from builder.");
+    // populate the output devices
+    let string_list_model = StringList::new(&[]);
+
+    rx1_output_dropdown.set_model(Some(&string_list_model));
+
+    for i in 1..output_devices.len() {
+        string_list_model.append(&output_devices[i]);
+        if output_devices[i] == output_device1 {
+            rx1_output_dropdown.set_selected(i as u32);
+        }
+    }
+
+    let radio_mutex_clone = radio_mutex.clone();
+    let output_devices_clone = output_devices.clone();
+    rx1_output_dropdown.connect_selected_notify(move |dropdown| {
+        let i = dropdown.selected();
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[1].output_device = output_devices_clone[i as usize].clone();
+        if r.receiver[1].local_output {
+            r.receiver[1].local_output_device_changed = true;
         }
      });
 
