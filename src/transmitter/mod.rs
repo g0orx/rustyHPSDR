@@ -77,8 +77,9 @@ pub struct Transmitter {
     pub c2: f32,
     pub remote_input: bool,
     pub local_input: bool,
+    pub local_input_changed: bool,
     pub input_device: String,
-    pub local_input_device_changed: bool,
+    pub input_device_changed: bool,
 }
 
 impl Transmitter {
@@ -186,8 +187,9 @@ impl Transmitter {
         }
         let remote_input = true;
         let local_input = false;
+        let local_input_changed = false;
         let input_device = String::from("default");
-        let local_input_device_changed = false;
+        let input_device_changed = false;
 
 
         let tx = Transmitter{ protocol,
@@ -230,8 +232,9 @@ impl Transmitter {
             c2,
             remote_input,
             local_input,
+            local_input_changed,
             input_device,
-            local_input_device_changed,
+            input_device_changed,
         };
 
         tx

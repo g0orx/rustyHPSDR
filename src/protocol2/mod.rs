@@ -21,12 +21,13 @@ use std::net::{UdpSocket};
 use std::os::raw::c_int;
 use std::sync::{Arc, Mutex};
 
+use crate::alex::*;
+use crate::audio::*;
 use crate::discovery::Device;
 use crate::modes::Modes;
-use crate::receiver::{AudioOutput, Receiver};
 use crate::radio::{Keyer, RadioMutex};
+use crate::receiver::{AudioOutput, Receiver};
 use crate::wdsp::*;
-use crate::alex::*;
 
 const HEADER_SIZE: usize  = 16;  // 16 byte header
 const SAMPLE_SIZE: usize = 3;    // 3 byte (24 bit) samples
@@ -69,10 +70,11 @@ const LPF_6: u32 =         0x20000000;
 const LPF_12_10: u32 =     0x40000000;
 const LPF_17_15: u32 =     0x80000000;
 
-#[derive(Debug)]
+//#[derive(Default)]
 pub struct Protocol2 {
     device: Device, 
     socket: UdpSocket,     
+    receivers: u8,
     general_sequence: u32,
     high_priority_sequence: u32,
     receive_specific_sequence: u32,
@@ -81,6 +83,8 @@ pub struct Protocol2 {
     tx_iq_sequence: u32,
     previous_filter: u32,
     previous_filter1: u32,
+    rx_audio: Vec<Audio>,
+    tx_audio: Audio,
 }   
 
 impl Protocol2 {
@@ -90,6 +94,7 @@ impl Protocol2 {
         setsockopt(&socket, ReusePort, &true).unwrap();
         setsockopt(&socket, ReuseAddr, &true).unwrap();
 
+        let receivers: u8 = 2;
         let general_sequence: u32 = 0;
         let high_priority_sequence: u32 = 0;
         let receive_specific_sequence: u32 = 0;
@@ -98,9 +103,15 @@ impl Protocol2 {
         let tx_iq_sequence: u32 = 0; 
         let previous_filter: u32 = 0;
         let previous_filter1: u32 = 0;
+        let mut rx_audio: Vec<Audio> = Vec::new();
+        for _i in 0..receivers {
+            rx_audio.push(Audio::new());
+        }
+        let tx_audio: Audio = Audio::new();
 
         let p2 = Protocol2{device,
                            socket,
+                           receivers,
                            general_sequence,
                            high_priority_sequence,
                            receive_specific_sequence,
@@ -109,6 +120,8 @@ impl Protocol2 {
                            tx_iq_sequence,
                            previous_filter,
                            previous_filter1,
+                           rx_audio,
+                           tx_audio,
         };
 
         p2
@@ -117,20 +130,23 @@ impl Protocol2 {
 
     pub fn run(&mut self, radio_mutex: &RadioMutex) {
         let r = radio_mutex.radio.lock().unwrap();
-        let mut buffer = vec![0; 65536];
-        let mut microphone_buffer: Vec<f64> = vec![0.0; (r.transmitter.microphone_buffer_size * 2) as usize];
-        let mut microphone_samples: usize = 0;
-        let mut microphone_iq_buffer: Vec<f64> = vec![0.0; (r.transmitter.output_samples * 2) as usize];
-        let mut microphone_iq_buffer_offset: usize = 0;
+        if r.receiver[0].local_output {
+            self.rx_audio[0].open_output(&r.receiver[0].output_device);
+        }
+        if r.receiver[1].local_output {
+            self.rx_audio[1].open_output(&r.receiver[1].output_device);
+        }
+        drop(r);
+
         let mut tx_iq_buffer: Vec<f64> = vec![0.0; IQ_BUFFER_SIZE*2];
         let mut tx_iq_buffer_offset: usize = 0;
-        drop(r);
 
         self.send_general();
         self.send_high_priority(radio_mutex);
         self.send_transmit_specific(radio_mutex);
         self.send_receive_specific(radio_mutex);
 
+        let mut buffer = vec![0; 2048];
         loop {
             match self.socket.recv_from(&mut buffer) {
                 Ok((size, src)) => {
@@ -163,23 +179,11 @@ impl Protocol2 {
                                 },
                         1026 => { // Mic/Line In Samples
                                 let data_size = MIC_SAMPLES * MIC_SAMPLE_SIZE;
-                                let mut iq_buffer = false;
                                 let mut r = radio_mutex.radio.lock().unwrap();
-                                /*
-                                if r.audio[0].local_input  & !r.tune {
-                                    let mic_buffer = r.audio[0].read_input();
-                                    eprintln!("mic_buffer read {}", mic_buffer.len());
-                                    drop(r);
-                                    for i in 0..mic_buffer.len() {
-                                        iq_buffer = self.microphone_sample(mic_buffer[i] as f64 / 32768.0, radio_mutex);
-                                    }
-                                    r = radio_mutex.radio.lock().unwrap();
-                                } else {
-                                */
+                                if !r.transmitter.local_input  || r.tune {
                                     let mut sample:f64 = 0.0;
                                     let mut b = MIC_HEADER_SIZE;
                                     if size >= MIC_HEADER_SIZE + data_size {
-                                        drop(r);
                                         for _i in 0..MIC_SAMPLES {
                                             if buffer[b] & 0x80 != 0 {
                                                 sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as f64;
@@ -187,24 +191,29 @@ impl Protocol2 {
                                                 sample = u32::from_be_bytes([0, 0, buffer[b], buffer[b+1]]) as f64;
                                             }
                                             b = b + 2;
-                                            iq_buffer = self.microphone_sample(sample, radio_mutex);
+                                            let x = r.transmitter.microphone_samples * 2;
+                                            r.transmitter.microphone_buffer[x] = sample / 32767.0;
+                                            r.transmitter.microphone_buffer[x+1] = 0.0;
+                                            r.transmitter.microphone_samples += 1;
+                                            if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
+                                                r.transmitter.process_mic_samples();
+                                                r.transmitter.microphone_samples = 0;
+                                                if r.is_transmitting() {
+                                                    for j in 0..r.transmitter.output_samples {
+                                                        let ix = j * 2;
+                                                        let ox = tx_iq_buffer_offset * 2;
+                                                        tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize];
+                                                        tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize];
+                                                        tx_iq_buffer_offset = tx_iq_buffer_offset + 1;
+                                                        if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
+                                                            self.send_iq_buffer(tx_iq_buffer.clone());
+                                                            tx_iq_buffer_offset = 0;
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                         r = radio_mutex.radio.lock().unwrap();
-                                    }
-                                /*
-                                }
-                                */
-                                if r.is_transmitting()  && iq_buffer {
-                                    for j in 0..r.transmitter.output_samples {
-                                        let ix = j * 2;
-                                        let ox = tx_iq_buffer_offset * 2;
-                                        tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize] as f64;
-                                        tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize] as f64;
-                                        tx_iq_buffer_offset = tx_iq_buffer_offset + 1;
-                                        if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
-                                            self.send_iq_buffer(tx_iq_buffer.clone());
-                                            tx_iq_buffer_offset = 0;
-                                        }
                                     }
                                 }
                                 r.received = true;
@@ -343,11 +352,33 @@ impl Protocol2 {
                 }
             }
 
+            // check for any changes we need to handle here
             let mut r = radio_mutex.radio.lock().unwrap();
             let updated = r.updated;
             let keepalive = r.keepalive;
             r.updated = false;
             r.keepalive = false;
+            let remote_input = r.transmitter.remote_input;
+            let local_input = r.transmitter.local_input;
+            let local_input_changed = r.transmitter.local_input_changed;
+            //let input_device = r.transmitter.input_device;
+            let input_device_changed = r.transmitter.input_device_changed;
+            r.transmitter.local_input_changed = false;
+            r.transmitter.input_device_changed = false;
+
+            let rx1_local_output_changed = r.receiver[0].local_output_changed;
+            let rx1_local_output = r.receiver[0].local_output;
+            let rx1_local_output_device_changed = r.receiver[0].local_output_device_changed;
+            let rx1_output_device = r.receiver[0].output_device.clone();
+
+            r.receiver[0].local_output_changed = false;
+            r.receiver[0].local_output_device_changed = false;
+            let rx2_local_output_changed = r.receiver[1].local_output_changed;
+            let rx2_local_output = r.receiver[1].local_output;
+            let rx2_output_device = r.receiver[1].output_device.clone();
+            r.receiver[1].local_output_changed = false;
+            r.receiver[1].local_output_device_changed = false;
+
             drop(r);
             if keepalive || updated {
 //println!("keepalive = {} updated = {}", keepalive, updated);
@@ -355,6 +386,34 @@ impl Protocol2 {
                 self.send_transmit_specific(radio_mutex);
                 self.send_receive_specific(radio_mutex);
                 self.send_high_priority(radio_mutex);
+            }
+            if local_input_changed {
+                if local_input {
+                } else {
+                }
+            }
+            if input_device_changed {
+            }
+
+            if rx1_local_output_changed {
+                if rx1_local_output {
+                    self.rx_audio[0].open_output(&rx1_output_device);
+                } else {
+                    self.rx_audio[0].close_output();
+                }
+            }
+            if rx1_local_output_device_changed {
+                if rx1_local_output {
+                    self.rx_audio[0].close_output();
+                    self.rx_audio[0].open_output(&rx1_output_device);
+                }
+            }
+            if rx2_local_output_changed {
+                if rx2_local_output {
+                    self.rx_audio[1].open_output(&rx2_output_device);
+                } else {
+                    self.rx_audio[1].close_output();
+                }
             }
         }
     }

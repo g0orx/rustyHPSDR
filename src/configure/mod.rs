@@ -100,7 +100,7 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
         let mut r = radio_mutex_clone.radio.lock().unwrap();
         r.transmitter.input_device = input_devices[i as usize].clone();
         if r.transmitter.local_input {
-            r.transmitter.local_input_device_changed = true;
+            r.transmitter.input_device_changed = true;
         }
     });
 
@@ -132,13 +132,10 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     let rx0_output_dropdown: DropDown = builder
             .object("rx0_output_dropdown")
             .expect("Could not get object `rx0_output_dropdown` from builder.");
-    // populate the output devices
-    let string_list_model = StringList::new(&[]);
-
-    rx0_output_dropdown.set_model(Some(&string_list_model));
-
+    let rx0_string_list_model = StringList::new(&[]);
+    rx0_output_dropdown.set_model(Some(&rx0_string_list_model));
     for i in 0..output_devices.len() {
-        string_list_model.append(&output_devices[i]);
+        rx0_string_list_model.append(&output_devices[i]);
         if output_devices[i] == output_device1 {
             rx0_output_dropdown.set_selected(i as u32);
         }
@@ -181,13 +178,11 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     let rx1_output_dropdown: DropDown = builder
             .object("rx1_output_dropdown")
             .expect("Could not get object `rx1_output_dropdown` from builder.");
-    // populate the output devices
-    let string_list_model = StringList::new(&[]);
+    let rx1_string_list_model = StringList::new(&[]);
+    rx1_output_dropdown.set_model(Some(&rx1_string_list_model));
 
-    rx1_output_dropdown.set_model(Some(&string_list_model));
-
-    for i in 1..output_devices.len() {
-        string_list_model.append(&output_devices[i]);
+    for i in 0..output_devices.len() {
+        rx1_string_list_model.append(&output_devices[i]);
         if output_devices[i] == output_device1 {
             rx1_output_dropdown.set_selected(i as u32);
         }

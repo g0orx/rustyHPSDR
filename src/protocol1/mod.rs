@@ -62,7 +62,7 @@ impl Protocol1 {
         let receive_sequence: u32 = 0;
         let send_sequence: u32 = 0;
         let wide_sequence: u32 = 0;
-        let receivers: u8 = 2;
+        let receivers: u8 = 2; 
         let current_receiver: u8 = 0;
         let iq_samples: i32 = (512 - 8)/((receivers as i32 * 6) + 2);
         let n_samples: i32 = 0;
@@ -187,6 +187,7 @@ impl Protocol1 {
             let rx2_local_output = r.receiver[1].local_output;
             let rx2_output_device = r.receiver[1].output_device.clone();
             r.receiver[1].local_output_changed = false;
+            r.receiver[1].local_output_device_changed = false;
             drop(r);
             if sample_rate_changed {
                 self.metis_stop();
