@@ -413,7 +413,6 @@ impl Transmitter {
     }
 
     pub fn process_mic_samples(&mut self) {
-eprintln!("process_mic_samples: channel {}",self.channel);
         let raw_ptr: *mut f64 = self.microphone_buffer.as_mut_ptr() as *mut f64;
         let iq_ptr: *mut f64 =  self.iq_buffer.as_mut_ptr() as *mut f64;
         let mut result: c_int = 0;
