@@ -308,7 +308,6 @@ impl Protocol2 {
                                                 r.receiver[ddc].remote_audio_buffer_offset = 4;
                                             }
 
-                                            /*
                                             if r.receiver[ddc].local_output {
                                                 let lox=r.receiver[ddc].local_audio_buffer_offset * 2;
                                                 match r.receiver[ddc].audio_output {
@@ -333,10 +332,9 @@ impl Protocol2 {
                                                 if r.receiver[ddc].local_audio_buffer_offset == r.receiver[ddc].local_audio_buffer_size {
                                                     r.receiver[ddc].local_audio_buffer_offset = 0;
                                                     let buffer_clone = r.receiver[ddc].local_audio_buffer.clone();
-                                                    r.receiver[ddc].write_output(&buffer_clone);
+                                                    self.rx_audio[ddc].write_output(&buffer_clone);
                                                 }
                                             }
-                                            */
                                         }
                                     }
                                 }
