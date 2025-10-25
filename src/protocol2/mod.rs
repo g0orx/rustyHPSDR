@@ -213,7 +213,7 @@ impl Protocol2 {
                                                 }
                                             }
                                         }
-                                        r = radio_mutex.radio.lock().unwrap();
+                                        //r = radio_mutex.radio.lock().unwrap();
                                     }
                                 }
                                 r.received = true;

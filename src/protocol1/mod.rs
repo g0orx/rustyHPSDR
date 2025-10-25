@@ -113,6 +113,9 @@ impl Protocol1 {
         if r.receiver[1].local_output {
             self.rx_audio[1].open_output(&r.receiver[1].output_device);
         }
+        if r.transmitter.local_input {
+            self.tx_audio.open_input(&r.transmitter.input_device);
+        }
         drop(r);
 
         // start the radio running
@@ -177,17 +180,27 @@ impl Protocol1 {
             let mut r = radio_mutex.radio.lock().unwrap();
             let sample_rate_changed = r.sample_rate_changed;
             r.sample_rate_changed = false;
+
             let rx1_local_output_changed = r.receiver[0].local_output_changed;
             let rx1_local_output = r.receiver[0].local_output;
             let rx1_local_output_device_changed = r.receiver[0].local_output_device_changed;
             let rx1_output_device = r.receiver[0].output_device.clone();
             r.receiver[0].local_output_changed = false;
             r.receiver[0].local_output_device_changed = false;
+
             let rx2_local_output_changed = r.receiver[1].local_output_changed;
             let rx2_local_output = r.receiver[1].local_output;
             let rx2_output_device = r.receiver[1].output_device.clone();
             r.receiver[1].local_output_changed = false;
             r.receiver[1].local_output_device_changed = false;
+
+            let tx_local_input_changed = r.transmitter.local_input_changed;
+            let tx_local_input = r.transmitter.local_input;
+            let tx_input_changed = r.transmitter.local_input_changed;
+            let tx_input_device_changed = r.transmitter.input_device_changed;
+            let tx_input_device = r.transmitter.input_device.clone();
+            r.transmitter.local_input_changed = false;
+            r.transmitter.input_device_changed = false;
             drop(r);
             if sample_rate_changed {
                 self.metis_stop();
@@ -214,6 +227,19 @@ impl Protocol1 {
                     self.rx_audio[1].open_output(&rx2_output_device);
                 } else {
                     self.rx_audio[1].close_output();
+                }
+            }
+            if tx_local_input_changed {
+                if tx_local_input {
+                    self.tx_audio.open_input(&tx_input_device);
+                } else {
+                    self.tx_audio.close_input();
+                }
+            }
+            if tx_input_device_changed {
+                if tx_local_input {
+                    self.tx_audio.close_input();
+                    self.tx_audio.open_input(&tx_input_device);
                 }
             }
         }
@@ -328,9 +354,9 @@ impl Protocol1 {
                 }
             }
             // MIC Audio samples
-            /*
-            if r.audio[0].local_input & !r.tune {
-                let mic_buffer = r.audio[0].read_input();
+            if !r.transmitter.local_input_changed && (r.transmitter.local_input && !r.tune) {
+                /*
+                let mic_buffer = self.tx_audio.read_input();
                 if mic_buffer.len() != 0 {
                     eprintln!("mic samples {}", mic_buffer.len());
                     for i in 0..mic_buffer.len() {
@@ -345,8 +371,8 @@ impl Protocol1 {
                         }
                     }
                 }
+                */
             } else {
-            */
             if !r.transmitter.local_input || r.tune {
             if buffer[b] & 0x80 != 0 {
                 mic_sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as i32;
@@ -372,9 +398,7 @@ impl Protocol1 {
                 }
             }
             }
-            /*
             }
-            */
         }
 
         // full RX audio buffers

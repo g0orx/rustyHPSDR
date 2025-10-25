@@ -35,7 +35,7 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
 
     window.set_transient_for(Some(parent)); // keeps it on top
     
-    // AUDIO
+    // Microphone
     let r = radio_mutex.radio.lock().unwrap();
         let remote_output1 = r.receiver[0].remote_output;
         let local_output1 = r.receiver[0].local_output;
@@ -72,12 +72,8 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     local_input_check_button.connect_toggled(move |button| {
         let is_active = button.is_active();
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        if is_active {
-            //r.transmitter.audio.open_input();
-        } else {
-            //r.transmitter.audio.close_input();
-        }
         r.transmitter.local_input = is_active;
+        r.transmitter.local_input_changed = true;
     });
 
     let input_dropdown: DropDown = builder
