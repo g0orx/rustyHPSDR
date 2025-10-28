@@ -25,6 +25,7 @@ use crate::util::*;
 pub struct Spectrum {
     rx: usize,
     surface: ImageSurface,
+    updated: bool,
 }
 
 impl Spectrum {
@@ -32,9 +33,11 @@ impl Spectrum {
     pub fn new(id: usize, width: i32, height: i32) -> Self {
         let rx = id;
         let surface = ImageSurface::create(Format::ARgb32, width, height).expect("Failed to create surface");
+        let updated = false;
         Self {
             rx,
             surface,
+            updated,
         }
     }
 
@@ -44,10 +47,10 @@ impl Spectrum {
         let cr = Context::new(&self.surface).expect("Couldn't create cairo context from surface");
         cr.set_source_rgb(0.0, 0.0, 0.0); // black
         cr.paint().expect("Failed to paint black background on surface");
+        self.updated = false;
     }
 
     pub fn update(&mut self, width: i32, height: i32, radio_mutex: &RadioMutex, pixels: &Vec<f32>) {
-
         let r = radio_mutex.radio.lock().unwrap();
         let spectrum_height = height - 10; // leave space for the frequency
         let cr = Context::new(self.surface.clone()).expect("Couldn't create cairo context from surface");
@@ -99,7 +102,6 @@ impl Spectrum {
             cr.move_to((width/2).into(), 0.0);
             cr.line_to((width/2).into(), spectrum_height.into());
             cr.stroke().unwrap();
-
         } else {
             let b = r.receiver[self.rx].band.to_usize();
             let dbm_per_line: f32 = spectrum_height as f32/(r.receiver[self.rx].band_info[b].spectrum_high-r.receiver[self.rx].band_info[b].spectrum_low);
@@ -255,7 +257,7 @@ impl Spectrum {
                 cr.set_source_rgb(1.0, 1.0, 1.0);
                 let pango_layout = pangocairo::functions::create_layout(&cr);
                 pango_layout.set_text(&text);
-                let (text_width, _text_height) = pango_layout.pixel_size();
+                let (text_width, text_height) = pango_layout.pixel_size();
                 cr.move_to( (x - (text_width as f32 / 2.0)).into(), height.into());
                 let _ = cr.show_text(&text);
                 f = f + step as f32;
@@ -274,10 +276,14 @@ impl Spectrum {
             }
 
         }
+        self.updated = true;
+
     }
 
     pub fn draw(&self, cr: &Context, width: i32, height: i32) {
-        cr.set_source_surface(&self.surface, 0.0, 0.0).expect("failed to set source surface");
-        cr.paint().expect("Failed to pant surface");
+        if self.updated {
+            cr.set_source_surface(&self.surface, 0.0, 0.0).expect("failed to set source surface");
+            cr.paint().expect("Failed to pant surface");
+        }
     }
 }

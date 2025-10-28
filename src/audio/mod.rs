@@ -60,14 +60,12 @@ impl Audio {
     }
 
     pub fn init(&mut self) {
-        println!("audio::init");
         self.input_stream = None;
         self.output_stream = None;
         self.output_underruns = 0;
     }
 
     pub fn open_input(&mut self, device_name: &String) -> Result<(), Box<dyn std::error::Error>> {
-        println!("audio::open_input");
         let host = cpal::default_host();
 
         // Find the input device
@@ -79,18 +77,13 @@ impl Audio {
         }
         .ok_or("No input device found")?;
 
-        println!("audio::open_input found device: {}", device.name()?);
-
         let config = device.default_input_config()?;
-        println!("audio::open_input default config: {:?}", config);
 
         let period_size = match config.buffer_size() {
             cpal::SupportedBufferSize::Range { min, max: _ } => {
-                println!("audio::open_input period_size range min={}", min);
                 *min as usize
             }
             cpal::SupportedBufferSize::Unknown => {
-                println!("audio::open_input using default period_size=1024",);
                 1024
             }
         };
@@ -110,17 +103,14 @@ impl Audio {
         stream.play()?;
         self.input_stream = Some(stream);
 
-        println!("audio::open_input Ok");
         Ok(())
     }
 
     pub fn read_input(&mut self) -> Vec<i16> {
-        println!("audio::read_input");
         self.input_buffer.as_mut().unwrap().pop_iter().collect()
     }
 
     pub fn close_input(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        println!("audio::close_input");
         if let Some(stream) = self.input_stream.take() {
             drop(stream);
         }
@@ -128,7 +118,6 @@ impl Audio {
     }
 
     pub fn open_output(&mut self, device_name: &String) -> Result<(), Box<dyn std::error::Error>> {
-        println!("audio::open_output");
         let host = cpal::default_host();
 
         // Find the output device
@@ -140,10 +129,7 @@ impl Audio {
         }
         .ok_or("No output device found")?;
 
-        println!("audio::open_output found device: {}", device.name()?);
-
         let config = device.default_output_config()?;
-        println!("audio::open_output default config: {:?}", config);
 
         // Create a custom config for stereo 48kHz output
         let mut stream_config: StreamConfig = config.clone().into();
@@ -171,12 +157,10 @@ impl Audio {
         stream.play()?;
         self.output_stream = Some(stream);
 
-        println!("audio::open_output Ok");
         Ok(())
     }
 
     pub fn close_output(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        println!("audio::close_output");
         if let Some(stream) = self.output_stream.take() {
             drop(stream);
         }

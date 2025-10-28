@@ -263,6 +263,24 @@
                           <property name="xalign">0.0</property>
                         </object>
                       </child>
+                      <child>
+                        <object class="GtkLabel" id="tx_alc">
+                          <property name="label">ALC: 0.0</property>
+                          <style>
+                            <class name="tx-alc"/>
+                          </style>
+                          <property name="xalign">0.0</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel" id="mic_level">
+                          <property name="label">Mic Level: 0.0</property>
+                          <style>
+                            <class name="mic_level"/>
+                          </style>
+                          <property name="xalign">0.0</property>
+                        </object>
+                      </child>
                     </object>
                   </child>
                 </object>

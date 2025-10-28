@@ -88,7 +88,7 @@ impl Meter {
     }
 
 
-    pub fn update_tx(&mut self, forward: u16, reverse: u16, c1: f32, c2: f32 ) {
+    pub fn update_tx(&mut self, forward: u16, reverse: u16, c1: f32, c2: f32, alc: f64 ) {
         eprintln!("Meter::update_tx fwd {} rev{}", forward, reverse);
         let cr = Context::new(self.surface.clone()).expect("Couldn't create cairo context from surface");
 

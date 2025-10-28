@@ -98,6 +98,8 @@ struct AppWidgets {
     pub high_adjustment: Adjustment,
     pub tx_power: Label,
     pub tx_swr: Label,
+    pub tx_alc: Label,
+    pub mic_level: Label,
 }
 
 impl AppWidgets {
@@ -278,6 +280,14 @@ impl AppWidgets {
             .object("tx_swr")
             .expect("Could not get tx_swr from builder");
 
+        let tx_alc: Label = builder
+            .object("tx_alc")
+            .expect("Could not get tx_alc from builder");
+
+        let mic_level: Label = builder
+            .object("mic_level")
+            .expect("Could not get mic_level from builder");
+
         AppWidgets {
             main_window,
             configure_button,
@@ -322,6 +332,8 @@ impl AppWidgets {
             filter_grid,
             tx_power,
             tx_swr,
+            tx_alc,
+            mic_level,
         }
     }
 }
@@ -445,17 +457,13 @@ fn build_ui(app: &Application) {
                     app_widgets.main_window.set_title(Some(&title));
                     }
 
-                    
-
-
                     let rc_spectrum_clone2 = rc_spectrum_clone.clone();
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.spectrum_display.connect_resize(move |_, width, height| { 
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        r.receiver[0].spectrum_width = width;
-                        r.receiver[0].init_analyzer(r.receiver[0].channel);
-                        r.transmitter.spectrum_width = width;
-                        r.transmitter.init_analyzer();
+                        let channel = r.receiver[0].channel;
+                        r.receiver[0].init_analyzer(channel, width);
+                        r.transmitter.init_analyzer(width);
                         let mut spectrum = rc_spectrum_clone2.borrow_mut();
                         spectrum.resize(width, height);
                     });
@@ -473,8 +481,8 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.spectrum_2_display.connect_resize(move |_, width, height| { 
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        r.receiver[1].spectrum_width = width;
-                        r.receiver[1].init_analyzer(r.receiver[1].channel);
+                        let channel = r.receiver[1].channel;
+                        r.receiver[1].init_analyzer(channel, width);
                         let mut spectrum = rc_spectrum_2_clone2.borrow_mut();
                         spectrum.resize(width, height);
                     });
@@ -571,14 +579,18 @@ fn build_ui(app: &Application) {
                         spectrum.resize(app_widgets.spectrum_display.width(), app_widgets.spectrum_display.height());
                         r.receiver[0].spectrum_width = app_widgets.spectrum_display.width();
                         r.receiver[0].init();
-                        r.receiver[0].init_analyzer(r.receiver[0].channel);
+                        let channel = r.receiver[0].channel;
+                        let width = r.receiver[0].spectrum_width;
+                        r.receiver[0].init_analyzer(channel, width);
 
                         let rc_spectrum_2_clone2 = rc_spectrum_2_clone.clone();
                         let mut spectrum = rc_spectrum_2_clone2.borrow_mut();
                         spectrum.resize(app_widgets.spectrum_2_display.width(), app_widgets.spectrum_2_display.height());
                         r.receiver[1].spectrum_width = app_widgets.spectrum_2_display.width();
                         r.receiver[1].init();
-                        r.receiver[1].init_analyzer(r.receiver[1].channel);
+                        let channel = r.receiver[1].channel;
+                        let width = r.receiver[1].spectrum_width;
+                        r.receiver[1].init_analyzer(channel, width);
 
                         let rc_waterfall_clone2 = rc_waterfall_clone.clone();
                         let mut waterfall = rc_waterfall_clone2.borrow_mut();
@@ -1114,7 +1126,9 @@ fn build_ui(app: &Application) {
                             rx = 1;
                         }
                         r.receiver[rx].zoom = adjustment.value() as i32;
-                        r.receiver[rx].init_analyzer(r.receiver[rx].channel);
+                        let channel = r.receiver[rx].channel;
+                        let width = r.receiver[rx].spectrum_width;
+                        r.receiver[rx].init_analyzer(channel, width);
                         let mut p = 0.0;
                         if adjustment.value() == 1.0 {
                             r.receiver[rx].pan = p as i32;
@@ -1697,11 +1711,13 @@ fn build_ui(app: &Application) {
                     let rc_spectrum_2_clone2 = rc_spectrum_2_clone.clone();
                     let spectrum_timeout_id = timeout_add_local(Duration::from_millis(update_interval as u64), move || {
                         let mut rx2 = false;
+                        let mut is_transmitting = false;
                         let r = radio_mutex_clone.radio.lock().unwrap();
                         rx2 = r.rx2_enabled;
+                        is_transmitting = r.is_transmitting();
                         drop(r);
                         spectrum_update(&radio_mutex_clone, &rc_app_widgets_clone2, &rc_spectrum_clone2);
-                        if rx2 {
+                        if rx2 && !is_transmitting {
                             spectrum_2_update(&radio_mutex_clone, &rc_app_widgets_clone2, &rc_spectrum_2_clone2);
                         }
                         Continue
@@ -1717,11 +1733,13 @@ fn build_ui(app: &Application) {
                     let rc_waterfall_2_clone2 = rc_waterfall_2_clone.clone();
                     let waterfall_timeout_id = timeout_add_local(Duration::from_millis(update_interval as u64), move || {
                         let mut rx2 = false;
+                        let mut is_transmitting = false;
                         let r = radio_mutex_clone.radio.lock().unwrap();
                         rx2 = r.rx2_enabled;
+                        is_transmitting = r.is_transmitting();
                         drop(r);
                         waterfall_update(&radio_mutex_clone, &rc_app_widgets_clone2, &rc_waterfall_clone2);
-                        if rx2 {
+                        if rx2 && !is_transmitting {
                             waterfall_2_update(&radio_mutex_clone, &rc_app_widgets_clone2, &rc_waterfall_2_clone2);
                         }
                         Continue
@@ -1837,16 +1855,16 @@ fn waterfall_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWi
     }
 }
 
-fn waterfall_2_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidgets>>, rc_waterfall: &Rc<RefCell<Waterfall>>) {
+fn waterfall_2_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidgets>>, rc_waterfall_2: &Rc<RefCell<Waterfall>>) {
     let r = radio_mutex.radio.lock().unwrap();
     let is_transmitting = r.is_transmitting();
     drop(r);
 
     if !is_transmitting {
         let app_widgets = rc_app_widgets.borrow();
-        let (flag, pixels) = radio_mutex.update_waterfall_2(app_widgets.waterfall_display.width());
+        let (flag, pixels) = radio_mutex.update_waterfall_2(app_widgets.waterfall_2_display.width());
         if flag != 0 {
-            let mut waterfall = rc_waterfall.borrow_mut();
+            let mut waterfall = rc_waterfall_2.borrow_mut();
             waterfall.update(app_widgets.waterfall_2_display.width(), app_widgets.waterfall_2_display.height(), &radio_mutex, &pixels);
             app_widgets.waterfall_2_display.queue_draw();
         }
@@ -1858,6 +1876,9 @@ fn meter_1_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidg
     let mut meter = rc_meter.borrow_mut();
     let mut r = radio_mutex.radio.lock().unwrap();
     if r.is_transmitting() {
+        unsafe {
+            r.transmitter.alc = GetTXAMeter(r.transmitter.channel,txaMeterType_TXA_ALC_AV as i32);
+        }
     } else {
         unsafe {
             r.s_meter_dbm = GetRXAMeter(r.receiver[0].channel,rxaMeterType_RXA_S_AV as i32);
@@ -1889,6 +1910,8 @@ fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
     let reverse = r.transmitter.alex_reverse_power;
     let c1 = r.transmitter.c1;
     let c2 = r.transmitter.c2;
+    let alc = r .transmitter.alc;
+    let input_level = r.transmitter.input_level;
     drop(r);
 
     // calculate the SWR
@@ -1914,6 +1937,10 @@ fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
         app_widgets.tx_power.set_label(&formatted_power);
         let formatted_swr = format!("SWR: {:.1}:1", swr);
         app_widgets.tx_swr.set_label(&formatted_swr);
+        let formatted_alc = format!("ALC: {:.3}", alc);
+        app_widgets.tx_alc.set_label(&formatted_alc);
+        let formatted_level = format!("Mic Level: {:.3}", input_level);
+        app_widgets.mic_level.set_label(&formatted_level);
     }
 
     //if is_transmitting {

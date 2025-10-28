@@ -25,6 +25,7 @@ use crate::radio::RadioMutex;
 pub struct Waterfall {
     rx: usize,
     pixbuf: Pixbuf,
+    updated: bool,
 }
 
 impl Waterfall {
@@ -32,9 +33,11 @@ impl Waterfall {
     pub fn new(id: usize, width: i32, height: i32) -> Self {
         let rx = id;
         let pixbuf = Pixbuf::new(Colorspace::Rgb, false, 8, width, height).unwrap();
+        let updated = false;
         Self {
             rx,
             pixbuf,
+            updated,
         }
     }
 
@@ -43,6 +46,7 @@ impl Waterfall {
             let new_pixbuf = Pixbuf::new(Colorspace::Rgb, false, 8, width, height).unwrap();
             self.pixbuf = new_pixbuf;
         }
+        self.updated = false;
     }
 
     pub fn update(&mut self, width:i32, height: i32, radio_mutex: &RadioMutex, new_pixels: &Vec<f32>) {
@@ -74,7 +78,8 @@ impl Waterfall {
             }
 
             // fill in the top line with the latest spectrum data
-            let waterfall_width = r.receiver[self.rx].spectrum_width;
+            //let waterfall_width = r.receiver[self.rx].spectrum_width;
+            let waterfall_width = r.receiver[self.rx].waterfall_width;
             let pan = ((new_pixels.len() as f32 - waterfall_width as f32) / 100.0) * r.receiver[self.rx].pan as f32;
 
             let b = r.receiver[self.rx].band.to_usize();
@@ -149,10 +154,13 @@ impl Waterfall {
                 //r.receiver[self.rx].band_info[b].waterfall_high = r.receiver[self.rx].band_info[b].waterfall_low + 80.0;
             }
         } // unsafe
+        self.updated = true;
     }
 
     pub fn draw(&self, cr: &Context, width: i32, height: i32) {
-                cr.set_source_pixbuf(&self.pixbuf, 0.0, 0.0);
-                cr.paint().unwrap();
+        if self.updated {
+            cr.set_source_pixbuf(&self.pixbuf, 0.0, 0.0);
+            cr.paint().unwrap();
+        }
     }
 }

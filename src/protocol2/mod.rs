@@ -136,6 +136,9 @@ impl Protocol2 {
         if r.receiver[1].local_output {
             self.rx_audio[1].open_output(&r.receiver[1].output_device);
         }
+        if r.transmitter.local_input {
+            self.tx_audio.open_input(&r.transmitter.input_device);
+        }
         drop(r);
 
         let mut tx_iq_buffer: Vec<f64> = vec![0.0; IQ_BUFFER_SIZE*2];
@@ -146,7 +149,7 @@ impl Protocol2 {
         self.send_transmit_specific(radio_mutex);
         self.send_receive_specific(radio_mutex);
 
-        let mut buffer = vec![0; 2048];
+        let mut buffer = vec![0; 4096];
         loop {
             match self.socket.recv_from(&mut buffer) {
                 Ok((size, src)) => {
@@ -198,6 +201,7 @@ impl Protocol2 {
                                             if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
                                                 r.transmitter.process_mic_samples();
                                                 r.transmitter.microphone_samples = 0;
+                                                
                                                 if r.is_transmitting() {
                                                     for j in 0..r.transmitter.output_samples {
                                                         let ix = j * 2;
@@ -359,7 +363,7 @@ impl Protocol2 {
             let remote_input = r.transmitter.remote_input;
             let local_input = r.transmitter.local_input;
             let local_input_changed = r.transmitter.local_input_changed;
-            //let input_device = r.transmitter.input_device;
+            let input_device = r.transmitter.input_device.clone();
             let input_device_changed = r.transmitter.input_device_changed;
             r.transmitter.local_input_changed = false;
             r.transmitter.input_device_changed = false;
@@ -387,10 +391,16 @@ impl Protocol2 {
             }
             if local_input_changed {
                 if local_input {
+                    self.tx_audio.open_input(&input_device);
                 } else {
+                    self.tx_audio.close_input();
                 }
             }
             if input_device_changed {
+                if local_input {
+                    self.tx_audio.close_input();
+                    self.tx_audio.open_input(&input_device);
+                }
             }
 
             if rx1_local_output_changed {

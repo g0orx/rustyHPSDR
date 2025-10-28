@@ -194,11 +194,11 @@ impl Protocol1 {
             r.receiver[1].local_output_changed = false;
             r.receiver[1].local_output_device_changed = false;
 
-            let tx_local_input_changed = r.transmitter.local_input_changed;
-            let tx_local_input = r.transmitter.local_input;
-            let tx_input_changed = r.transmitter.local_input_changed;
-            let tx_input_device_changed = r.transmitter.input_device_changed;
-            let tx_input_device = r.transmitter.input_device.clone();
+            //let local_input_changed = r.transmitter.local_input_changed;
+            let local_input = r.transmitter.local_input;
+            let input_changed = r.transmitter.local_input_changed;
+            let input_device_changed = r.transmitter.input_device_changed;
+            let input_device = r.transmitter.input_device.clone();
             r.transmitter.local_input_changed = false;
             r.transmitter.input_device_changed = false;
             drop(r);
@@ -229,17 +229,17 @@ impl Protocol1 {
                     self.rx_audio[1].close_output();
                 }
             }
-            if tx_local_input_changed {
-                if tx_local_input {
-                    self.tx_audio.open_input(&tx_input_device);
+            if input_changed {
+                if local_input {
+                    self.tx_audio.open_input(&input_device);
                 } else {
                     self.tx_audio.close_input();
                 }
             }
-            if tx_input_device_changed {
-                if tx_local_input {
+            if input_device_changed {
+                if local_input {
                     self.tx_audio.close_input();
-                    self.tx_audio.open_input(&tx_input_device);
+                    self.tx_audio.open_input(&input_device);
                 }
             }
         }

@@ -21,14 +21,26 @@
 }
 .tx-power {
   font-family: FreeSans;
-  font-size: 25px;
+  font-size: 15px;
   color: red;
   min-width: 180px;
 }
 .tx-swr {
   font-family: FreeSans;
-  font-size: 25px;
+  font-size: 15px;
   color: red;
+  min-width: 180px;
+}
+.tx-alc {
+  font-family: FreeSans;
+  font-size: 15px;
+  color: lime;
+  min-width: 180px;
+}
+.mic-level {
+  font-family: FreeSans;
+  font-size: 15px;
+  color: lime;
   min-width: 180px;
 }
 .active-button {

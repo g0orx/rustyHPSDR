@@ -336,7 +336,7 @@ impl Receiver {
 
         self.init_wdsp(self.channel);
         self.create_display(self.channel);
-        self.init_analyzer(self.channel);
+        self.init_analyzer(self.channel, self.spectrum_width);
 
         self.enable_equalizer();
 
@@ -474,7 +474,8 @@ impl Receiver {
         }
     }
 
-    pub fn init_analyzer(&self, display: i32) {
+    pub fn init_analyzer(&mut self, display: i32, width: i32) {
+        self.spectrum_width = width;
         let mut flp = [0];
         let keep_time: f32 = 0.1;
         let fft_size = 8192; 
@@ -608,7 +609,6 @@ impl Receiver {
     }
 
     pub fn process_iq_samples(&mut self) {
-
         let raw_ptr: *mut f64 = self.iq_input_buffer.as_mut_ptr() as *mut f64;
         let audio_ptr: *mut f64 = self.audio_buffer.as_mut_ptr() as *mut f64;
         if self.nb {
@@ -636,7 +636,7 @@ impl Receiver {
         unsafe {
             SetChannelState(self.channel, 0, 1);
         }
-        self.init_analyzer(self.channel);
+        self.init_analyzer(self.channel, self.spectrum_width);
         unsafe {
             SetInputSamplerate(self.channel, rate);
             SetEXTANBSamplerate(self.channel, rate);
