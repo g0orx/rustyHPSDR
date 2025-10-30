@@ -423,8 +423,8 @@ impl Transmitter {
                     input_level = self.microphone_buffer[ix];
                 }
             }
-            self.input_level = input_level;
         }
+        self.input_level = input_level * 100.0;
         let raw_ptr: *mut f64 = self.microphone_buffer.as_mut_ptr() as *mut f64;
         let iq_ptr: *mut f64 =  self.iq_buffer.as_mut_ptr() as *mut f64;
         let mut result: c_int = 0;

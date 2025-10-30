@@ -80,8 +80,13 @@ impl Audio {
         let config = device.default_input_config()?;
 
         let period_size = match config.buffer_size() {
-            cpal::SupportedBufferSize::Range { min, max: _ } => {
-                *min as usize
+            cpal::SupportedBufferSize::Range { min, max } => {
+                if 2048 > *min && 2048 < *max {
+                    2048
+                } else {
+                    *max as usize
+                }
+                //*min as usize
             }
             cpal::SupportedBufferSize::Unknown => {
                 1024

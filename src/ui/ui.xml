@@ -273,10 +273,10 @@
                         </object>
                       </child>
                       <child>
-                        <object class="GtkLabel" id="mic_level">
-                          <property name="label">Mic Level: 0.0</property>
+                        <object class="GtkLabel" id="input_level">
+                          <property name="label">Input Level: 0.0</property>
                           <style>
-                            <class name="mic_level"/>
+                            <class name="input-level"/>
                           </style>
                           <property name="xalign">0.0</property>
                         </object>

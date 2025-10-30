@@ -217,7 +217,32 @@ impl Protocol2 {
                                                 }
                                             }
                                         }
-                                        //r = radio_mutex.radio.lock().unwrap();
+                                    }
+                                } else if r.transmitter.local_input {
+                                    let buffer = self.tx_audio.read_input();
+                                    for i in 0..buffer.len() {
+                                        let sample = buffer[i] as f64 / 32767.0;
+                                        let x = r.transmitter.microphone_samples * 2;
+                                        r.transmitter.microphone_buffer[x] = sample;
+                                        r.transmitter.microphone_buffer[x+1] = 0.0;
+                                        r.transmitter.microphone_samples += 1;
+                                        if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
+                                            r.transmitter.process_mic_samples();
+                                            r.transmitter.microphone_samples = 0;
+                                            if r.is_transmitting() {
+                                                for j in 0..r.transmitter.output_samples {
+                                                    let ix = j * 2;
+                                                    let ox = tx_iq_buffer_offset * 2;
+                                                    tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize];
+                                                    tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize];
+                                                    tx_iq_buffer_offset = tx_iq_buffer_offset + 1;
+                                                    if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
+                                                        self.send_iq_buffer(tx_iq_buffer.clone());
+                                                        tx_iq_buffer_offset = 0;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 r.received = true;
@@ -372,11 +397,11 @@ impl Protocol2 {
             let rx1_local_output = r.receiver[0].local_output;
             let rx1_local_output_device_changed = r.receiver[0].local_output_device_changed;
             let rx1_output_device = r.receiver[0].output_device.clone();
-
             r.receiver[0].local_output_changed = false;
             r.receiver[0].local_output_device_changed = false;
             let rx2_local_output_changed = r.receiver[1].local_output_changed;
             let rx2_local_output = r.receiver[1].local_output;
+            let rx2_local_output_device_changed = r.receiver[1].local_output_device_changed;
             let rx2_output_device = r.receiver[1].output_device.clone();
             r.receiver[1].local_output_changed = false;
             r.receiver[1].local_output_device_changed = false;
@@ -421,6 +446,12 @@ impl Protocol2 {
                     self.rx_audio[1].open_output(&rx2_output_device);
                 } else {
                     self.rx_audio[1].close_output();
+                }
+            }
+            if rx2_local_output_device_changed {
+                if rx2_local_output {
+                    self.rx_audio[1].close_output();
+                    self.rx_audio[1].open_output(&rx2_output_device);
                 }
             }
         }

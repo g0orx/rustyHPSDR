@@ -99,7 +99,7 @@ struct AppWidgets {
     pub tx_power: Label,
     pub tx_swr: Label,
     pub tx_alc: Label,
-    pub mic_level: Label,
+    pub input_level: Label,
 }
 
 impl AppWidgets {
@@ -284,9 +284,9 @@ impl AppWidgets {
             .object("tx_alc")
             .expect("Could not get tx_alc from builder");
 
-        let mic_level: Label = builder
-            .object("mic_level")
-            .expect("Could not get mic_level from builder");
+        let input_level: Label = builder
+            .object("input_level")
+            .expect("Could not get input_level from builder");
 
         AppWidgets {
             main_window,
@@ -333,7 +333,7 @@ impl AppWidgets {
             tx_power,
             tx_swr,
             tx_alc,
-            mic_level,
+            input_level,
         }
     }
 }
@@ -1939,8 +1939,11 @@ fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
         app_widgets.tx_swr.set_label(&formatted_swr);
         let formatted_alc = format!("ALC: {:.3}", alc);
         app_widgets.tx_alc.set_label(&formatted_alc);
-        let formatted_level = format!("Mic Level: {:.3}", input_level);
-        app_widgets.mic_level.set_label(&formatted_level);
+        let formatted_level = format!("Input Level: {:.2}", input_level);
+        app_widgets.input_level.set_label(&formatted_level);
+    } else {
+        let formatted_level = format!("Input Level: {:.2}", input_level);
+        app_widgets.input_level.set_label(&formatted_level);
     }
 
     //if is_transmitting {

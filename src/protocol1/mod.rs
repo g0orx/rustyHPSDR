@@ -176,6 +176,10 @@ impl Protocol1 {
                 }
             }
 
+            // check for loacal microphone
+
+            
+
             // check for any changes that we need to handle here
             let mut r = radio_mutex.radio.lock().unwrap();
             let sample_rate_changed = r.sample_rate_changed;
@@ -355,10 +359,9 @@ impl Protocol1 {
             }
             // MIC Audio samples
             if !r.transmitter.local_input_changed && (r.transmitter.local_input && !r.tune) {
-                /*
                 let mic_buffer = self.tx_audio.read_input();
                 if mic_buffer.len() != 0 {
-                    eprintln!("mic samples {}", mic_buffer.len());
+                    //eprintln!("mic samples {}", mic_buffer.len());
                     for i in 0..mic_buffer.len() {
                         let x = r.transmitter.microphone_samples * 2;
                         r.transmitter.microphone_buffer[x] = mic_buffer[i] as f64 / 32768.0;
@@ -371,34 +374,28 @@ impl Protocol1 {
                         }
                     }
                 }
-                */
-            } else {
-            if !r.transmitter.local_input || r.tune {
-            if buffer[b] & 0x80 != 0 {
-                mic_sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as i32;
-            } else {
-                mic_sample = u32::from_be_bytes([0x00, 0x00, buffer[b], buffer[b+1]]) as i32;
+            } else if !r.transmitter.local_input || r.tune {
+                if buffer[b] & 0x80 != 0 {
+                    mic_sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as i32;
+                } else {
+                    mic_sample = u32::from_be_bytes([0x00, 0x00, buffer[b], buffer[b+1]]) as i32;
+                }
+                //b = b + 2;
+                mic_samples = mic_samples + 1;
+                if mic_samples >= mic_sample_divisor {
+                    mic_samples = 0;
+                    let x = r.transmitter.microphone_samples * 2;
+                    r.transmitter.microphone_buffer[x] = mic_sample as f64 / 32768.0;
+                    r.transmitter.microphone_buffer[x+1] = 0.0;
+                    r.transmitter.microphone_samples += 1;
+                    if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
+                        r.transmitter.process_mic_samples();
+                        r.transmitter.microphone_samples = 0;
+                        process_tx_iq = true;
+                    }
+                }
             }
             b = b + 2;
-            mic_samples = mic_samples + 1;
-            if mic_samples >= mic_sample_divisor {
-                mic_samples = 0;
-                let x = r.transmitter.microphone_samples * 2;
-                if r.tune {
-                    r.transmitter.microphone_buffer[x] = 0.0;
-                } else {
-                    r.transmitter.microphone_buffer[x] = mic_sample as f64 / 32768.0;
-                }
-                r.transmitter.microphone_buffer[x+1] = 0.0;
-                r.transmitter.microphone_samples += 1;
-                if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
-                    r.transmitter.process_mic_samples();
-                    r.transmitter.microphone_samples = 0;
-                    process_tx_iq = true;
-                }
-            }
-            }
-            }
         }
 
         // full RX audio buffers
