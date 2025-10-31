@@ -81,7 +81,7 @@ impl Spectrum {
                 let offset=(pixel_len as f32 / 2.0)-(spectrum_width as f32 / 2.0);
                 for i in 0..spectrum_width {
                     let pixel = pixels[(i + offset as i32) as usize];
-                    let y = ((spectrum_high - pixel as f32) * dbm_per_line).floor();
+                    let y = ((spectrum_high - pixel) * dbm_per_line).floor();
                     cr.line_to(i as f64, y.into());
                 }
                 cr.line_to(spectrum_width as f64, spectrum_height as f64);
@@ -91,8 +91,8 @@ impl Spectrum {
             // draw the filter
             cr.set_source_rgba (0.4, 0.4, 0.4, 0.80);
             let center = spectrum_width / 2;
-            let filter_left = center as f32 + (r.transmitter.filter_low as f32 / hz_per_pixel);
-            let filter_right = center as f32 + (r.transmitter.filter_high as f32 / hz_per_pixel);
+            let filter_left = center as f32 + (r.transmitter.filter_low / hz_per_pixel);
+            let filter_right = center as f32 + (r.transmitter.filter_high / hz_per_pixel);
             cr.rectangle(filter_left.into(), 0.0, (filter_right-filter_left).into(), spectrum_height.into());
             let _ = cr.fill();
 
@@ -119,7 +119,7 @@ impl Spectrum {
             let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[self.rx].pan as f32;
             let display_frequency_low = frequency_low + display_frequency_offset;
             let display_frequency_high = frequency_high + display_frequency_offset;
-            let display_hz_per_pixel = display_frequency_range as f32 / width as f32;
+            let display_hz_per_pixel = display_frequency_range / width as f32;
 
             let mut step = 25000.0;
             match r.receiver[self.rx].sample_rate {
@@ -191,9 +191,9 @@ impl Spectrum {
                 frequency = r.receiver[self.rx].ctun_frequency;
             }
             if r.receiver[self.rx].mode == Modes::CWL.to_usize() {
-                frequency = frequency + r.receiver[self.rx].cw_pitch;
+                frequency += r.receiver[self.rx].cw_pitch;
             } else if r.receiver[self.rx].mode == Modes::CWU.to_usize() {
-                frequency = frequency - r.receiver[self.rx].cw_pitch;
+                frequency -= r.receiver[self.rx].cw_pitch;
             }
 
             // see if cursor and filter visible
@@ -222,7 +222,7 @@ impl Spectrum {
             cr.move_to(0.0, spectrum_height as f64);
             for i in 0..spectrum_width {
                 let pixel = pixels[i as usize + pan as usize];
-                let mut y = ((spectrum_high - pixel as f32) * dbm_per_line).floor();
+                let mut y = ((spectrum_high - pixel) * dbm_per_line).floor();
                 if y > spectrum_height as f32 {
                     y = spectrum_height as f32;
                 }
@@ -260,7 +260,7 @@ impl Spectrum {
                 let (text_width, text_height) = pango_layout.pixel_size();
                 cr.move_to( (x - (text_width as f32 / 2.0)).into(), height.into());
                 let _ = cr.show_text(&text);
-                f = f + step as f32;
+                f += step as f32;
             }
 
             // draw any active notches
@@ -269,8 +269,8 @@ impl Spectrum {
                 if notch.frequency > display_frequency_low as f64 && notch.frequency < display_frequency_high as f64 {
                     let x = (notch.frequency - display_frequency_low as f64) / display_hz_per_pixel as f64;
                     cr.set_source_rgb(1.0, 1.0, 1.0);
-                    cr.move_to( x.into(), 0.0);
-                    cr.line_to( x.into(), spectrum_height.into());
+                    cr.move_to( x, 0.0);
+                    cr.line_to( x, spectrum_height.into());
                     cr.stroke().unwrap();
                 }
             }

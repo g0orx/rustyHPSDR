@@ -159,8 +159,7 @@ pub fn protocol1_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: Socke
                            },
                     }
                     add_device(Rc::clone(&devices),src,local_addr,buf[10],board,1,buf[9],buf[2],mac,supported_receivers,supported_transmitters,adcs,frequency_min,frequency_max);
-                } else {
-                }
+                } 
             },
             Err(_e) => {
                 break;
@@ -288,7 +287,7 @@ pub fn discover(devices: Rc<RefCell<Vec<Device>>>) {
     devices.borrow_mut().clear();
     let network_interfaces = NetworkInterface::show().unwrap();
     for itf in network_interfaces.iter() {
-        if itf.addr.len()>0 {
+        if !itf.addr.is_empty() {
             let std::net::IpAddr::V4(ip_addr) = itf.addr[0].ip() else { todo!() };
             let socket_address = SocketAddr::new(std::net::IpAddr::V4(ip_addr),1024);
             protocol1_discovery(Rc::clone(&devices), socket_address);
@@ -526,7 +525,7 @@ pub fn create_discovery_dialog(parent: &ApplicationWindow, discovery_data: Rc<Re
     let discovery_data_clone = Rc::clone(&discovery_data);
     discover(discovery_data_clone);
     populate_list_box(&list.clone(), Rc::clone(&discovery_data));
-    if discovery_data.borrow().len() > 0 {
+    if !discovery_data.borrow().is_empty() {
         if let Some(first_radio_row) = list.row_at_index(1) {
             first_radio_row.activate();
         }
@@ -582,7 +581,7 @@ pub fn create_discovery_dialog(parent: &ApplicationWindow, discovery_data: Rc<Re
         let discovery_data_clone_clone = Rc::clone(&discovery_data_for_rediscover);
         discover(discovery_data_clone_clone);
         populate_list_box(&list_for_rediscover.clone(), Rc::clone(&discovery_data_for_rediscover));
-        if discovery_data_for_rediscover.borrow().len() > 0 {
+        if !discovery_data_for_rediscover.borrow().is_empty() {
             if let Some(first_radio_row) = list_for_rediscover.row_at_index(1) {
                 first_radio_row.activate();
             }
@@ -604,7 +603,7 @@ pub fn create_discovery_dialog(parent: &ApplicationWindow, discovery_data: Rc<Re
             let discovery_data_clone_clone = Rc::clone(&discovery_data_for_manual);
             if manual_discovery(discovery_data_clone_clone, ip) {
                 populate_list_box(&list_for_manual.clone(), Rc::clone(&discovery_data_for_manual));
-                if discovery_data_for_manual.borrow().len() > 0 {
+                if !discovery_data_for_manual.borrow().is_empty() {
                     if let Some(first_radio_row) = list_for_manual.row_at_index(1) {
                         first_radio_row.activate();
                     }
@@ -661,7 +660,7 @@ fn populate_list_box(list: &ListBox, discovery_data: Rc<RefCell<Vec<Device>>>) {
             status = "In Use";
         }
 
-        let row = create_discovery_row(&[&radio, &iface, &ip, &mac, &protocol, &version, &status], false);
+        let row = create_discovery_row(&[&radio, &iface, &ip, &mac, &protocol, &version, status], false);
         if val.status != 2 {
             row.set_sensitive(false); // Disable selection if in use
         }

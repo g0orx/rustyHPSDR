@@ -28,7 +28,7 @@ impl CAT {
     fn parse_command(&self, command: &str) -> String {
         let cmd = command.trim_end_matches(';').to_uppercase();
         let command_code = &cmd[..2];
-        return match command_code {
+        match command_code {
             "ID" => format!("ID{};", RIG_ID),
             "FA" => format!("FA{};", VFO_A_FREQ), // Read VFO A frequency
             "MD" => format!("MD{};", VFO_A_MODE), // Read Mode
@@ -36,14 +36,12 @@ impl CAT {
             "IF" => "IF142000000+00000000100000000000000000000000000;".to_string(),
             "ZZ" => self.parse_zz_command(&cmd),
             _ => "?;".to_string(), // Unknown command response
-        };
+        }
     }
 
     fn parse_zz_command(&self, command: &str) -> String {
         let command_code = &command[..4];
-        return match command_code {
-            _ => "?;".to_string(), // Unknown command response
-        }
+        "?;".to_string()
     }
 
 }

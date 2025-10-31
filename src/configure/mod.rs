@@ -16,7 +16,7 @@
 */
 
 use gtk::prelude::*;
-use gtk::{Adjustment, ApplicationWindow, Box, Builder, Button, CheckButton, ComboBoxText, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
+use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
 
 use crate::bands::Bands;
 use crate::radio::{Keyer, RadioModels, RadioMutex};

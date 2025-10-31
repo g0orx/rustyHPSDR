@@ -206,10 +206,10 @@ impl Receiver {
         let filter_high: f32 = 2700.0;
         let mode = Modes::USB.to_usize();
         let filter = Filters::F6.to_usize(); // 2.4k
-        let iq_input_buffer = vec![0.0; (buffer_size * 2) as usize];
+        let iq_input_buffer = vec![0.0; buffer_size * 2];
         let samples: usize = 0;
         let audio_output: AudioOutput = AudioOutput::Stereo;
-        let audio_buffer = vec![0.0; (output_samples * 2) as usize];
+        let audio_buffer = vec![0.0; output_samples * 2];
         let local_audio_buffer_size: usize = 2048;
         let local_audio_buffer = vec![0i16; local_audio_buffer_size*2];
         let local_audio_buffer_offset: usize = 0;
@@ -237,7 +237,9 @@ impl Receiver {
         let local_output_changed = false;
         let local_output_device_changed = false;
 
-        let rx = Receiver { protocol,
+        
+
+        Receiver { protocol,
                             channel,
                             active,
                             adc,
@@ -317,15 +319,13 @@ impl Receiver {
                             local_output_changed,
                             local_output_device_changed,
 
-        };
-
-        rx
+        }
     }
 
     pub fn init(&mut self) {
-        self.iq_input_buffer = vec![0.0; (self.buffer_size * 2) as usize];
+        self.iq_input_buffer = vec![0.0; self.buffer_size * 2];
         self.samples = 0;
-        self.audio_buffer = vec![0.0; (self.output_samples * 2) as usize];
+        self.audio_buffer = vec![0.0; self.output_samples * 2];
         self.local_audio_buffer = vec![0i16; self.local_audio_buffer_size*2];
         self.local_audio_buffer_offset = 0;
         self.remote_audio_buffer = vec![0u8; self.remote_audio_buffer_size];
@@ -368,7 +368,7 @@ impl Receiver {
 
             SetRXAPanelGain1(channel, self.afgain.into());
             SetRXAPanelPan(channel, self.afpan.into());
-            AGC::set_agc(&self, channel);
+            AGC::set_agc(self, channel);
             SetRXAAGCTop(channel, self.agcgain.into());
             SetRXAPanelSelect(channel, 3);
             SetRXAPanelPan(channel, 0.5);
@@ -388,17 +388,17 @@ impl Receiver {
             SetEXTANBRun(channel, 0); //self.nb);
             SetEXTNOBRun(channel, self.nb.into()); //self.nb2);
 
-            SetRXAEMNRPosition(channel, self.agc_position.into());
+            SetRXAEMNRPosition(channel, self.agc_position);
             SetRXAEMNRgainMethod(channel, 2); //self.nr2_gain_method);
             SetRXAEMNRnpeMethod(channel, 0); //self.nr2_npe_method);
             SetRXAEMNRRun(channel, self.nr.into()); //self.nr2);
             SetRXAEMNRaeRun(channel, 1); //self.nr2_ae);
 
-            SetRXAANRPosition(channel, self.agc_position.into());
+            SetRXAANRPosition(channel, self.agc_position);
             SetRXAANRVals(channel, self.nr_taps, self.nr_delay, 1e-6 * self.nr_gain as f64, 1e-3 * self.nr_leak as f64);
             SetRXAANRRun(channel, 0); //self.nr);
 
-            SetRXAANFPosition(channel, self.agc_position.into());
+            SetRXAANFPosition(channel, self.agc_position);
             SetRXAANFVals(channel, self.anf_taps, self.anf_delay, 1e-6 * self.anf_gain as f64, 1e-3 * self.anf_leak as f64);
             SetRXAANFRun(channel, self.anf.into()); //self.anf);
             SetRXASNBARun(channel, self.snb.into()); //self.snb);
@@ -413,9 +413,9 @@ impl Receiver {
             if self.ctun {
                 let mut offset = self.ctun_frequency - self.frequency;
                 if self.mode == Modes::CWL.to_usize() {
-                     offset = offset + self.cw_pitch;
+                     offset += self.cw_pitch;
                 } else if self.mode == Modes::CWU.to_usize() {
-                     offset = offset - self.cw_pitch;
+                     offset -= self.cw_pitch;
                 }
                 SetRXAShiftRun(channel, 1);
                 SetRXAShiftFreq(channel, offset.into());
@@ -438,9 +438,9 @@ impl Receiver {
 
     pub fn update_AgcPosition(&self) {
         unsafe {
-            SetRXAEMNRPosition(self.channel, self.agc_position.into());
-            SetRXAANRPosition(self.channel, self.agc_position.into());
-            SetRXAANFPosition(self.channel, self.agc_position.into());
+            SetRXAEMNRPosition(self.channel, self.agc_position);
+            SetRXAANRPosition(self.channel, self.agc_position);
+            SetRXAANFPosition(self.channel, self.agc_position);
         }
     }
 
@@ -509,9 +509,9 @@ impl Receiver {
     pub fn set_ctun_frequency(&self) {
         let mut offset = self.ctun_frequency - self.frequency;
         if self.mode == Modes::CWL.to_usize() {
-             offset = offset + self.cw_pitch;
+             offset += self.cw_pitch;
         } else if self.mode == Modes::CWU.to_usize() {
-             offset = offset - self.cw_pitch;
+             offset -= self.cw_pitch;
         }
         unsafe {
             SetRXAShiftFreq(self.channel, offset.into());
@@ -632,7 +632,7 @@ impl Receiver {
     pub fn sample_rate_changed(&mut self, rate: i32) {
         self.sample_rate = rate;
         self.output_samples = self.buffer_size/(self.sample_rate/48000) as usize;
-        self.audio_buffer = vec![0.0; (self.output_samples * 2) as usize];
+        self.audio_buffer = vec![0.0; self.output_samples * 2];
         unsafe {
             SetChannelState(self.channel, 0, 1);
         }

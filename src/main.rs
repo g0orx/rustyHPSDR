@@ -269,9 +269,9 @@ impl AppWidgets {
             .object("filter_frame")
             .expect("Could not get filter_frame from builder");
 
-        let band_grid = BandGrid::new(&builder);
-        let mode_grid = ModeGrid::new(&builder);
-        let filter_grid = FilterGrid::new(&builder);
+        let band_grid = BandGrid::new(builder);
+        let mode_grid = ModeGrid::new(builder);
+        let filter_grid = FilterGrid::new(builder);
 
         let tx_power: Label = builder
             .object("tx_power")
@@ -893,10 +893,8 @@ fn build_ui(app: &Application) {
                         let width = da.allocated_width();
                         if gesture.current_button() == 2 { // middle button
                             *press_state.borrow_mut() = true;
-                        } else {
-                            if !spectrum_waterfall_clicked(&radio_mutex_clone, &rc_app_widgets_clone_clone, 1, x, width, gesture.current_button()) {
-                                update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
-                            }
+                        } else if !spectrum_waterfall_clicked(&radio_mutex_clone, &rc_app_widgets_clone_clone, 1, x, width, gesture.current_button()) {
+                            update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
                         }
                     });
                     let press_state = middle_button_pressed.clone();
@@ -994,22 +992,22 @@ fn build_ui(app: &Application) {
                             let mut r = radio_mutex_clone.radio.lock().unwrap();
                             if r.is_transmitting() {
                                 if last_spectrum_y_clone.get() < top.into() {
-                                    r.transmitter.spectrum_high = r.transmitter.spectrum_high + increment;
+                                    r.transmitter.spectrum_high += increment;
                                 } else if last_spectrum_y_clone.get() > bottom.into() {
-                                    r.transmitter.spectrum_low = r.transmitter.spectrum_low + increment;
+                                    r.transmitter.spectrum_low += increment;
                                 } else {
-                                    r.transmitter.spectrum_high = r.transmitter.spectrum_high + increment;
-                                    r.transmitter.spectrum_low = r.transmitter.spectrum_low + increment;
+                                    r.transmitter.spectrum_high += increment;
+                                    r.transmitter.spectrum_low += increment;
                                 }
                             } else {
                                 let b = r.receiver[0].band.to_usize();
                                 if last_spectrum_y_clone.get() < top.into() {
-                                    r.receiver[0].band_info[b].spectrum_high = r.receiver[0].band_info[b].spectrum_high + increment;
+                                    r.receiver[0].band_info[b].spectrum_high += increment;
                                 } else if last_spectrum_y_clone.get() > bottom.into() {
-                                    r.receiver[0].band_info[b].spectrum_low = r.receiver[0].band_info[b].spectrum_low + increment;
+                                    r.receiver[0].band_info[b].spectrum_low += increment;
                                 } else {
-                                    r.receiver[0].band_info[b].spectrum_low = r.receiver[0].band_info[b].spectrum_low + increment;
-                                    r.receiver[0].band_info[b].spectrum_high = r.receiver[0].band_info[b].spectrum_high + increment;
+                                    r.receiver[0].band_info[b].spectrum_low += increment;
+                                    r.receiver[0].band_info[b].spectrum_high += increment;
                                 }
                             }
                         } else {
@@ -1041,22 +1039,22 @@ fn build_ui(app: &Application) {
                             let mut r = radio_mutex_clone.radio.lock().unwrap();
                             if r.is_transmitting() {
                                 if last_spectrum_y_clone.get() < top.into() {
-                                    r.transmitter.spectrum_high = r.transmitter.spectrum_high + increment;
+                                    r.transmitter.spectrum_high += increment;
                                 } else if last_spectrum_y_clone.get() > bottom.into() {
-                                    r.transmitter.spectrum_low = r.transmitter.spectrum_low + increment;
+                                    r.transmitter.spectrum_low += increment;
                                 } else {
-                                    r.transmitter.spectrum_high = r.transmitter.spectrum_high + increment;
-                                    r.transmitter.spectrum_low = r.transmitter.spectrum_low + increment;
+                                    r.transmitter.spectrum_high += increment;
+                                    r.transmitter.spectrum_low += increment;
                                 }
                             } else {
                                 let b = r.receiver[1].band.to_usize();
                                 if last_spectrum_y_clone.get() < top.into() {
-                                    r.receiver[1].band_info[b].spectrum_high = r.receiver[1].band_info[b].spectrum_high + increment;
+                                    r.receiver[1].band_info[b].spectrum_high += increment;
                                 } else if last_spectrum_y_clone.get() > bottom.into() {
-                                    r.receiver[1].band_info[b].spectrum_low = r.receiver[1].band_info[b].spectrum_low + increment;
+                                    r.receiver[1].band_info[b].spectrum_low += increment;
                                 } else {
-                                    r.receiver[1].band_info[b].spectrum_low = r.receiver[1].band_info[b].spectrum_low + increment;
-                                    r.receiver[1].band_info[b].spectrum_high = r.receiver[1].band_info[b].spectrum_high + increment;
+                                    r.receiver[1].band_info[b].spectrum_low += increment;
+                                    r.receiver[1].band_info[b].spectrum_high += increment;
                                 }
                             }
                         } else {
@@ -1141,7 +1139,7 @@ fn build_ui(app: &Application) {
                             let frequency_range = frequency_high - frequency_low;
                             let width = r.receiver[rx].spectrum_width * r.receiver[rx].zoom;
                             let mut f = r.receiver[rx].frequency;
-                            let hz_per_pixel = frequency_range as f32 / width as f32;
+                            let hz_per_pixel = frequency_range / width as f32;
                             if r.receiver[rx].ctun {
                                 f = r.receiver[rx].ctun_frequency;
                             }
@@ -1324,21 +1322,19 @@ fn build_ui(app: &Application) {
                             // NR is now enabled
                             r.receiver[rx].nr = true;
                             r.receiver[rx].set_nr(); // turn on
+                        } else if r.receiver[rx].nr {
+                            // NR was active
+                            r.receiver[rx].nr = false;
+                            r.receiver[rx].set_nr(); // turn off
+                            // enable NR2
+                            r.receiver[rx].nr2 = true;
+                            r.receiver[rx].set_nr2(); // turn on
+                            button.set_label("NR2");
+                            button.set_active(true);
                         } else {
-                            if r.receiver[rx].nr {
-                                // NR was active
-                                r.receiver[rx].nr = false;
-                                r.receiver[rx].set_nr(); // turn off
-                                // enable NR2
-                                r.receiver[rx].nr2 = true;
-                                r.receiver[rx].set_nr2(); // turn on
-                                button.set_label("NR2");
-                                button.set_active(true);
-                            } else {
-                                r.receiver[rx].nr2 = false;
-                                r.receiver[rx].set_nr2(); // turn off
-                                button.set_label("NR");
-                            }
+                            r.receiver[rx].nr2 = false;
+                            r.receiver[rx].set_nr2(); // turn off
+                            button.set_label("NR");
                         }
                     });
 
@@ -1355,21 +1351,19 @@ fn build_ui(app: &Application) {
                             // NR is now enabled
                             r.receiver[rx].nb = true;
                             r.receiver[rx].set_nb(); // turn on
+                        } else if r.receiver[rx].nb {
+                            // NR was active
+                            r.receiver[rx].nb = false;
+                            r.receiver[rx].set_nb(); // turn off
+                            // enable NR2
+                            r.receiver[rx].nb2 = true;
+                            r.receiver[rx].set_nb2(); // turn on
+                            button.set_label("NB2");
+                            button.set_active(true);
                         } else {
-                            if r.receiver[rx].nb {
-                                // NR was active
-                                r.receiver[rx].nb = false;
-                                r.receiver[rx].set_nb(); // turn off
-                                // enable NR2
-                                r.receiver[rx].nb2 = true;
-                                r.receiver[rx].set_nb2(); // turn on
-                                button.set_label("NB2");
-                                button.set_active(true);
-                            } else {
-                                r.receiver[rx].nb2 = false;
-                                r.receiver[rx].set_nb2(); // turn off
-                                button.set_label("NB");
-                            }
+                            r.receiver[rx].nb2 = false;
+                            r.receiver[rx].set_nb2(); // turn off
+                            button.set_label("NB");
                         }
                     });
 
@@ -1401,12 +1395,10 @@ fn build_ui(app: &Application) {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         r.mox = button.is_active();
-                        if r.mox {
-                            if app_widgets.tun_button.is_active() {
-                               app_widgets.tun_button.set_active(false);
-                               r.tune = false;
-                               r.transmitter.set_tuning(r.tune, r.cw_keyer_sidetone_frequency);
-                            }
+                        if r.mox && app_widgets.tun_button.is_active() {
+                           app_widgets.tun_button.set_active(false);
+                           r.tune = false;
+                           r.transmitter.set_tuning(r.tune, r.cw_keyer_sidetone_frequency);
                         }
                         r.updated = true;
                         r.set_state();
@@ -1418,14 +1410,12 @@ fn build_ui(app: &Application) {
                                 app_widgets.vfo_a_frequency.remove_css_class("vfo-a-label");
                                 app_widgets.vfo_a_frequency.add_css_class("vfo-tx-label");
                             }
+                        } else if r.split {
+                            app_widgets.vfo_b_frequency.remove_css_class("vfo-tx-label");
+                            app_widgets.vfo_b_frequency.add_css_class("vfo-b-label");
                         } else {
-                            if r.split {
-                                app_widgets.vfo_b_frequency.remove_css_class("vfo-tx-label");
-                                app_widgets.vfo_b_frequency.add_css_class("vfo-b-label");
-                            } else {
-                                app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
-                                app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
-                            }
+                            app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
+                            app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
                         }
                     });
 
@@ -1435,11 +1425,9 @@ fn build_ui(app: &Application) {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         r.tune = button.is_active();
-                        if r.tune {
-                            if app_widgets.mox_button.is_active() {
-                               app_widgets.mox_button.set_active(false);
-                               r.mox = false;
-                            }
+                        if r.tune && app_widgets.mox_button.is_active() {
+                           app_widgets.mox_button.set_active(false);
+                           r.mox = false;
                         }
                         r.transmitter.set_tuning(r.tune, r.cw_keyer_sidetone_frequency);
                         r.updated = true;
@@ -1452,14 +1440,12 @@ fn build_ui(app: &Application) {
                                 app_widgets.vfo_a_frequency.remove_css_class("vfo-a-label");
                                 app_widgets.vfo_a_frequency.add_css_class("vfo-tx-label");
                             }
+                        } else if r.split {
+                            app_widgets.vfo_b_frequency.remove_css_class("vfo-tx-label");
+                            app_widgets.vfo_b_frequency.add_css_class("vfo-b-label");
                         } else {
-                            if r.split {
-                                app_widgets.vfo_b_frequency.remove_css_class("vfo-tx-label");
-                                app_widgets.vfo_b_frequency.add_css_class("vfo-b-label");
-                            } else {
-                                app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
-                                app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
-                            }
+                            app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
+                            app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
                         }
                     });
 
@@ -1620,7 +1606,7 @@ fn build_ui(app: &Application) {
                         //initialize the notch vector
                         r.notch = 0;
                         for i in 0..r.notches.len() {
-                            let notch = r.notches[i as usize];
+                            let notch = r.notches[i];
                             r.add_notch(notch);
                         }
 
@@ -1820,7 +1806,7 @@ fn spectrum_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
     let (flag, pixels) = radio_mutex.update_spectrum(app_widgets.spectrum_display.width());
     if flag != 0 {
         let mut spectrum = rc_spectrum.borrow_mut();
-        spectrum.update(app_widgets.spectrum_display.width(), app_widgets.spectrum_display.height(), &radio_mutex, &pixels);
+        spectrum.update(app_widgets.spectrum_display.width(), app_widgets.spectrum_display.height(), radio_mutex, &pixels);
         app_widgets.spectrum_display.queue_draw();
     }
 }
@@ -1835,7 +1821,7 @@ fn spectrum_2_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppW
         let (flag, pixels) = radio_mutex.update_spectrum_2(app_widgets.spectrum_2_display.width());
         if flag != 0 {
             let mut spectrum = rc_spectrum.borrow_mut();
-            spectrum.update(app_widgets.spectrum_2_display.width(), app_widgets.spectrum_2_display.height(), &radio_mutex, &pixels);
+            spectrum.update(app_widgets.spectrum_2_display.width(), app_widgets.spectrum_2_display.height(), radio_mutex, &pixels);
             app_widgets.spectrum_2_display.queue_draw();
         }
     }
@@ -1851,7 +1837,7 @@ fn waterfall_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWi
         let (flag, pixels) = radio_mutex.update_waterfall(app_widgets.waterfall_display.width());
         if flag != 0 {
             let mut waterfall = rc_waterfall.borrow_mut();
-            waterfall.update(app_widgets.waterfall_display.width(), app_widgets.waterfall_display.height(), &radio_mutex, &pixels);
+            waterfall.update(app_widgets.waterfall_display.width(), app_widgets.waterfall_display.height(), radio_mutex, &pixels);
             app_widgets.waterfall_display.queue_draw();
         }
     }
@@ -1867,7 +1853,7 @@ fn waterfall_2_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<App
         let (flag, pixels) = radio_mutex.update_waterfall_2(app_widgets.waterfall_2_display.width());
         if flag != 0 {
             let mut waterfall = rc_waterfall_2.borrow_mut();
-            waterfall.update(app_widgets.waterfall_2_display.width(), app_widgets.waterfall_2_display.height(), &radio_mutex, &pixels);
+            waterfall.update(app_widgets.waterfall_2_display.width(), app_widgets.waterfall_2_display.height(), radio_mutex, &pixels);
             app_widgets.waterfall_2_display.queue_draw();
         }
     }
@@ -1964,12 +1950,10 @@ fn spectrum_waterfall_clicked(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefC
             r.receiver[1].active = false;
             return false;
         }
-    } else {
-        if !r.receiver[1].active {
-            r.receiver[1].active = true;
-            r.receiver[0].active = false;
-            return false;
-        }
+    } else if !r.receiver[1].active {
+        r.receiver[1].active = true;
+        r.receiver[0].active = false;
+        return false;
     }
 
     let app_widgets = rc_app_widgets.borrow();
@@ -1982,7 +1966,7 @@ fn spectrum_waterfall_clicked(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefC
     let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[rx].pan as f32;
     let display_frequency_low = frequency_low + display_frequency_offset;
     let display_frequency_high = frequency_high + display_frequency_offset;
-    let display_hz_per_pixel = display_frequency_range as f32 / width as f32;
+    let display_hz_per_pixel = display_frequency_range / width as f32;
         
         
     let f1 = display_frequency_low + (x as f32 * display_hz_per_pixel);
@@ -2021,7 +2005,7 @@ fn spectrum_waterfall_scroll(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCe
     let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f32;
     let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f32;
     if r.receiver[rx].ctun {
-        r.receiver[rx].ctun_frequency = r.receiver[rx].ctun_frequency - (r.receiver[rx].step * dy as f32);
+        r.receiver[rx].ctun_frequency -= r.receiver[rx].step * dy as f32;
         if r.receiver[rx].ctun_frequency < frequency_low {
             r.receiver[rx].ctun_frequency = frequency_low;
         } else if r.receiver[rx].ctun_frequency > frequency_high {
@@ -2035,7 +2019,7 @@ fn spectrum_waterfall_scroll(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCe
         }
         r.receiver[rx].set_ctun_frequency();
     } else {
-        r.receiver[rx].frequency = r.receiver[rx].frequency - (r.receiver[rx].step * dy as f32);
+        r.receiver[rx].frequency -= r.receiver[rx].step * dy as f32;
         let formatted_value = format_u32_with_separators(r.receiver[rx].frequency as u32);
         if rx == 0 {
             app_widgets.vfo_a_frequency.set_label(&formatted_value);

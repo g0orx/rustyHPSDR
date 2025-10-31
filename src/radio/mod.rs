@@ -16,10 +16,9 @@
 */
 
 use gtk::prelude::*;
-use gtk::cairo::{Context, LineCap, LineJoin}; 
+use gtk::cairo::Context; 
 use glib::source::SourceId;
 use gdk_pixbuf::Pixbuf;
-use pangocairo;
 
 use std::cell::RefCell;
 //use std::{env, fs, path::{PathBuf}};
@@ -477,7 +476,7 @@ impl Radio {
         } 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 0, pixels.as_mut_ptr(), &mut flag);
             }
@@ -491,7 +490,7 @@ impl Radio {
         let pixels_len = width * zoom;
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 0, pixels.as_mut_ptr(), &mut flag);
             }
@@ -514,7 +513,7 @@ impl Radio {
 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 1, pixels.as_mut_ptr(), &mut flag);
             }
@@ -523,14 +522,14 @@ impl Radio {
     }
 
     pub fn update_waterfall_2(&mut self, width: i32) -> (c_int, Vec<f32>) {
-        let mut zoom = self.receiver[1].zoom;
-        let mut channel = self.receiver[1].channel;
+        let zoom = self.receiver[1].zoom;
+        let channel = self.receiver[1].channel;
 
-        let mut pixels_len = width * zoom;
+        let pixels_len = width * zoom;
 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
-        if pixels.len() != 0 { // may happen at start of application before spectrum is setup
+        if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 1, pixels.as_mut_ptr(), &mut flag);
             }
@@ -636,7 +635,7 @@ impl Radio {
         unsafe {
             let res = RXANBPAddNotch (notch.rx, self.notch, notch.frequency, notch.width, notch.active);
         }
-        self.notch = self.notch + 1;
+        self.notch += 1;
     }
 
     // only called when radio is running protocol 1

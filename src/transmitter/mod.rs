@@ -100,15 +100,15 @@ impl Transmitter {
         let packet_counter = 0;
         let is_transmitting = false;
 
-        let microphone_buffer_size = 1024 as usize;
-        let microphone_buffer = vec![0.0f64; (microphone_buffer_size * 2) as usize];
+        let microphone_buffer_size = 1024_usize;
+        let microphone_buffer = vec![0.0f64; microphone_buffer_size * 2];
         let microphone_samples = 0;
 
 
         let fft_size = 2048;
 
         let iq_buffer = vec![0.0f64; (output_samples * 2) as usize];
-        let iq_samples = 0 as usize;
+        let iq_samples = 0_usize;
 
         let low_latency = false;
         let use_rx_filter = false;
@@ -188,7 +188,9 @@ impl Transmitter {
         let input_level = 0.0;
 
 
-        let tx = Transmitter{ protocol,
+        
+
+        Transmitter{ protocol,
             board,
             channel,
             sample_rate,
@@ -229,14 +231,12 @@ impl Transmitter {
             input_device_changed,
             alc,
             input_level,
-        };
-
-        tx
+        }
     }
 
     pub fn init(&mut self) {
         eprintln!("Transmitter::init input_samples {} output_samples {}", self.microphone_buffer_size, self.output_samples);
-        self.microphone_buffer = vec![0.0f64; (self.microphone_buffer_size * 2) as usize];
+        self.microphone_buffer = vec![0.0f64; self.microphone_buffer_size * 2];
         self.microphone_samples = 0;
         self.iq_buffer = vec![0.0f64; (self.output_samples * 2) as usize];
         self.iq_samples = 0;
@@ -262,7 +262,7 @@ impl Transmitter {
         let mut flp = [0];
         let keep_time: f32 = 0.1;
         let max_w = self.fft_size + min((keep_time * self.fps) as i32, (keep_time * self.fft_size as f32  * self.fps) as i32);
-        let buffer_size: i32 = (self.output_samples * 4) as i32;
+        let buffer_size: i32 = self.output_samples * 4;
         let mut multiplier = 3; // protocol1
         if self.protocol == 2 {
             multiplier = 12; // protocol2

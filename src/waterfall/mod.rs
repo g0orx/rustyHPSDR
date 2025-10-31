@@ -70,10 +70,10 @@ impl Waterfall {
             let channels = self.pixbuf.n_channels() as usize;
 
             for y in (0..height - 1).rev() { // Iterate in reverse order
-                let src_offset = (y * rowstride) as usize;
-                let dest_offset = ((y + 1) * rowstride) as usize;
+                let src_offset = y * rowstride;
+                let dest_offset = (y + 1) * rowstride;
                 if dest_offset + rowstride <= pixels.len() {
-                    pixels.copy_within(src_offset..src_offset + rowstride as usize, dest_offset);
+                    pixels.copy_within(src_offset..src_offset + rowstride, dest_offset);
                 }
             }
 
@@ -88,7 +88,7 @@ impl Waterfall {
             let mut B = 0.0;
             let mut max_percent = 0.0;
             for x in 0..waterfall_width {
-                let value: f32 = new_pixels[x as usize + pan as usize] as f32;
+                let value: f32 = new_pixels[x as usize + pan as usize];
                 if value < r.receiver[self.rx].band_info[b].spectrum_low {
                     average += r.receiver[self.rx].band_info[b].spectrum_low;
                 } else {
