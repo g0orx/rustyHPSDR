@@ -18,7 +18,7 @@
 use glib::ControlFlow::Continue;
 use glib::timeout_add_local;
 use gtk::prelude::*;
-use gtk::{Adjustment, Application, ApplicationWindow, Builder, Button, DrawingArea, DropDown, Frame, Grid, Label, ToggleButton};
+use gtk::{Adjustment, Application, ApplicationWindow, Builder, Button, DrawingArea, DropDown, Frame, Grid, Label, ProgressBar, ToggleButton};
 use gtk::{EventController, EventControllerMotion, EventControllerScroll, EventControllerScrollFlags, GestureClick};
 use gtk::gdk::Cursor;
 use gtk::glib::Propagation;
@@ -99,7 +99,8 @@ struct AppWidgets {
     pub tx_power: Label,
     pub tx_swr: Label,
     pub tx_alc: Label,
-    pub input_level: Label,
+    //pub input_level: Label,
+    pub input_level: ProgressBar,
 }
 
 impl AppWidgets {
@@ -284,7 +285,8 @@ impl AppWidgets {
             .object("tx_alc")
             .expect("Could not get tx_alc from builder");
 
-        let input_level: Label = builder
+        //let input_level: Label = builder
+        let input_level: ProgressBar = builder
             .object("input_level")
             .expect("Could not get input_level from builder");
 
@@ -1762,7 +1764,7 @@ fn build_ui(app: &Application) {
                         Continue
                     });
 
-                    let update_interval = 250.0;
+                    let update_interval = 100.0;
                     let radio_mutex_clone = radio_mutex.clone();
                     let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
                     let rc_meter_tx_clone2 = rc_meter_tx_clone.clone();
@@ -1939,11 +1941,13 @@ fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
         app_widgets.tx_swr.set_label(&formatted_swr);
         let formatted_alc = format!("ALC: {:.3}", alc);
         app_widgets.tx_alc.set_label(&formatted_alc);
-        let formatted_level = format!("Input Level: {:.2}", input_level);
-        app_widgets.input_level.set_label(&formatted_level);
+        //let formatted_level = format!("Input Level: {:.2}", input_level);
+        //app_widgets.input_level.set_label(&formatted_level);
+        app_widgets.input_level.set_fraction(input_level);
     } else {
-        let formatted_level = format!("Input Level: {:.2}", input_level);
-        app_widgets.input_level.set_label(&formatted_level);
+        //let formatted_level = format!("Input Level: {:.2}", input_level);
+        //app_widgets.input_level.set_label(&formatted_level);
+        app_widgets.input_level.set_fraction(input_level);
     }
 
     //if is_transmitting {

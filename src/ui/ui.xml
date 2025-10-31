@@ -234,7 +234,7 @@
               <child>
                 <object class="GtkFrame" id="tx_frame">
                   <property name="label">TX</property>
-                  <property name="hexpand">True</property>
+                  <property name="width-request">100</property>
                   <layout>
                     <property name="column">5</property>
                     <property name="row">0</property>
@@ -273,12 +273,13 @@
                         </object>
                       </child>
                       <child>
-                        <object class="GtkLabel" id="input_level">
-                          <property name="label">Input Level: 0.0</property>
-                          <style>
-                            <class name="input-level"/>
-                          </style>
+                        <object class="GtkLabel">
+                          <property name="label">Input Level: </property>
                           <property name="xalign">0.0</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkProgressBar" id="input_level">
                         </object>
                       </child>
                     </object>

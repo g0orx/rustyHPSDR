@@ -15,6 +15,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/*
+    Implements the Open HPSDR - USB Data Protocol (v1.60) over Ethernet.
+
+    Supports sample rates of 48/96/192/384kHz.
+    Microphone, Audio and I/Q transmit data is at 48kHz.
+
+    Note that the Microphone sample rate is actually at the receive I/Q sample
+    rate but each sample is repeated to fit the I/Q sample rate. The replicated
+    samples are ignored.
+*/
+
 use nix::sys::socket::setsockopt;
 use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
 use std::net::{UdpSocket};
@@ -251,7 +262,7 @@ impl Protocol1 {
 
     fn process_ozy_buffer(&mut self, buffer: &Vec<u8>, offset: usize, radio_mutex: &RadioMutex)  {
         let mut r = radio_mutex.radio.lock().unwrap();
-        let mic_sample_divisor = r.transmitter.sample_rate / 48000;
+        let mic_sample_divisor = r.sample_rate / 48000;
 
         let mut c0: u8 = 0;
         let mut c1: u8 = 0;
@@ -357,45 +368,45 @@ impl Protocol1 {
                     process_rx_audio = true;
                 }
             }
-            // MIC Audio samples
-            if !r.transmitter.local_input_changed && (r.transmitter.local_input && !r.tune) {
-                let mic_buffer = self.tx_audio.read_input();
-                if mic_buffer.len() != 0 {
-                    //eprintln!("mic samples {}", mic_buffer.len());
-                    for i in 0..mic_buffer.len() {
-                        let x = r.transmitter.microphone_samples * 2;
-                        r.transmitter.microphone_buffer[x] = mic_buffer[i] as f64 / 32768.0;
-                        r.transmitter.microphone_buffer[x+1] = 0.0;
-                        r.transmitter.microphone_samples += 1;
-                        if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
-                            r.transmitter.process_mic_samples();
-                            r.transmitter.microphone_samples = 0;
-                            process_tx_iq = true;
-                        }
-                    }
-                }
-            } else if !r.transmitter.local_input || r.tune {
-                if buffer[b] & 0x80 != 0 {
-                    mic_sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as i32;
-                } else {
-                    mic_sample = u32::from_be_bytes([0x00, 0x00, buffer[b], buffer[b+1]]) as i32;
-                }
-                //b = b + 2;
-                mic_samples = mic_samples + 1;
-                if mic_samples >= mic_sample_divisor {
-                    mic_samples = 0;
-                    let x = r.transmitter.microphone_samples * 2;
-                    r.transmitter.microphone_buffer[x] = mic_sample as f64 / 32768.0;
-                    r.transmitter.microphone_buffer[x+1] = 0.0;
-                    r.transmitter.microphone_samples += 1;
-                    if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
-                        r.transmitter.process_mic_samples();
-                        r.transmitter.microphone_samples = 0;
-                        process_tx_iq = true;
-                    }
-                }
+            // MIC Audio samples - always collect them and sync with local audio input if enbaled
+            if buffer[b] & 0x80 != 0 {
+                mic_sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as i32;
+            } else {
+                mic_sample = u32::from_be_bytes([0x00, 0x00, buffer[b], buffer[b+1]]) as i32;
             }
             b = b + 2;
+            mic_samples = mic_samples + 1;
+            // discard replcated samples
+            if mic_samples >= mic_sample_divisor {
+                mic_samples = 0;
+                let x = r.transmitter.microphone_samples * 2;
+                r.transmitter.microphone_buffer[x] = mic_sample as f64 / 32768.0;
+                r.transmitter.microphone_buffer[x+1] = 0.0;
+                r.transmitter.microphone_samples += 1;
+                if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
+                    if r.transmitter.local_input && !r.transmitter.local_input_changed {
+                        // replace samples with local audio samples
+                        r.transmitter.microphone_samples = 0;
+                        let mic_buffer = self.tx_audio.read_input();
+                        for i in 0..mic_buffer.len() {
+                            let x = r.transmitter.microphone_samples * 2;
+                            r.transmitter.microphone_buffer[x] = mic_buffer[i] as f64 / 32768.0;
+                            r.transmitter.microphone_buffer[x+1] = 0.0;
+                            r.transmitter.microphone_samples += 1;
+                        }
+                        let remaining = r.transmitter.microphone_buffer_size - mic_buffer.len();
+                        for i in 0..remaining {
+                            let x = r.transmitter.microphone_samples * 2;
+                            r.transmitter.microphone_buffer[x] = 0.0;
+                            r.transmitter.microphone_buffer[x+1] = 0.0;
+                            r.transmitter.microphone_samples += 1;
+                        }
+                    }
+                    r.transmitter.process_mic_samples();
+                    r.transmitter.microphone_samples = 0;
+                    process_tx_iq = true;
+                }
+            }
         }
 
         // full RX audio buffers

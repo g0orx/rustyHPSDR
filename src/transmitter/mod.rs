@@ -86,7 +86,7 @@ impl Transmitter {
         let protocol: u8 = proto;
         let board: Boards = board;
         let channel: i32 = chan as i32;
-        let sample_rate = 48000; // protocol 1 & 2
+        let sample_rate = 48000; // protocol 1 & 2 input audio
         let mut dsp_rate = 48000;    // protocol 1
         let mut output_rate = 48000; // protocol 1
         if protocol == 2 {
@@ -351,7 +351,7 @@ impl Transmitter {
             SetTXAPostGenToneFreq(self.channel, 0.0);
             SetTXAPostGenRun(self.channel, 0);
 
-            SetTXAPanelGain1(self.channel,(self.micgain / 20.0).powf(10.0_f32) as f64);
+            SetTXAPanelGain1(self.channel,10.0_f32.powf(self.micgain / 20.0) as f64);
             SetTXAPanelRun(self.channel, 1);
 
             SetTXAFMDeviation(self.channel, 2500.0);
@@ -412,7 +412,6 @@ impl Transmitter {
     }
 
     pub fn process_mic_samples(&mut self) {
-        //eprintln!("process_mic_samples; {} {}", self.microphone_buffer.len(), self.iq_buffer.len());
         let mut input_level = 0.0;
         for i in 0..(self.microphone_buffer.len()/2) {
             let ix = i * 2;
@@ -424,7 +423,7 @@ impl Transmitter {
                 }
             }
         }
-        self.input_level = input_level * 100.0;
+        self.input_level = input_level;
         let raw_ptr: *mut f64 = self.microphone_buffer.as_mut_ptr() as *mut f64;
         let iq_ptr: *mut f64 =  self.iq_buffer.as_mut_ptr() as *mut f64;
         let mut result: c_int = 0;

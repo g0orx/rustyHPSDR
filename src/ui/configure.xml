@@ -93,7 +93,7 @@
             <property name="margin-end">5</property>
             <child>
               <object class="GtkFrame">
-                <property name="label">Audio Input</property>
+                <property name="label">Local Audio Input</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -115,6 +115,48 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkFrame" id="radio_microphone">
+                <property name="label">Radio Microphone</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkCheckButton" id="mic_boost_check_button">
+                        <property name="label">Mic Boost Enable</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="ptt_enable_check_button">
+                        <property name="label">Mic PTT Enable</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="mic_bias_box">
+                      <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkCheckButton" id="mic_bias_enable_check_button">
+                            <property name="label">Mic Bias Enable</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="mic_bias_ring_toggle_button">
+                            <property name="label">Mic/Bias on Ring, PTT on Tip</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="mic_bias_tip_toggle_button">
+                            <property name="label">Mic/Bias on Tip, PTT on Ring</property>
+                            <property name="group">mic_bias_ring_toggle_button</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
           </object>
         </child>
         <child type="tab">
@@ -1012,47 +1054,6 @@
                     <child>
                       <object class="GtkCheckButton" id="adc1_random_check_button">
                         <property name="label">Random</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame">
-                <property name="label">Microphone</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkCheckButton" id="mic_boost_check_button">
-                        <property name="label">Mic Boost Enable</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="ptt_enable_check_button">
-                        <property name="label">Mic PTT Enable</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="mic_bias_box">
-                      <property name="orientation">horizontal</property>
-                        <child>
-                          <object class="GtkCheckButton" id="mic_bias_enable_check_button">
-                            <property name="label">Mic Bias Enable</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkToggleButton" id="mic_bias_ring_toggle_button">
-                            <property name="label">Mic/Bias on Ring, PTT on Tip</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkToggleButton" id="mic_bias_tip_toggle_button">
-                            <property name="label">Mic/Bias on Tip, PTT on Ring</property>
-                            <property name="group">mic_bias_ring_toggle_button</property>
-                          </object>
-                        </child>
                       </object>
                     </child>
                   </object>

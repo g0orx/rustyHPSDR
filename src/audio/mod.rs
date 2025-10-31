@@ -79,10 +79,15 @@ impl Audio {
 
         let config = device.default_input_config()?;
 
+        // Create a custom config for stereo 48kHz output
+        let mut stream_config: StreamConfig = config.clone().into();
+        stream_config.channels = 1;
+        stream_config.sample_rate = SampleRate(48000);
+
         let period_size = match config.buffer_size() {
             cpal::SupportedBufferSize::Range { min, max } => {
-                if 2048 > *min && 2048 < *max {
-                    2048
+                if 1024 > *min && 1024 < *max {
+                    1024
                 } else {
                     *max as usize
                 }
@@ -93,7 +98,7 @@ impl Audio {
             }
         };
 
-        let (mut prod, cons) = HeapRb::new(period_size * 2).split();
+        let (mut prod, cons) = HeapRb::new(period_size).split();
         self.input_buffer = Some(cons);
 
         let stream = device.build_input_stream(

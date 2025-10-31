@@ -183,52 +183,45 @@ impl Protocol2 {
                         1026 => { // Mic/Line In Samples
                                 let data_size = MIC_SAMPLES * MIC_SAMPLE_SIZE;
                                 let mut r = radio_mutex.radio.lock().unwrap();
-                                if !r.transmitter.local_input  || r.tune {
-                                    let mut sample:f64 = 0.0;
-                                    let mut b = MIC_HEADER_SIZE;
-                                    if size >= MIC_HEADER_SIZE + data_size {
-                                        for _i in 0..MIC_SAMPLES {
-                                            if buffer[b] & 0x80 != 0 {
-                                                sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as f64;
-                                            } else {
-                                                sample = u32::from_be_bytes([0, 0, buffer[b], buffer[b+1]]) as f64;
-                                            }
-                                            b = b + 2;
-                                            let x = r.transmitter.microphone_samples * 2;
-                                            r.transmitter.microphone_buffer[x] = sample / 32767.0;
-                                            r.transmitter.microphone_buffer[x+1] = 0.0;
-                                            r.transmitter.microphone_samples += 1;
-                                            if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
-                                                r.transmitter.process_mic_samples();
-                                                r.transmitter.microphone_samples = 0;
-                                                
-                                                if r.is_transmitting() {
-                                                    for j in 0..r.transmitter.output_samples {
-                                                        let ix = j * 2;
-                                                        let ox = tx_iq_buffer_offset * 2;
-                                                        tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize];
-                                                        tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize];
-                                                        tx_iq_buffer_offset = tx_iq_buffer_offset + 1;
-                                                        if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
-                                                            self.send_iq_buffer(tx_iq_buffer.clone());
-                                                            tx_iq_buffer_offset = 0;
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                // always collect microphone samples
+                                let mut sample:f64 = 0.0;
+                                let mut b = MIC_HEADER_SIZE;
+                                if size >= MIC_HEADER_SIZE + data_size {
+                                    for _i in 0..MIC_SAMPLES {
+                                        if buffer[b] & 0x80 != 0 {
+                                            sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as f64;
+                                        } else {
+                                            sample = u32::from_be_bytes([0, 0, buffer[b], buffer[b+1]]) as f64;
                                         }
-                                    }
-                                } else if r.transmitter.local_input {
-                                    let buffer = self.tx_audio.read_input();
-                                    for i in 0..buffer.len() {
-                                        let sample = buffer[i] as f64 / 32767.0;
+                                        b = b + 2;
                                         let x = r.transmitter.microphone_samples * 2;
-                                        r.transmitter.microphone_buffer[x] = sample;
+                                        r.transmitter.microphone_buffer[x] = sample / 32767.0;
                                         r.transmitter.microphone_buffer[x+1] = 0.0;
                                         r.transmitter.microphone_samples += 1;
                                         if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
+
+                                            if r.transmitter.local_input && !r.transmitter.local_input_changed {
+                                                // replace samples with local audio samples
+                                                r.transmitter.microphone_samples = 0;
+                                                let mic_buffer = self.tx_audio.read_input();
+                                                for i in 0..mic_buffer.len() {
+                                                    let x = r.transmitter.microphone_samples * 2;
+                                                    r.transmitter.microphone_buffer[x] = mic_buffer[i] as f64 / 32768.0;
+                                                    r.transmitter.microphone_buffer[x+1] = 0.0;
+                                                    r.transmitter.microphone_samples += 1;
+                                                }
+                                                let remaining = r.transmitter.microphone_buffer_size - mic_buffer.len();
+                                                for i in 0..remaining {
+                                                    let x = r.transmitter.microphone_samples * 2;
+                                                    r.transmitter.microphone_buffer[x] = 0.0;
+                                                    r.transmitter.microphone_buffer[x+1] = 0.0;
+                                                    r.transmitter.microphone_samples += 1;
+                                                }
+                                            }
+
                                             r.transmitter.process_mic_samples();
                                             r.transmitter.microphone_samples = 0;
+                                            
                                             if r.is_transmitting() {
                                                 for j in 0..r.transmitter.output_samples {
                                                     let ix = j * 2;

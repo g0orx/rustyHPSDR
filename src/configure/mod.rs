@@ -76,6 +76,13 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
         r.transmitter.local_input_changed = true;
     });
 
+    if local_input {
+        let radio_microphone_frame: Frame = builder
+            .object("radio_microphone")
+            .expect("Could not get object `radio_microphone` from builder.");
+        radio_microphone_frame.set_visible(true);
+    }
+
     let input_dropdown: DropDown = builder
             .object("input_dropdown")
             .expect("Could not get object `input_dropdown` from builder.");
