@@ -279,7 +279,7 @@ impl Transmitter {
                 self.output_samples,
                 4,
                 14.0,
-                2048,
+                8192,
                 0,
                 0,
                 0,
@@ -367,12 +367,14 @@ impl Transmitter {
     }
 
     pub fn set_mode(&self) {
+        eprintln!("Trasnmitter::set_mode {:?}", self.mode);
         unsafe {
             SetTXAMode(self.channel, self.mode as i32);
         }
     }
 
     pub fn set_filter(&self) {
+        eprintln!("Trasnmitter::set_filter {} {}", self.filter_low, self.filter_high);
         unsafe {
             SetTXABandpassFreqs(self.channel, self.filter_low.into(), self.filter_high.into());
         }

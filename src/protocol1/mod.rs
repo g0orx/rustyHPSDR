@@ -380,11 +380,15 @@ impl Protocol1 {
             if mic_samples >= mic_sample_divisor {
                 mic_samples = 0;
                 let x = r.transmitter.microphone_samples * 2;
-                r.transmitter.microphone_buffer[x] = mic_sample as f64 / 32768.0;
+                if r.tune {
+                    r.transmitter.microphone_buffer[x] = 0.0;
+                } else {
+                    r.transmitter.microphone_buffer[x] = mic_sample as f64 / 32768.0;
+                }
                 r.transmitter.microphone_buffer[x+1] = 0.0;
                 r.transmitter.microphone_samples += 1;
                 if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
-                    if r.transmitter.local_input && !r.transmitter.local_input_changed {
+                    if r.transmitter.local_input && !r.transmitter.local_input_changed && !r.tune {
                         // replace samples with local audio samples
                         r.transmitter.microphone_samples = 0;
                         let mic_buffer = self.tx_audio.read_input();
@@ -527,13 +531,13 @@ impl Protocol1 {
                     let ix = j * 2;
                     let i_sample: i16 = (r.transmitter.iq_buffer[ix as usize] * 32767.0) as i16;
                     let q_sample: i16 = (r.transmitter.iq_buffer[(ix+1) as usize]* 32767.0)  as i16;
-                    self.ozy_buffer[self.ozy_buffer_offset] = (i_sample >> 8) as u8;
+                    self.ozy_buffer[self.ozy_buffer_offset] = ((i_sample >> 8) & 0xFF) as u8;
                     self.ozy_buffer_offset = self.ozy_buffer_offset + 1;
-                    self.ozy_buffer[self.ozy_buffer_offset] = i_sample as u8;
+                    self.ozy_buffer[self.ozy_buffer_offset] = (i_sample & 0xFF) as u8;
                     self.ozy_buffer_offset = self.ozy_buffer_offset + 1;
-                    self.ozy_buffer[self.ozy_buffer_offset] = (q_sample >> 8) as u8;
+                    self.ozy_buffer[self.ozy_buffer_offset] = ((q_sample >> 8) & 0xFF) as u8;
                     self.ozy_buffer_offset = self.ozy_buffer_offset + 1;
-                    self.ozy_buffer[self.ozy_buffer_offset] = q_sample as u8;
+                    self.ozy_buffer[self.ozy_buffer_offset] = (q_sample & 0xFF) as u8;
                     self.ozy_buffer_offset = self.ozy_buffer_offset + 1;
 
                     if self.ozy_buffer_offset == OZY_BUFFER_SIZE {
