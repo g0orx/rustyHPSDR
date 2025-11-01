@@ -128,13 +128,13 @@ impl Protocol2 {
     pub fn run(&mut self, radio_mutex: &RadioMutex) {
         let r = radio_mutex.radio.lock().unwrap();
         if r.receiver[0].local_output {
-            self.rx_audio[0].open_output(&r.receiver[0].output_device);
+            let _ = self.rx_audio[0].open_output(&r.receiver[0].output_device);
         }
         if r.receiver[1].local_output {
-            self.rx_audio[1].open_output(&r.receiver[1].output_device);
+            let _ = self.rx_audio[1].open_output(&r.receiver[1].output_device);
         }
         if r.transmitter.local_input {
-            self.tx_audio.open_input(&r.transmitter.input_device);
+            let _ = self.tx_audio.open_input(&r.transmitter.input_device);
         }
         drop(r);
 
@@ -208,7 +208,7 @@ impl Protocol2 {
                                                     r.transmitter.microphone_samples += 1;
                                                 }
                                                 let remaining = r.transmitter.microphone_buffer_size - mic_buffer.len();
-                                                for i in 0..remaining {
+                                                for _i in 0..remaining {
                                                     let x = r.transmitter.microphone_samples * 2;
                                                     r.transmitter.microphone_buffer[x] = 0.0;
                                                     r.transmitter.microphone_buffer[x+1] = 0.0;
@@ -344,7 +344,7 @@ impl Protocol2 {
                                                 if r.receiver[ddc].local_audio_buffer_offset == r.receiver[ddc].local_audio_buffer_size {
                                                     r.receiver[ddc].local_audio_buffer_offset = 0;
                                                     let buffer_clone = r.receiver[ddc].local_audio_buffer.clone();
-                                                    self.rx_audio[ddc].write_output(&buffer_clone);
+                                                    let _ = self.rx_audio[ddc].write_output(&buffer_clone);
                                                 }
                                             }
                                         }
@@ -368,7 +368,6 @@ impl Protocol2 {
             let keepalive = r.keepalive;
             r.updated = false;
             r.keepalive = false;
-            let remote_input = r.transmitter.remote_input;
             let local_input = r.transmitter.local_input;
             let local_input_changed = r.transmitter.local_input_changed;
             let input_device = r.transmitter.input_device.clone();
@@ -399,37 +398,37 @@ impl Protocol2 {
             }
             if local_input_changed {
                 if local_input {
-                    self.tx_audio.open_input(&input_device);
+                    let _ = self.tx_audio.open_input(&input_device);
                 } else {
-                    self.tx_audio.close_input();
+                    let _ = self.tx_audio.close_input();
                 }
             }
             if input_device_changed && local_input {
-                self.tx_audio.close_input();
-                self.tx_audio.open_input(&input_device);
+                let _ = self.tx_audio.close_input();
+                let _ = self.tx_audio.open_input(&input_device);
             }
 
             if rx1_local_output_changed {
                 if rx1_local_output {
-                    self.rx_audio[0].open_output(&rx1_output_device);
+                    let _ = self.rx_audio[0].open_output(&rx1_output_device);
                 } else {
-                    self.rx_audio[0].close_output();
+                    let _ = self.rx_audio[0].close_output();
                 }
             }
             if rx1_local_output_device_changed && rx1_local_output {
-                self.rx_audio[0].close_output();
-                self.rx_audio[0].open_output(&rx1_output_device);
+                let _ = self.rx_audio[0].close_output();
+                let _ = self.rx_audio[0].open_output(&rx1_output_device);
             }
             if rx2_local_output_changed {
                 if rx2_local_output {
-                    self.rx_audio[1].open_output(&rx2_output_device);
+                    let _ = self.rx_audio[1].open_output(&rx2_output_device);
                 } else {
-                    self.rx_audio[1].close_output();
+                    let _ = self.rx_audio[1].close_output();
                 }
             }
             if rx2_local_output_device_changed && rx2_local_output {
-                self.rx_audio[1].close_output();
-                self.rx_audio[1].open_output(&rx2_output_device);
+                let _ = self.rx_audio[1].close_output();
+                let _ = self.rx_audio[1].open_output(&rx2_output_device);
             }
         }
     }
@@ -480,7 +479,6 @@ impl Protocol2 {
     pub fn send_high_priority(&mut self, radio_mutex: &RadioMutex) {
         // port 1027
         let r = radio_mutex.radio.lock().unwrap();
-        let tx = &r.transmitter;
 
         let mut buf = [0u8; 1444];
         buf[0] = ((self.high_priority_sequence >> 24) & 0xFF) as u8;
@@ -494,7 +492,6 @@ impl Protocol2 {
         }
     
         // receiver frequency
-        let mut phase: u32 = 0;
         let mut f = 0.0;
         for i in 0..r.receivers {
             // convert frequency to phase
@@ -505,7 +502,7 @@ impl Protocol2 {
                  f -= r.receiver[i as usize].cw_pitch;
             }
 
-            phase = ((4294967296.0*f)/122880000.0) as u32;
+            let phase = ((4294967296.0*f)/122880000.0) as u32;
             buf[(9+(i*4)) as usize] = ((phase>>24) & 0xFF) as u8;
             buf[(10+(i*4)) as usize] = ((phase>>16) & 0xFF) as u8;
             buf[(11+(i*4)) as usize] = ((phase>>8) & 0xFF) as u8;
@@ -535,7 +532,7 @@ impl Protocol2 {
                  f -= r.receiver[0].cw_pitch;
             }
         }
-        phase = ((4294967296.0*f)/122880000.0) as u32;
+        let phase = ((4294967296.0*f)/122880000.0) as u32;
         buf[329] = ((phase>>24) & 0xFF) as u8;
         buf[330] = ((phase>>16) & 0xFF) as u8;
         buf[331] = ((phase>>8) & 0xFF) as u8;

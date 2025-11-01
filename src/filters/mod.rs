@@ -386,42 +386,40 @@ impl FilterGrid {
     }
 
     pub fn get_filter_values(&self,mode: usize, filter: usize) -> (f32, f32) {
-        let mut m = Self::filterUSB;
-        match Modes::from_usize(mode) {
-           Some(Modes::LSB) => m = Self::filterLSB,
-           Some(Modes::USB) => m = Self::filterUSB,
-           Some(Modes::DSB) => m = Self::filterDSB,
-           Some(Modes::CWL) => m = Self::filterCWL,
-           Some(Modes::CWU) => m = Self::filterCWU,
-           Some(Modes::FMN) => m = Self::filterFMN,
-           Some(Modes::AM) => m = Self::filterAM,
-           Some(Modes::DIGU) => m = Self::filterDIGU,
-           Some(Modes::SPEC) => m = Self::filterSPEC,
-           Some(Modes::DIGL) => m = Self::filterDIGL,
-           Some(Modes::SAM) => m = Self::filterSAM,
-           Some(Modes::DRM) => m = Self::filterDRM,
-           None => m = Self::filterUSB,
-        }
+        let m = match Modes::from_usize(mode) {
+           Some(Modes::LSB) => Self::filterLSB,
+           Some(Modes::USB) => Self::filterUSB,
+           Some(Modes::DSB) => Self::filterDSB,
+           Some(Modes::CWL) => Self::filterCWL,
+           Some(Modes::CWU) => Self::filterCWU,
+           Some(Modes::FMN) => Self::filterFMN,
+           Some(Modes::AM) => Self::filterAM,
+           Some(Modes::DIGU) => Self::filterDIGU,
+           Some(Modes::SPEC) => Self::filterSPEC,
+           Some(Modes::DIGL) => Self::filterDIGL,
+           Some(Modes::SAM) => Self::filterSAM,
+           Some(Modes::DRM) => Self::filterDRM,
+           None => Self::filterUSB,
+        };
         (m[filter].low, m[filter].high)
     }
 
     pub fn update_filter_buttons(&self, mode: usize) {
-        let mut filters = Self::filterUSB;
-        match Modes::from_usize(mode) {
-           Some(Modes::LSB) => filters = Self::filterLSB,
-           Some(Modes::USB) => filters = Self::filterUSB,
-           Some(Modes::DSB) => filters = Self::filterDSB,
-           Some(Modes::CWL) => filters = Self::filterCWL,
-           Some(Modes::CWU) => filters = Self::filterCWU,
-           Some(Modes::FMN) => filters = Self::filterFMN,
-           Some(Modes::AM) => filters = Self::filterAM,
-           Some(Modes::DIGU) => filters = Self::filterDIGU,
-           Some(Modes::SPEC) => filters = Self::filterSPEC,
-           Some(Modes::DIGL) => filters = Self::filterDIGL,
-           Some(Modes::SAM) => filters = Self::filterSAM,
-           Some(Modes::DRM) => filters = Self::filterDRM,
-           None => filters = Self::filterUSB,
-        }
+        let filters = match Modes::from_usize(mode) {
+           Some(Modes::LSB) => Self::filterLSB,
+           Some(Modes::USB) => Self::filterUSB,
+           Some(Modes::DSB) => Self::filterDSB,
+           Some(Modes::CWL) => Self::filterCWL,
+           Some(Modes::CWU) => Self::filterCWU,
+           Some(Modes::FMN) => Self::filterFMN,
+           Some(Modes::AM) => Self::filterAM,
+           Some(Modes::DIGU) => Self::filterDIGU,
+           Some(Modes::SPEC) => Self::filterSPEC,
+           Some(Modes::DIGL) => Self::filterDIGL,
+           Some(Modes::SAM) => Self::filterSAM,
+           Some(Modes::DRM) => Self::filterDRM,
+           None => Self::filterUSB,
+        };
 
         for (i, button) in self.buttons.iter().enumerate() {
             button.set_label(filters[i].label);

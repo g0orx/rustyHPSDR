@@ -117,13 +117,13 @@ impl Protocol1 {
         // setup local audio nput and output if configured
         let r = radio_mutex.radio.lock().unwrap();
         if r.receiver[0].local_output {
-            self.rx_audio[0].open_output(&r.receiver[0].output_device);
+            let _ = self.rx_audio[0].open_output(&r.receiver[0].output_device);
         }
         if r.receiver[1].local_output {
-            self.rx_audio[1].open_output(&r.receiver[1].output_device);
+            let _ = self.rx_audio[1].open_output(&r.receiver[1].output_device);
         }
         if r.transmitter.local_input {
-            self.tx_audio.open_input(&r.transmitter.input_device);
+            let _ = self.tx_audio.open_input(&r.transmitter.input_device);
         }
         drop(r);
 
@@ -158,7 +158,7 @@ impl Protocol1 {
                     match src.port() {
                         1024 => {
                                 if buffer[0] == 0xEF && buffer[1] == 0xFE {
-                                    let seq = u32::from_be_bytes([buffer[4], buffer[5], buffer[6], buffer[7]]);
+                                    let _seq = u32::from_be_bytes([buffer[4], buffer[5], buffer[6], buffer[7]]);
                                     match buffer[2] {
                                         1 => {
                                              match buffer[3] {
@@ -224,32 +224,32 @@ impl Protocol1 {
             }
             if rx1_local_output_changed {
                 if rx1_local_output {
-                    self.rx_audio[0].open_output(&rx1_output_device);
+                    let _ = self.rx_audio[0].open_output(&rx1_output_device);
                 } else {
-                    self.rx_audio[0].close_output();
+                    let _ = self.rx_audio[0].close_output();
                 }
             }
             if rx1_local_output_device_changed && rx1_local_output {
-                self.rx_audio[0].close_output();
-                self.rx_audio[0].open_output(&rx1_output_device);
+                let _ = self.rx_audio[0].close_output();
+                let _ = self.rx_audio[0].open_output(&rx1_output_device);
             }
             if rx2_local_output_changed {
                 if rx2_local_output {
-                    self.rx_audio[1].open_output(&rx2_output_device);
+                    let _ = self.rx_audio[1].open_output(&rx2_output_device);
                 } else {
-                    self.rx_audio[1].close_output();
+                    let _ = self.rx_audio[1].close_output();
                 }
             }
             if input_changed {
                 if local_input {
-                    self.tx_audio.open_input(&input_device);
+                    let _ = self.tx_audio.open_input(&input_device);
                 } else {
-                    self.tx_audio.close_input();
+                    let _ = self.tx_audio.close_input();
                 }
             }
             if input_device_changed && local_input {
-                self.tx_audio.close_input();
-                self.tx_audio.open_input(&input_device);
+                let _ = self.tx_audio.close_input();
+                let _ = self.tx_audio.open_input(&input_device);
             }
         }
     }
@@ -258,11 +258,13 @@ impl Protocol1 {
         let mut r = radio_mutex.radio.lock().unwrap();
         let mic_sample_divisor = r.sample_rate / 48000;
 
+        /*
         let mut c0: u8 = 0;
         let mut c1: u8 = 0;
         let mut c2: u8 = 0;
         let mut c3: u8 = 0;
         let mut c4: u8 = 0;
+        */
         let mut i_sample = 0;
         let mut q_sample = 0;
         let mut mic_samples = 0;
@@ -292,15 +294,15 @@ impl Protocol1 {
             return;
         }
         // collect the control bytes
-        c0 = buffer[b];
+        let c0 = buffer[b];
         b += 1;
-        c1 = buffer[b];
+        let c1 = buffer[b];
         b += 1;
-        c2 = buffer[b];
+        let c2 = buffer[b];
         b += 1;
-        c3 = buffer[b];
+        let c3 = buffer[b];
         b += 1;
-        c4 = buffer[b];
+        let c4 = buffer[b];
         b += 1;
 
         let previous_ptt = r.ptt;
@@ -393,7 +395,7 @@ impl Protocol1 {
                             r.transmitter.microphone_samples += 1;
                         }
                         let remaining = r.transmitter.microphone_buffer_size - mic_buffer.len();
-                        for i in 0..remaining {
+                        for _i in 0..remaining {
                             let x = r.transmitter.microphone_samples * 2;
                             r.transmitter.microphone_buffer[x] = 0.0;
                             r.transmitter.microphone_buffer[x+1] = 0.0;
@@ -471,7 +473,7 @@ impl Protocol1 {
                             if r.receiver[rx as usize].local_audio_buffer_offset == r.receiver[rx as usize].local_audio_buffer_size {
                                 r.receiver[rx as usize].local_audio_buffer_offset = 0;
                                 let buffer_clone = r.receiver[rx as usize].local_audio_buffer.clone();
-                                self.rx_audio[rx as usize].write_output(&buffer_clone);
+                                let _ = self.rx_audio[rx as usize].write_output(&buffer_clone);
                             }
                         }
                         }
@@ -577,33 +579,29 @@ impl Protocol1 {
 
         if self.metis_buffer_offset == 8 {
             c0 = 0x00;
-            c2 = 0x00;
-            c1 = 0x00;
-            match r.receiver[0].sample_rate {
-                48000 => {},
-                96000 => {c1 |= 0x01},
-                192000 => {c1 |= 0x02},
-                384000 => {c1 |= 0x03},
-                _ => {}, 
-            }
+            c1 = match r.receiver[0].sample_rate {
+                48000 => {0x00},
+                96000 => {0x01},
+                192000 => {0x02},
+                384000 => {0x03},
+                _ => {00}, 
+            };
             c2 = 0x00; // TODO Class E and OC
-            c3 = 0x00; // TODO adc random, dither, gain, antenna
-            match r.adc[r.receiver[0].adc].rx_antenna {
-                0 => c3 |= 0x00, // ANT 1
-                1 => c3 |= 0x01, // ANT 2
-                2 => c3 |= 0x02, // ANT 3
-                3 => c3 |= 0x00, // EXT 1
-                4 => c3 |= 0x00, // EXT 2
-                5 => c3 |= 0x00, // XVTR
-                _ => c3 |= 0x00, // None
-            }
-            c4 = 0x00; // TODO assume using rx antenna for now
-            match r.adc[r.receiver[0].adc].rx_antenna {
-                0 => c4 |= 0x00,
-                1 => c4 |= 0x01,
-                2 => c4 |= 0x02,
-                _ => c4 |= 0x00,
-            }
+            c3 = match r.adc[r.receiver[0].adc].rx_antenna {
+                0 => 0x00, // ANT 1
+                1 => 0x01, // ANT 2
+                2 => 0x02, // ANT 3
+                3 => 0x00, // EXT 1
+                4 => 0x00, // EXT 2
+                5 => 0x00, // XVTR
+                _ => 0x00, // None
+            };
+            c4 = match r.adc[r.receiver[0].adc].rx_antenna {
+                0 => 0x00,
+                1 => 0x01,
+                2 => 0x02,
+                _ => 0x00,
+            };
             c4 |= (self.receivers - 1) << 3;
 
         } else {

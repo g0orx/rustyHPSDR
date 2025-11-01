@@ -134,51 +134,18 @@ impl Transmitter {
         let alex_reverse_power:u16 = 0;
         let pa_calibration: Vec<f32> =  vec![38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8]; // 15 bands
 
-        let mut c1 = 3.3;     // METIS
-        let mut c2 = 0.09;
-
-        match board {
-            Boards::Metis => {
-                c1 = 3.3;
-                c2 = 0.09;
-            },
-            Boards::Hermes => {
-                c1 = 3.3;
-                c2 = 0.095;
-            },
-            Boards::Hermes2 => {
-                c1 = 3.3;
-                c2 = 0.095;
-            },
-            Boards::Angelia => {
-                c1 = 3.3;
-                c2 = 0.095;
-            },
-            Boards::Orion => {
-                c1 = 5.0;
-                c2 = 0.108;
-            },
-            Boards::Orion2 => {
-                c1 = 5.0;
-                c2 = 0.08;
-            },
-            Boards::Saturn => {
-                c1 = 3.3;
-                c2 = 0.09;
-            },
-            Boards::HermesLite => {
-                c1 = 3.3;
-                c2 = 1.4;
-            },
-            Boards::HermesLite2 => {
-                c1 = 3.3;
-                c2 = 1.4;
-            },
-            Boards::Unknown => {
-                c1 = 3.3;
-                c2 = 0.09;
-            },
-        }
+        let (c1, c2) = match board {
+            Boards::Metis => (3.3, 0.09),
+            Boards::Hermes => (3.3, 0.095),
+            Boards::Hermes2 => (3.3, 0.095),
+            Boards::Angelia => (3.3, 0.095),
+            Boards::Orion => (5.0, 0.108),
+            Boards::Orion2 => (5.0, 0.08),
+            Boards::Saturn => (3.3, 0.09),
+            Boards::HermesLite => (3.3, 1.4),
+            Boards::HermesLite2 => (3.3, 1.4),
+            Boards::Unknown => (3.3, 0.09),
+        };
         let remote_input = true;
         let local_input = false;
         let local_input_changed = false;
@@ -384,15 +351,15 @@ impl Transmitter {
     pub fn set_tuning(&self, state: bool, cw_keyer_sidetone_frequency: i32) {
         unsafe {
             if state {
-                let frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
+                let mut frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
                 if self.mode == Modes::CWL.to_usize() {
-                    let frequency = -cw_keyer_sidetone_frequency as f64;
+                    frequency = -cw_keyer_sidetone_frequency as f64;
                 } else if self.mode == Modes::CWU.to_usize() {
-                    let frequency = cw_keyer_sidetone_frequency as f64;
+                    frequency = cw_keyer_sidetone_frequency as f64;
                 } else if self.mode == Modes::LSB.to_usize() {
-                    let frequency = (-self.filter_low - ((self.filter_high - self.filter_low) / 2.0)) as f64;
+                    frequency = (-self.filter_low - ((self.filter_high - self.filter_low) / 2.0)) as f64;
                 } else if self.mode == Modes::USB.to_usize() {
-                    let frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
+                    frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
                 }
                 SetTXAPostGenToneFreq(self.channel, frequency);
                 SetTXAPostGenToneMag(self.channel, 0.99999);
@@ -414,6 +381,7 @@ impl Transmitter {
     }
 
     pub fn process_mic_samples(&mut self) {
+        /*
         let mut input_level = 0.0;
         for i in 0..(self.microphone_buffer.len()/2) {
             let ix = i * 2;
@@ -426,6 +394,7 @@ impl Transmitter {
             }
         }
         self.input_level = input_level;
+        */
         let raw_ptr: *mut f64 = self.microphone_buffer.as_mut_ptr() as *mut f64;
         let iq_ptr: *mut f64 =  self.iq_buffer.as_mut_ptr() as *mut f64;
         let mut result: c_int = 0;

@@ -190,7 +190,7 @@ pub fn protocol2_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: Socke
         let mut buf = [0; 1024];
         match socket.recv_from(&mut buf) {
             Ok((amt,src)) => {
-                let local_addr = socket.local_addr().expect("failed to get local address");
+                //let local_addr = socket.local_addr().expect("failed to get local address");
 //eprintln!("Protocol 2 received: amt={} src={:?} local={:?}", amt, src, local_addr);
                 if amt == 60  && src.port() == 1024 {
                     let mac: [u8;6] = [buf[5],buf[6],buf[7],buf[8],buf[9],buf[10]];
@@ -572,8 +572,6 @@ pub fn create_discovery_dialog(parent: &ApplicationWindow, discovery_data: Rc<Re
         window_clone.close();
     });
 
-    let discovery_data_clone = Rc::clone(&discovery_data);
-    let list_clone = list.clone();
     let start_button_clone = start_button.clone();
     let discovery_data_for_rediscover = Rc::clone(&discovery_data);
     let list_for_rediscover = list.clone();
@@ -591,8 +589,6 @@ pub fn create_discovery_dialog(parent: &ApplicationWindow, discovery_data: Rc<Re
         }
     });
 
-    let discovery_data_clone = Rc::clone(&discovery_data);
-    let list_clone = list.clone();
     let start_button_clone = start_button.clone();
     let manual_ip_entry_clone = manual_ip_entry.clone();
     let discovery_data_for_manual = Rc::clone(&discovery_data);

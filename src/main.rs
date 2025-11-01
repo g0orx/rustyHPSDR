@@ -1798,10 +1798,6 @@ fn build_ui(app: &Application) {
 }
 
 fn spectrum_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidgets>>, rc_spectrum: &Rc<RefCell<Spectrum>>) {
-    let r = radio_mutex.radio.lock().unwrap();
-    let is_transmitting = r.is_transmitting();
-    drop(r);
-
     let app_widgets = rc_app_widgets.borrow();
     let (flag, pixels) = radio_mutex.update_spectrum(app_widgets.spectrum_display.width());
     if flag != 0 {
@@ -1891,7 +1887,6 @@ fn meter_2_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidg
 
 fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidgets>>, rc_meter: &Rc<RefCell<Meter>>) {
     let app_widgets = rc_app_widgets.borrow();
-    let meter = rc_meter.borrow_mut();
     let r = radio_mutex.radio.lock().unwrap();
     let is_transmitting = r.is_transmitting();
     let forward = r.transmitter.alex_forward_power;
@@ -1935,11 +1930,6 @@ fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
         //app_widgets.input_level.set_label(&formatted_level);
         app_widgets.input_level.set_fraction(input_level);
     }
-
-    //if is_transmitting {
-    //    meter.update_tx(forward, reverse);
-    //    app_widgets.meter_tx_display.queue_draw();
-   // }
 }
 
 fn spectrum_waterfall_clicked(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>, rx: usize, x: f64, width: i32, button: u32) -> bool {

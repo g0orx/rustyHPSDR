@@ -62,22 +62,22 @@ pub enum RadioModels {
 }
 
 impl RadioModels {
-    pub fn from_u32(value: u32) -> Option<Self> {
+    pub fn from_u32(value: u32) -> Self {
         match value {
-            0 => Some(RadioModels::Anan10),
-            1 => Some(RadioModels::Anan10e),
-            2 => Some(RadioModels::Anan100),
-            3 => Some(RadioModels::Anan100b),
-            4 => Some(RadioModels::Anan100d),
-            5 => Some(RadioModels::Anan200d),
-            6 => Some(RadioModels::Anan7000dle),
-            7 => Some(RadioModels::Anan8000dle),
-            8 => Some(RadioModels::AnanG1),
-            9 => Some(RadioModels::AnanG2),
-            10 => Some(RadioModels::HermesLite),
-            11 => Some(RadioModels::HermesLite2),
-            12 => Some(RadioModels::Undefined),
-            _ => None,
+            0 => RadioModels::Anan10,
+            1 => RadioModels::Anan10e,
+            2 => RadioModels::Anan100,
+            3 => RadioModels::Anan100b,
+            4 => RadioModels::Anan100d,
+            5 => RadioModels::Anan200d,
+            6 => RadioModels::Anan7000dle,
+            7 => RadioModels::Anan8000dle,
+            8 => RadioModels::AnanG1,
+            9 => RadioModels::AnanG2,
+            10 => RadioModels::HermesLite,
+            11 => RadioModels::HermesLite2,
+            12 => RadioModels::Undefined,
+            _ => RadioModels::Undefined,
         }
     }
 
@@ -269,17 +269,16 @@ impl Radio {
         let name = "HPSDR".to_string();
         let dev = device.device;
         // take a guess on the model based on the device
-        let mut model = RadioModels::Undefined;
-        match device.board {
-            Boards::Hermes => model = RadioModels::Anan100,
-            Boards::Angelia => model = RadioModels::Anan100d,
-            Boards::Orion => model = RadioModels::Anan200d,
-            Boards::Orion2 => model = RadioModels::Anan8000dle,
-            Boards::Saturn => model = RadioModels::AnanG1,
-            Boards::HermesLite => model = RadioModels::HermesLite,
-            Boards::HermesLite2 => model = RadioModels::HermesLite2,
-            _ => model = RadioModels::Undefined,
-        }
+        let model = match device.board {
+            Boards::Hermes => RadioModels::Anan100,
+            Boards::Angelia => RadioModels::Anan100d,
+            Boards::Orion => RadioModels::Anan200d,
+            Boards::Orion2 => RadioModels::Anan8000dle,
+            Boards::Saturn => RadioModels::AnanG1,
+            Boards::HermesLite => RadioModels::HermesLite,
+            Boards::HermesLite2 => RadioModels::HermesLite2,
+            _ => RadioModels::Undefined,
+        };
         let protocol = device.protocol;
         let supported_receivers = device.supported_receivers;
         let sample_rate = 384000;
@@ -304,12 +303,11 @@ impl Radio {
             audio.push(Audio::new());
         }
         let transmitter = Transmitter::new(8, device.protocol, device.board);
-        let mut filter_board = FilterBoards::ALEX;
-        match device.board {
-            Boards::HermesLite => filter_board = FilterBoards::N2ADR,
-            Boards::HermesLite2 => filter_board = FilterBoards::N2ADR,
-            _ => filter_board = FilterBoards::ALEX,
-        }
+        let filter_board = match device.board {
+            Boards::HermesLite => FilterBoards::N2ADR,
+            Boards::HermesLite2 => FilterBoards::N2ADR,
+            _ => FilterBoards::ALEX,
+        };
 
         let cw_keyer_mode = Keyer::Straight;
         let cw_keyer_internal = true;
@@ -330,12 +328,11 @@ impl Radio {
             adc.push(Adc::new());
         }
         let alex = ALEX_ANTENNA_1;
-        let mut mk2bpf = false;
-        match device.board {
-            Boards::Orion2 => mk2bpf = true,
-            Boards::Saturn => mk2bpf = true,
-            _ => mk2bpf = false,
-        }
+        let mk2bpf = match device.board {
+            Boards::Orion2 => true,
+            Boards::Saturn => true,
+            _ => false,
+        };
 
         let updated = false;
         let keepalive = false;
@@ -633,7 +630,7 @@ impl Radio {
 
     pub fn add_notch(&mut self, notch: Notch) {
         unsafe {
-            let res = RXANBPAddNotch (notch.rx, self.notch, notch.frequency, notch.width, notch.active);
+            let _res = RXANBPAddNotch (notch.rx, self.notch, notch.frequency, notch.width, notch.active);
         }
         self.notch += 1;
     }
