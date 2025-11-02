@@ -246,7 +246,7 @@ impl Transmitter {
                 self.output_samples,
                 4,
                 14.0,
-                8192,
+                4096,
                 0,
                 0,
                 0,
@@ -395,12 +395,18 @@ impl Transmitter {
         }
         self.input_level = input_level;
         */
+        self.input_level = self.microphone_buffer.iter().fold(f64::NEG_INFINITY, |acc, &val| {
+            acc.max(val)
+        });
+
         let raw_ptr: *mut f64 = self.microphone_buffer.as_mut_ptr() as *mut f64;
         let iq_ptr: *mut f64 =  self.iq_buffer.as_mut_ptr() as *mut f64;
         let mut result: c_int = 0;
         unsafe {
             fexchange0(self.channel, raw_ptr, iq_ptr, &mut result);
-            Spectrum0(1, self.channel, 0, 0, iq_ptr);
+            if result == 0 {
+                Spectrum0(1, self.channel, 0, 0, iq_ptr);
+            }
         }
     }
 

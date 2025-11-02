@@ -390,7 +390,6 @@ impl Protocol2 {
 
             drop(r);
             if keepalive || updated {
-//println!("keepalive = {} updated = {}", keepalive, updated);
                 self.send_general();
                 self.send_transmit_specific(radio_mutex);
                 self.send_receive_specific(radio_mutex);
