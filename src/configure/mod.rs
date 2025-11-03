@@ -111,7 +111,7 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     rx0_local_output_check_button.connect_toggled(move |button| {
         let is_active = button.is_active();
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        r.receiver[0].local_output = is_active;
+        r.receiver[0].local_output_changed_to = is_active;
         r.receiver[0].local_output_changed = true;
     });
 
@@ -157,7 +157,7 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     rx1_local_output_check_button.connect_toggled(move |button| {
         let is_active = button.is_active();
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        r.receiver[1].local_output = is_active;
+        r.receiver[1].local_output_changed_to = is_active;
         r.receiver[1].local_output_changed = true;
     });
 

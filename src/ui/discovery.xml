@@ -29,7 +29,12 @@
           </object>
         </child>
         <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">150</property>
+        <child>
           <object class="GtkBox" id="manual_box">
+            <property name="halign">start</property>
             <property name="orientation">horizontal</property>
             <property name="spacing">10</property>
             <property name="margin-top">10</property>
@@ -47,7 +52,7 @@
             </child>
             <child>
               <object class="GtkButton" id="add_manual_button">
-                <property name="label">Add Manual</property>
+                <property name="label">Discover Manual IP</property>
               </object>
             </child>
           </object>
@@ -73,6 +78,8 @@
             </child>
           </object>
         </child>
+        </object>
+      </child>
       </object>
     </child>
   </object>

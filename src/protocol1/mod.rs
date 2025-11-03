@@ -195,19 +195,20 @@ impl Protocol1 {
             r.sample_rate_changed = false;
 
             let rx1_local_output_changed = r.receiver[0].local_output_changed;
-            let rx1_local_output = r.receiver[0].local_output;
+            let rx1_local_output_changed_to = r.receiver[0].local_output_changed_to;
             let rx1_local_output_device_changed = r.receiver[0].local_output_device_changed;
             let rx1_output_device = r.receiver[0].output_device.clone();
-            r.receiver[0].local_output_changed = false;
+            let rx1_local_output = r.receiver[0].local_output;
             r.receiver[0].local_output_device_changed = false;
 
             let rx2_local_output_changed = r.receiver[1].local_output_changed;
+            let rx2_local_output_changed_to = r.receiver[1].local_output_changed_to;
+            let rx2_local_output_device_changed = r.receiver[1].local_output_device_changed;
             let rx2_local_output = r.receiver[1].local_output;
             let rx2_output_device = r.receiver[1].output_device.clone();
-            r.receiver[1].local_output_changed = false;
+            let rx2_local_output = r.receiver[1].local_output;
             r.receiver[1].local_output_device_changed = false;
 
-            //let local_input_changed = r.transmitter.local_input_changed;
             let local_input = r.transmitter.local_input;
             let input_changed = r.transmitter.local_input_changed;
             let input_device_changed = r.transmitter.input_device_changed;
@@ -223,9 +224,15 @@ impl Protocol1 {
                 // PS set sample rate
             }
             if rx1_local_output_changed {
-                if rx1_local_output {
+                if rx1_local_output_changed_to {
                     let _ = self.rx_audio[0].open_output(&rx1_output_device);
+                    let mut r = radio_mutex.radio.lock().unwrap();
+                    r.receiver[0].local_output_changed = false;
+                    r.receiver[0].local_output = true;
                 } else {
+                    let mut r = radio_mutex.radio.lock().unwrap();
+                    r.receiver[0].local_output_changed = false;
+                    r.receiver[0].local_output = false;
                     let _ = self.rx_audio[0].close_output();
                 }
             }
@@ -234,11 +241,21 @@ impl Protocol1 {
                 let _ = self.rx_audio[0].open_output(&rx1_output_device);
             }
             if rx2_local_output_changed {
-                if rx2_local_output {
+                if rx2_local_output_changed_to {
                     let _ = self.rx_audio[1].open_output(&rx2_output_device);
+                    let mut r = radio_mutex.radio.lock().unwrap();
+                    r.receiver[1].local_output_changed = false;
+                    r.receiver[1].local_output = true;
                 } else {
+                    let mut r = radio_mutex.radio.lock().unwrap();
+                    r.receiver[1].local_output_changed = false;
+                    r.receiver[1].local_output = false;
                     let _ = self.rx_audio[1].close_output();
                 }
+            }
+            if rx2_local_output_device_changed && rx2_local_output {
+                let _ = self.rx_audio[1].close_output();
+                let _ = self.rx_audio[1].open_output(&rx2_output_device);
             }
             if input_changed {
                 if local_input {

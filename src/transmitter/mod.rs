@@ -381,7 +381,6 @@ impl Transmitter {
     }
 
     pub fn process_mic_samples(&mut self) {
-        /*
         let mut input_level = 0.0;
         for i in 0..(self.microphone_buffer.len()/2) {
             let ix = i * 2;
@@ -394,11 +393,11 @@ impl Transmitter {
             }
         }
         self.input_level = input_level;
-        */
+        /*
         self.input_level = self.microphone_buffer.iter().fold(f64::NEG_INFINITY, |acc, &val| {
             acc.max(val)
         });
-
+        */
         let raw_ptr: *mut f64 = self.microphone_buffer.as_mut_ptr() as *mut f64;
         let iq_ptr: *mut f64 =  self.iq_buffer.as_mut_ptr() as *mut f64;
         let mut result: c_int = 0;
@@ -409,5 +408,4 @@ impl Transmitter {
             }
         }
     }
-
 }

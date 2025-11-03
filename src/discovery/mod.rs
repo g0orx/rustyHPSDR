@@ -678,9 +678,9 @@ fn create_discovery_row(columns: &[&str], is_header: bool) -> ListBoxRow {
         if col==0 {
             label.set_size_request(90,-1);
         } else if col==1 || col==2 {
-            label.set_size_request(100,-1);
+            label.set_size_request(110,-1);
         } else if col==3 {
-            label.set_size_request(150,-1);
+            label.set_size_request(160,-1);
         } else {
             label.set_size_request(70,-1);
         }

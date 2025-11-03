@@ -147,7 +147,11 @@ pub struct Receiver {
     pub local_output: bool,
     pub output_device: String,
 
+#[serde(skip_serializing, skip_deserializing)]
     pub local_output_changed: bool,
+#[serde(skip_serializing, skip_deserializing)]
+    pub local_output_changed_to: bool,
+#[serde(skip_serializing, skip_deserializing)]
     pub local_output_device_changed: bool,
 
 }
@@ -235,6 +239,7 @@ impl Receiver {
         let local_output = false;
         let output_device = String::from("default");
         let local_output_changed = false;
+        let local_output_changed_to = false;
         let local_output_device_changed = false;
 
         
@@ -317,6 +322,7 @@ impl Receiver {
                             local_output,
                             output_device,
                             local_output_changed,
+                            local_output_changed_to,
                             local_output_device_changed,
 
         }
@@ -328,6 +334,9 @@ impl Receiver {
         self.audio_buffer = vec![0.0; self.output_samples * 2];
         self.local_audio_buffer = vec![0i16; self.local_audio_buffer_size*2];
         self.local_audio_buffer_offset = 0;
+        self.local_output_changed = false;
+        self.local_output_changed_to = false;
+        self.local_output_device_changed = false;
         self.remote_audio_buffer = vec![0u8; self.remote_audio_buffer_size];
         self.remote_audio_buffer_offset = 4;
         self.cw_decoder_audio_buffer_offset = 0;
