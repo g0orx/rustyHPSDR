@@ -1192,7 +1192,7 @@ fn build_ui(app: &Application) {
                             rx = 1;
                         }
 
-                        let b = r.receiver[rx].band.to_usize();
+                        let mut b = r.receiver[rx].band.to_usize();
                         if b != index { // band has changed
                             r.receiver[rx].band_info[b].current = r.receiver[rx].frequency;
 
@@ -1239,6 +1239,11 @@ fn build_ui(app: &Application) {
                             } else {
                                 app_widgets.vfo_b_frequency.set_label(&formatted_value);
                             }
+                            b = r.receiver[rx].band.to_usize();
+                            let attenuation = r.receiver[rx].band_info[b].attenuation;
+                            drop(r);
+                            app_widgets.attenuation_adjustment.set_value(attenuation.into());
+                            r = radio_mutex_clone.radio.lock().unwrap();
                         }
                         unsafe {
                             RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
@@ -2047,6 +2052,8 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     let zoom = r.receiver[rx].zoom;
     let pan = r.receiver[rx].pan;
     let cw_pitch = r.receiver[rx].cw_pitch;
+    let b = r.receiver[rx].band.to_usize();
+    let attenuation = r.receiver[rx].band_info[b].attenuation;
     drop(r);
 
     let app_widgets = rc_app_widgets.borrow();
@@ -2112,6 +2119,10 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     // update CTUN
     app_widgets.ctun_button.set_active(ctun);
 
+    // Zoom and Pan
     app_widgets.zoom_adjustment.set_value(zoom.into());
     app_widgets.pan_adjustment.set_value(pan.into());
+
+    // Attenuation
+    app_widgets.attenuation_adjustment.set_value(attenuation.into());
 }
