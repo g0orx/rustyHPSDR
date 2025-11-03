@@ -388,10 +388,8 @@ impl Protocol1 {
                 mic_sample = u32::from_be_bytes([0x00, 0x00, buffer[b], buffer[b+1]]) as i32;
             }
             b += 2;
-            mic_samples += 1;
             // discard replcated samples
-            if mic_samples >= mic_sample_divisor {
-                mic_samples = 0;
+            if mic_samples == 0 {
                 let x = r.transmitter.microphone_samples * 2;
                 if r.tune {
                     r.transmitter.microphone_buffer[x] = 0.0;
@@ -423,6 +421,10 @@ impl Protocol1 {
                     r.transmitter.microphone_samples = 0;
                     process_tx_iq = true;
                 }
+            }
+            mic_samples += 1;
+            if mic_samples >= mic_sample_divisor {
+                mic_samples = 0;
             }
         }
 
