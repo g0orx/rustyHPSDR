@@ -592,7 +592,9 @@ impl Protocol1 {
              frequency_b -= r.receiver[1].cw_pitch;
         }
 
-        let attenuation = r.adc[rx as usize].attenuation;
+
+        let b = r.receiver[rx as usize].band.to_usize();
+        let attenuation = r.receiver[rx as usize].band_info[b].attenuation;
 
         if self.metis_buffer_offset == 8 {
             c0 = 0x00;

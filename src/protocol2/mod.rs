@@ -676,12 +676,19 @@ impl Protocol2 {
         buf[1430] = ((filter1>>8)&0xFF) as u8;
         buf[1431] = (filter1&0xFF) as u8;
 
+        let mut rx = 0;
+        if r.receiver[1].active {
+            rx = 1;
+        }
+        let b = r.receiver[rx as usize].band.to_usize();
+        let attenuation = r.receiver[rx as usize].band_info[b].attenuation;
+
         if r.is_transmitting() {
             buf[1443] = 0;
             buf[1442] = 0;
         } else {
-            buf[1443] = r.adc[0].attenuation as u8;
-            buf[1442] = r.adc[1].attenuation as u8;
+            buf[1443] = attenuation as u8;
+            buf[1442] = attenuation as u8;
         }
 
         self.device.address.set_port(1027);

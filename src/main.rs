@@ -570,7 +570,8 @@ fn build_ui(app: &Application) {
                             app_widgets.attenuation_adjustment.set_lower(-12.0);
                             app_widgets.attenuation_adjustment.set_upper(48.0);
                         }
-                        app_widgets.attenuation_adjustment.set_value(r.adc[r.receiver[rx].adc].attenuation.into());
+                        let b = r.receiver[rx].band.to_usize();
+                        app_widgets.attenuation_adjustment.set_value(r.receiver[rx].band_info[b].attenuation.into());
                         app_widgets.micgain_adjustment.set_value(r.transmitter.micgain.into());
                         app_widgets.micgain_adjustment.set_value(r.transmitter.micgain.into());
                         app_widgets.drive_adjustment.set_value(r.transmitter.drive.into());
@@ -1490,8 +1491,8 @@ fn build_ui(app: &Application) {
                         if r.receiver[1].active {
                             rx = 1;
                         }
-                        let adc = r.receiver[rx].adc;
-                        r.adc[adc].attenuation = adjustment.value() as i32;
+                        let b = r.receiver[rx].band.to_usize();
+                        r.receiver[rx].band_info[b].attenuation = adjustment.value() as i32;
                     });
 
                     let radio_mutex_clone = radio_mutex.clone();
