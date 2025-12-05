@@ -50,8 +50,8 @@ pub struct Transmitter {
     pub low_latency: bool,
     pub use_rx_filter: bool,
     pub mode: usize,
-    pub filter_low: f32,
-    pub filter_high: f32,
+    pub filter_low: f64,
+    pub filter_high: f64,
     pub drive: f32,
     pub spectrum_width: i32,
     pub fps: f32,
@@ -339,22 +339,22 @@ impl Transmitter {
 
     pub fn set_filter(&self) {
         unsafe {
-            SetTXABandpassFreqs(self.channel, self.filter_low.into(), self.filter_high.into());
+            SetTXABandpassFreqs(self.channel, self.filter_low, self.filter_high);
         }
     }
 
 
     pub fn set_tuning(&self, state: bool, cw_keyer_sidetone_frequency: i32) {
         if state {
-            let mut frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
+            let mut frequency = self.filter_low + ((self.filter_high - self.filter_low) / 2.0);
             if self.mode == Modes::CWL.to_usize() {
                 frequency = -cw_keyer_sidetone_frequency as f64;
             } else if self.mode == Modes::CWU.to_usize() {
                 frequency = cw_keyer_sidetone_frequency as f64;
             } else if self.mode == Modes::LSB.to_usize() {
-                frequency = (-self.filter_low - ((self.filter_high - self.filter_low) / 2.0)) as f64;
+                frequency = -self.filter_low - ((self.filter_high - self.filter_low) / 2.0);
             } else if self.mode == Modes::USB.to_usize() {
-                frequency = (self.filter_low + ((self.filter_high - self.filter_low) / 2.0)) as f64;
+                frequency = self.filter_low + ((self.filter_high - self.filter_low) / 2.0);
             }
             unsafe {
                 SetTXAPostGenToneFreq(self.channel, frequency);

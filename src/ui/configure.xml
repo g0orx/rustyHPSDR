@@ -1467,6 +1467,127 @@
           </object>
         </child>
 
+        <!-- XVTR -->
+        <child>
+          <object class="GtkBox" id="xvtr_box">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="xvtr_id">
+                    <property name="label">ID</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr1_id">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr2_id">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr3_id">
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="xvtr_low_label">
+                    <property name="label">Low (Hz)</property>
+                  </object>
+	        </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr1_low">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr2_low">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr3_low">
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+		<property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="xvtr_high_label">
+                    <property name="label">High (Hz)</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr1_high">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr2_high">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr3_high">
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+		<property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="xvtr_lo_label">
+                    <property name="label">LO (Hz)</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr1_lo">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr2_lo">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr3_lo">
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+		<property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="xvtr_lo_error_label">
+                    <property name="label">LO Error (Hz)</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr1_lo_error">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr2_lo_error">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="xvtr3_lo_error">
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="xvtr_tab">
+            <property name="label">XVTR</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>

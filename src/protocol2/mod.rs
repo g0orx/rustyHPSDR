@@ -498,6 +498,9 @@ impl Protocol2 {
         for i in 0..r.receivers {
             // convert frequency to phase
             f = r.receiver[i as usize].frequency;
+            let b = r.receiver[i as usize].band.to_usize();
+            f = f - r.receiver[i as usize].band_info[b].lo;
+            f = f - r.receiver[i as usize].band_info[b].lo_error;
 
             let phase = ((4294967296.0*f)/122880000.0) as u32;
             buf[(9+(i*4)) as usize] = ((phase>>24) & 0xFF) as u8;

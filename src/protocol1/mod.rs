@@ -647,6 +647,7 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                     // RX frequency
                     let mut f = r.receiver[self.current_receiver as usize].frequency as i32;
                     f = f - r.receiver[0].band_info[b].lo as i32;
+                    f = f + r.receiver[0].band_info[b].lo_error as i32;
                     c1 = (f >> 24) as u8; // C1
                     c2 = (f>>16) as u8; // C2
                     c3 = (f>>8) as u8; // C3

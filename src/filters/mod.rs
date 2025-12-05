@@ -68,8 +68,8 @@ use crate::modes::Modes;
 pub type FilterClickCallback = Box<dyn Fn(usize)>;
 
 pub struct Filter {
-    low: f32,
-    high: f32,
+    low: f64,
+    high: f64,
     label: &'static str,
 }
 
@@ -385,7 +385,7 @@ impl FilterGrid {
         &self.grid
     }
 
-    pub fn get_filter_values(&self,mode: usize, filter: usize) -> (f32, f32) {
+    pub fn get_filter_values(&self,mode: usize, filter: usize) -> (f64, f64) {
         let m = match Modes::from_usize(mode) {
            Some(Modes::LSB) => Self::filterLSB,
            Some(Modes::USB) => Self::filterUSB,
@@ -451,15 +451,15 @@ impl FilterGrid {
         &self.buttons[index]
     }
 
-    pub fn set_active_values(&self, low: f32, high: f32) {
-        self.low_adjustment.set_value(low.into());
-        self.high_adjustment.set_value(high.into());
+    pub fn set_active_values(&self, low: f64, high: f64) {
+        self.low_adjustment.set_value(low);
+        self.high_adjustment.set_value(high);
     }
 
-    pub fn set_filter_low(&self, low: f32) {
+    pub fn set_filter_low(&self, low: f64) {
     }
 
-    pub fn set_filter_high(&self, high: f32) {
+    pub fn set_filter_high(&self, high: f64) {
     }
 
 }

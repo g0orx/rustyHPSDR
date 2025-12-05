@@ -73,7 +73,7 @@ impl Spectrum {
             }               
             let pixel_len = spectrum_width * multiplier;
 
-            let hz_per_pixel = r.transmitter.output_rate as f32 / pixel_len as f32;
+            let hz_per_pixel = r.transmitter.output_rate as f64 / pixel_len as f64;
 
             if pixels.len() == pixel_len as usize {
                 cr.set_source_rgb(1.0, 1.0, 0.0);
@@ -91,9 +91,9 @@ impl Spectrum {
             // draw the filter
             cr.set_source_rgba (0.4, 0.4, 0.4, 0.80);
             let center = spectrum_width / 2;
-            let filter_left = center as f32 + (r.transmitter.filter_low / hz_per_pixel);
-            let filter_right = center as f32 + (r.transmitter.filter_high / hz_per_pixel);
-            cr.rectangle(filter_left.into(), 0.0, (filter_right-filter_left).into(), spectrum_height.into());
+            let filter_left = center as f64 + (r.transmitter.filter_low / hz_per_pixel);
+            let filter_right = center as f64 + (r.transmitter.filter_high / hz_per_pixel);
+            cr.rectangle(filter_left.into(), 0.0, (filter_right-filter_left), spectrum_height.into());
             let _ = cr.fill();
 
             // draw the cursor
@@ -111,15 +111,15 @@ impl Spectrum {
             cr.set_line_cap(LineCap::Round);
             cr.set_line_join(LineJoin::Round);
 
-            let frequency_low = r.receiver[self.rx].frequency - (r.receiver[self.rx].sample_rate/2) as f32;
-            let frequency_high = r.receiver[self.rx].frequency + (r.receiver[self.rx].sample_rate/2) as f32;
+            let frequency_low = r.receiver[self.rx].frequency - (r.receiver[self.rx].sample_rate/2) as f64;
+            let frequency_high = r.receiver[self.rx].frequency + (r.receiver[self.rx].sample_rate/2) as f64;
             let frequency_range = frequency_high - frequency_low;
    
-            let display_frequency_range = frequency_range / r.receiver[self.rx].zoom as f32;
-            let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[self.rx].pan as f32;
+            let display_frequency_range = frequency_range / r.receiver[self.rx].zoom as f64;
+            let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[self.rx].pan as f64;
             let display_frequency_low = frequency_low + display_frequency_offset;
             let display_frequency_high = frequency_high + display_frequency_offset;
-            let display_hz_per_pixel = display_frequency_range / width as f32;
+            let display_hz_per_pixel = display_frequency_range / width as f64;
 
             let mut step = 25000.0;
             match r.receiver[self.rx].sample_rate {
@@ -247,7 +247,7 @@ impl Spectrum {
             cr.stroke().unwrap();
 
             // draw the frequency markers
-            let mut f: f32 = (((display_frequency_low as i32 + step as i32) / step as i32) * step as i32) as f32;
+            let mut f: f64 = (((display_frequency_low as i32 + step as i32) / step as i32) * step as i32) as f64;
             while f < display_frequency_high {
                 let x = (f - display_frequency_low) / display_hz_per_pixel;
                 cr.set_source_rgb(0.5, 0.5, 0.5);
@@ -259,9 +259,9 @@ impl Spectrum {
                 let pango_layout = pangocairo::functions::create_layout(&cr);
                 pango_layout.set_text(&text);
                 let (text_width, _text_height) = pango_layout.pixel_size();
-                cr.move_to( (x - (text_width as f32 / 2.0)).into(), height.into());
+                cr.move_to( (x - (text_width as f64 / 2.0)), height as f64);
                 let _ = cr.show_text(&text);
-                f += step as f32;
+                f += step;
             }
 
             // draw any active notches

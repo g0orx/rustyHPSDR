@@ -857,17 +857,17 @@ fn build_ui(app: &Application) {
                             r.receiver[rx].pan = p as i32;
                         } else {
                             // try to keep the current frequency in the zoomed area
-                            let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f32;
-                            let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f32;
+                            let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f64;
+                            let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f64;
                             let frequency_range = frequency_high - frequency_low;
                             let width = r.receiver[rx].spectrum_width * r.receiver[rx].zoom;
                             let mut f = r.receiver[rx].frequency;
-                            let hz_per_pixel = frequency_range / width as f32;
+                            let hz_per_pixel = frequency_range / width as f64;
                             if r.receiver[rx].ctun {
                                 f = r.receiver[rx].ctun_frequency;
                             }
                             p = (f - frequency_low) / hz_per_pixel;
-                            p = (p / width as f32) * 100.0;
+                            p = (p / width as f64) * 100.0;
                             r.receiver[rx].pan = p as i32;
                         }
                         drop(r);
@@ -1248,7 +1248,7 @@ fn build_ui(app: &Application) {
                         if r.receiver[1].active {
                             rx = 1;
                         }
-                        r.receiver[rx].cw_pitch = adjustment.value() as f32;
+                        r.receiver[rx].cw_pitch = adjustment.value() as f64;
                         r.receiver[rx].set_filter();
                     });
 
@@ -1260,7 +1260,7 @@ fn build_ui(app: &Application) {
                         if let Ok(ref mut mutex) = lock {
                             // update the filter low setting
                             let app_widgets = rc_app_widgets_clone_clone.borrow();
-                            app_widgets.filter_grid.set_filter_low(adjustment.value() as f32);
+                            app_widgets.filter_grid.set_filter_low(adjustment.value());
 
                             // update the receiver low setting
                         } else {
@@ -1276,7 +1276,7 @@ fn build_ui(app: &Application) {
                         if let Ok(ref mut mutex) = lock {
                             // update the filter high setting
                             let app_widgets = rc_app_widgets_clone_clone.borrow();
-                            app_widgets.filter_grid.set_filter_high(adjustment.value() as f32);
+                            app_widgets.filter_grid.set_filter_high(adjustment.value());
                             // update the receiver high setting
                         } else {
                             // already locked - must be updating the filters
@@ -1744,23 +1744,23 @@ fn spectrum_waterfall_clicked(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefC
 
     let app_widgets = rc_app_widgets.borrow();
         
-    let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f32;
-    let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f32;
+    let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f64;
+    let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f64;
     let frequency_range = frequency_high - frequency_low;
                 
-    let display_frequency_range = frequency_range / r.receiver[rx].zoom as f32;
-    let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[rx].pan as f32;
+    let display_frequency_range = frequency_range / r.receiver[rx].zoom as f64;
+    let display_frequency_offset = ((frequency_range - display_frequency_range) / 100.0) * r.receiver[rx].pan as f64;
     let display_frequency_low = frequency_low + display_frequency_offset;
     let display_frequency_high = frequency_high + display_frequency_offset;
-    let display_hz_per_pixel = display_frequency_range / width as f32;
+    let display_hz_per_pixel = display_frequency_range / width as f64;
         
         
-    let mut f1 = display_frequency_low + (x as f32 * display_hz_per_pixel);
-    f1 = (f1 as u32 / r.receiver[rx].step as u32 * r.receiver[rx].step as u32) as f32;
+    let mut f1 = display_frequency_low + (x as f64 * display_hz_per_pixel);
+    f1 = (f1 as u32 / r.receiver[rx].step as u32 * r.receiver[rx].step as u32) as f64;
     if r.receiver[rx].mode == Modes::CWL.to_usize() {
-        f1 += r.receiver[rx].cw_pitch as f32;
+        f1 += r.receiver[rx].cw_pitch;
     } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
-        f1 -= r.receiver[rx].cw_pitch as f32;
+        f1 -= r.receiver[rx].cw_pitch;
     }
     r.receiver[rx].set_frequency(f1);
     let formatted_value = format_u32_with_separators(f1 as u32);
@@ -1776,16 +1776,17 @@ fn spectrum_waterfall_scroll(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCe
     let mut r = radio_mutex.radio.lock().unwrap();
     let app_widgets = rc_app_widgets.borrow();
 
-    let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f32;
-    let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f32;
+    let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f64;
+    let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f64;
     let mut f1 = if r.receiver[rx].ctun {
                      r.receiver[rx].ctun_frequency
                   } else {
                      r.receiver[rx].frequency
                   };
-    f1 -= r.receiver[rx].step * dy as f32;
+    f1 -= r.receiver[rx].step * dy as f64;
     r.receiver[rx].set_frequency(f1);
     let formatted_value = format_u32_with_separators(f1 as u32);
+
     if rx == 0 {
         app_widgets.vfo_a_frequency.set_label(&formatted_value);
     } else {

@@ -72,11 +72,11 @@ pub struct Receiver {
     pub band: Bands,
     pub filters_manual: bool,
     pub filters: u32,
-    pub frequency: f32,
+    pub frequency: f64,
     pub step_index: usize,
-    pub step: f32,
+    pub step: f64,
     pub ctun:  bool,
-    pub ctun_frequency: f32,
+    pub ctun_frequency: f64,
     pub nr: bool,
     pub nr_taps: i32,
     pub nr_delay: i32,
@@ -107,8 +107,8 @@ pub struct Receiver {
     pub agcgain:  f32,
     pub agcslope:  i32,
     pub agcchangethreshold:  i32,
-    pub filter_low: f32,
-    pub filter_high: f32,
+    pub filter_low: f64,
+    pub filter_high: f64,
     pub mode: usize,
     pub filter: usize,
 #[serde(skip_serializing, skip_deserializing)]
@@ -126,7 +126,7 @@ pub struct Receiver {
     pub remote_audio_buffer: Vec<u8>,
     pub remote_audio_buffer_offset: usize,
     pub rxgain: i32,
-    pub cw_pitch: f32,
+    pub cw_pitch: f64,
     pub cw_decoder: bool,
 #[serde(skip_serializing, skip_deserializing)]
     pub cw_decoder_audio_buffer_offset: usize,
@@ -173,11 +173,11 @@ impl Receiver {
         let band: Bands = Bands::Band20;
         let filters_manual: bool = false;
         let filters: u32 = 0x01100002; // for Band20
-        let frequency: f32 = 14175000.0;
+        let frequency: f64 = 14175000.0;
         let step_index: usize = 7; // 1KHz
-        let step: f32 = 1000.0; // 1KHz
+        let step: f64 = 1000.0; // 1KHz
         let ctun: bool = false;
-        let ctun_frequency: f32 = 0.0;
+        let ctun_frequency: f64 = 0.0;
         let nr: bool = false;
         let nr_taps: i32 = 64;
         let nr_delay: i32 = 16;
@@ -206,8 +206,8 @@ impl Receiver {
         let agcgain: f32 = 80.0;
         let agcslope: i32 = 35;
         let agcchangethreshold: i32 = 0;
-        let filter_low: f32 = 300.0;
-        let filter_high: f32 = 2700.0;
+        let filter_low: f64 = 300.0;
+        let filter_high: f64 = 2700.0;
         let mode = Modes::USB.to_usize();
         let filter = Filters::F6.to_usize(); // 2.4k
         let iq_input_buffer = vec![0.0; buffer_size * 2];
@@ -221,7 +221,7 @@ impl Receiver {
         let remote_audio_buffer = vec![0u8; remote_audio_buffer_size];
         let remote_audio_buffer_offset: usize = 4;
         let rxgain: i32 = 0;
-        let cw_pitch: f32 = 900.0;
+        let cw_pitch: f64 = 900.0;
         let cw_decoder: bool =  false;
         let cw_decoder_audio_buffer_offset: usize =0;
         let cw_decoder_audio_buffer = vec![0.0f32; local_audio_buffer_size];
@@ -413,7 +413,7 @@ impl Receiver {
             SetRXASNBARun(channel, self.snb.into()); //self.snb);
 
             SetRXAMode(channel, self.mode as i32);
-            RXASetPassband(channel,self.filter_low.into(),self.filter_high.into());
+            RXASetPassband(channel,self.filter_low,self.filter_high);
 
             if self.ctun {
                 let mut offset = self.ctun_frequency - self.frequency;
@@ -506,7 +506,7 @@ impl Receiver {
         self.set_filter();
     }
 
-    pub fn set_frequency(&mut self, frequency: f32) {
+    pub fn set_frequency(&mut self, frequency: f64) {
         if self.ctun {
             self.ctun_frequency = frequency;
             let mut offset = self.ctun_frequency - self.frequency;

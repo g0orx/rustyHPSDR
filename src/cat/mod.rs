@@ -143,7 +143,7 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
             }
         } else {
             // set the frequency
-            let f = suffix.parse::<f32>().unwrap();
+            let f = suffix.parse::<f64>().unwrap();
             if r.receiver[0].ctun {
                 r.receiver[0].ctun_frequency = f;
             } else {
@@ -165,7 +165,7 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
             }
         } else {
             // set the frequency
-            let f = suffix.parse::<f32>().unwrap();
+            let f = suffix.parse::<f64>().unwrap();
             if r.receiver[1].ctun {
                 r.receiver[1].ctun_frequency = f;
             } else {

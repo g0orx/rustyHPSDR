@@ -16,7 +16,8 @@
 */
 
 use gtk::prelude::*;
-use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
+use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Entry, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
+use glib::clone;
 
 use std::thread;
 use std::sync::mpsc;
@@ -1106,6 +1107,123 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
         r.receiver[rx].equalizer_high = adjustment.value() as f32;
         r.receiver[rx].set_equalizer_values();
     });
+
+    // XVTR
+    let r = radio_mutex.radio.lock().unwrap();
+    let rx = r.active_receiver;
+    let label = r.receiver[rx].band_info[Bands::XVTR1.to_usize()].label.clone();
+    let low = r.receiver[rx].band_info[Bands::XVTR1.to_usize()].low;
+    let high = r.receiver[rx].band_info[Bands::XVTR1.to_usize()].high;
+    let lo = r.receiver[rx].band_info[Bands::XVTR1.to_usize()].lo;
+    let lo_error = r.receiver[rx].band_info[Bands::XVTR1.to_usize()].lo_error;
+    drop(r);
+    let xvtr1_id: Entry = builder
+            .object("xvtr1_id")
+            .expect("Could not get object `xvtr1_id` from builder.");
+    xvtr1_id.set_text(&label);
+    let xvtr1_low: Entry = builder
+            .object("xvtr1_low")
+            .expect("Could not get object `xvtr1_low` from builder.");
+    let low_str = format!("{}", low as i32);
+    xvtr1_low.set_text(&low_str);
+    let xvtr1_high: Entry = builder
+            .object("xvtr1_high")
+            .expect("Could not get object `xvtr1_high` from builder.");
+    let high_str = format!("{}", high as i32);
+    xvtr1_high.set_text(&high_str);
+    let xvtr1_lo: Entry = builder
+            .object("xvtr1_lo")
+            .expect("Could not get object `xvtr1_lo` from builder.");
+    let lo_str = format!("{}", lo as i32);
+    xvtr1_lo.set_text(&lo_str);
+    let xvtr1_lo_error: Entry = builder
+            .object("xvtr1_lo_error")
+            .expect("Could not get object `xvtr1_lo_error` from builder.");
+    let lo_error_str = format!("{}", lo_error as i32);
+    xvtr1_lo_error.set_text(&lo_error_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr1_lo_error.connect_changed(clone!(@weak xvtr1_lo_error => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr1_lo_error.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+        Ok(number) => {
+            r.receiver[rx].band_info[Bands::XVTR1.to_usize()].lo_error = number as f64;
+        },
+        Err(e) => {
+            eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+        }
+    }
+        
+        println!("LO Error changed to: {}", text);
+    }));
+    
+    let r = radio_mutex.radio.lock().unwrap();
+    let rx = r.active_receiver;
+    let label = r.receiver[rx].band_info[Bands::XVTR2.to_usize()].label.clone();
+    let low = r.receiver[rx].band_info[Bands::XVTR2.to_usize()].low;
+    let high = r.receiver[rx].band_info[Bands::XVTR2.to_usize()].high;
+    let lo = r.receiver[rx].band_info[Bands::XVTR2.to_usize()].lo;
+    let lo_error = r.receiver[rx].band_info[Bands::XVTR2.to_usize()].lo_error;
+    drop(r);
+    let xvtr2_id: Entry = builder
+            .object("xvtr2_id")
+            .expect("Could not get object `xvtr2_id` from builder.");
+    xvtr2_id.set_text(&label);
+    let xvtr2_low: Entry = builder
+            .object("xvtr2_low")
+            .expect("Could not get object `xvtr2_low` from builder.");
+    let low_str = format!("{}", low as i32);
+    xvtr2_low.set_text(&low_str);
+    let xvtr2_high: Entry = builder
+            .object("xvtr2_high")
+            .expect("Could not get object `xvtr2_high` from builder.");
+    let high_str = format!("{}", high as i32);
+    xvtr2_high.set_text(&high_str);
+    let xvtr2_lo: Entry = builder
+            .object("xvtr2_lo")
+            .expect("Could not get object `xvtr2_lo` from builder.");
+    let lo_str = format!("{}", lo as i32);
+    xvtr2_lo.set_text(&lo_str);
+    let xvtr2_lo_error: Entry = builder
+            .object("xvtr2_lo_error")
+            .expect("Could not get object `xvtr2_lo_error` from builder.");
+    let lo_error_str = format!("{}", lo_error as i32);
+    xvtr2_lo_error.set_text(&lo_error_str);
+
+    let r = radio_mutex.radio.lock().unwrap();
+    let rx = r.active_receiver;
+    let label = r.receiver[rx].band_info[Bands::XVTR3.to_usize()].label.clone();
+    let low = r.receiver[rx].band_info[Bands::XVTR3.to_usize()].low;
+    let high = r.receiver[rx].band_info[Bands::XVTR3.to_usize()].high;
+    let lo = r.receiver[rx].band_info[Bands::XVTR3.to_usize()].lo;
+    let lo_error = r.receiver[rx].band_info[Bands::XVTR3.to_usize()].lo_error;
+    drop(r);
+    let xvtr3_id: Entry = builder
+            .object("xvtr3_id")
+            .expect("Could not get object `xvtr3_id` from builder.");
+    xvtr3_id.set_text(&label);
+    let xvtr3_low: Entry = builder
+            .object("xvtr3_low")
+            .expect("Could not get object `xvtr3_low` from builder.");
+    let low_str = format!("{}", low as i32);
+    xvtr3_low.set_text(&low_str);
+    let xvtr3_high: Entry = builder
+            .object("xvtr3_high")
+            .expect("Could not get object `xvtr3_high` from builder.");
+    let high_str = format!("{}", high as i32);
+    xvtr3_high.set_text(&high_str);
+    let xvtr3_lo: Entry = builder
+            .object("xvtr3_lo")
+            .expect("Could not get object `xvtr3_lo` from builder.");
+    let lo_str = format!("{}", lo as i32);
+    xvtr3_lo.set_text(&lo_str);
+    let xvtr3_lo_error: Entry = builder
+            .object("xvtr3_lo_error")
+            .expect("Could not get object `xvtr3_lo_error` from builder.");
+    let lo_error_str = format!("{}", lo_error as i32);
+    xvtr3_lo_error.set_text(&lo_error_str);
+    
 
     let ok_button: Button = builder
             .object("ok_button")

@@ -87,9 +87,9 @@ pub type BandClickCallback = Box<dyn Fn(usize)>;
 pub struct BandInfo {
     pub band: Bands,
     pub label: String,
-    pub low: f32,
-    pub high: f32,
-    pub current: f32,
+    pub low: f64,
+    pub high: f64,
+    pub current: f64,
     pub filters: u32,
     pub spectrum_low: f32,
     pub spectrum_high: f32,
@@ -99,8 +99,8 @@ pub struct BandInfo {
     pub filter: Filters,
     pub attenuation: i32,
     // for xvtrs
-    pub lo: f32,        // Local Oscillator
-    pub lo_error: f32,  // Oscillator error
+    pub lo: f64,        // Local Oscillator
+    pub lo_error: f64,  // Oscillator error
 }
 
 impl BandInfo {
@@ -121,8 +121,8 @@ impl BandInfo {
             BandInfo{ band: Bands::Band6, label: String::from("6"), low: 50000000.0, high: 54000000.0, current: 52000000.0, filters: 0x21000008, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::USB, filter: Filters::F5, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::BandGEN, label: String::from("GEN"), low: 100000.0, high: 62000000.0, current: 11700000.0, filters: 0x20001000, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::AM, filter: Filters::F3, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::BandWWV, label: String::from("WWV"), low: 10000000.0, high: 10000000.0, current: 10000000.0, filters: 0x20001000, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::SAM, filter: Filters::F3, attenuation: 0, lo: 0.0, lo_error: 0.0},
-            BandInfo{ band: Bands::XVTR1, label: String::from("XVTR1"), low: 144000000.0, high: 148000000.0, current: 145000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, attenuation: 0, lo: 116000000.0, lo_error: 0.0},
-            BandInfo{ band: Bands::XVTR2, label: String::from("XVTR2"), low: 432000000.0, high: 436000000.0, current: 435000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, attenuation: 0, lo: 404000000.0, lo_error: 0.0},
+            BandInfo{ band: Bands::XVTR1, label: String::from("144"), low: 144000000.0, high: 148000000.0, current: 145000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, attenuation: 0, lo: 116000000.0, lo_error: 0.0},
+            BandInfo{ band: Bands::XVTR2, label: String::from("432"), low: 432000000.0, high: 436000000.0, current: 435000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, attenuation: 0, lo: 404000000.0, lo_error: 0.0},
             BandInfo{ band: Bands::XVTR3, label: String::from("XVTR3"), low: 144000000.0, high: 148000000.0, current: 145000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, attenuation: 0, lo: 116000000.0, lo_error: 0.0},
         ];
         data
@@ -149,10 +149,14 @@ impl BandGrid {
 
         let band_info = BandInfo::new();
         for info in band_info.iter() {
-            let id = format!("{}_button", info.label);
+            //let id = format!("{}_button", info.label);
+            let id = format!("{:?}_button", info.band);
+eprintln!("Band id is {}", id);
             let button: Button = builder
                 .object(id)
                 .expect("Could not get object band_button from builder.");
+            // update the label
+            button.set_label(&info.label);
             // Set initial button style class
             button.add_css_class("inactive-button");
             buttons.push(button.clone());
