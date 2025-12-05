@@ -119,7 +119,7 @@ pub struct Receiver {
     pub audio_buffer: Vec<f64>,
     pub local_audio_buffer_size: usize,
 #[serde(skip_serializing, skip_deserializing)]
-    pub local_audio_buffer: Vec<i16>,
+    pub local_audio_buffer: Vec<f32>,
     pub local_audio_buffer_offset: usize,
     pub remote_audio_buffer_size: usize,
 #[serde(skip_serializing, skip_deserializing)]
@@ -215,13 +215,13 @@ impl Receiver {
         let audio_output: AudioOutput = AudioOutput::Stereo;
         let audio_buffer = vec![0.0; output_samples * 2];
         let local_audio_buffer_size: usize = 2048;
-        let local_audio_buffer = vec![0i16; local_audio_buffer_size*2];
+        let local_audio_buffer = vec![0.0f32; local_audio_buffer_size*2];
         let local_audio_buffer_offset: usize = 0;
         let remote_audio_buffer_size: usize = 260;
         let remote_audio_buffer = vec![0u8; remote_audio_buffer_size];
         let remote_audio_buffer_offset: usize = 4;
         let rxgain: i32 = 0;
-        let cw_pitch: f32 = 400.0;
+        let cw_pitch: f32 = 900.0;
         let cw_decoder: bool =  false;
         let cw_decoder_audio_buffer_offset: usize =0;
         let cw_decoder_audio_buffer = vec![0.0f32; local_audio_buffer_size];
@@ -332,7 +332,7 @@ impl Receiver {
         self.iq_input_buffer = vec![0.0; self.buffer_size * 2];
         self.samples = 0;
         self.audio_buffer = vec![0.0; self.output_samples * 2];
-        self.local_audio_buffer = vec![0i16; self.local_audio_buffer_size*2];
+        self.local_audio_buffer = vec![0.0f32; self.local_audio_buffer_size*2];
         self.local_audio_buffer_offset = 0;
         self.local_output_changed = false;
         self.local_output_changed_to = false;
@@ -413,19 +413,10 @@ impl Receiver {
             SetRXASNBARun(channel, self.snb.into()); //self.snb);
 
             SetRXAMode(channel, self.mode as i32);
-            if self.mode == Modes::CWL.to_usize() || self.mode == Modes::CWU.to_usize() {
-                RXASetPassband(channel,(self.cw_pitch - self.filter_low).into(), (self.cw_pitch +self.filter_high).into());
-            } else {
-                RXASetPassband(channel,self.filter_low.into(),self.filter_high.into());
-            }
+            RXASetPassband(channel,self.filter_low.into(),self.filter_high.into());
 
             if self.ctun {
                 let mut offset = self.ctun_frequency - self.frequency;
-                if self.mode == Modes::CWL.to_usize() {
-                     offset += self.cw_pitch;
-                } else if self.mode == Modes::CWU.to_usize() {
-                     offset -= self.cw_pitch;
-                }
                 SetRXAShiftRun(channel, 1);
                 SetRXAShiftFreq(channel, offset.into());
                 RXANBPSetShiftFrequency(channel, 0.0);
@@ -515,13 +506,24 @@ impl Receiver {
         self.set_filter();
     }
 
+    pub fn set_frequency(&mut self, frequency: f32) {
+        if self.ctun {
+            self.ctun_frequency = frequency;
+            let mut offset = self.ctun_frequency - self.frequency;
+            unsafe {
+                SetRXAShiftFreq(self.channel, offset.into());
+                RXANBPSetShiftFrequency(self.channel, offset.into());
+            }
+        } else {
+            self.frequency = frequency;
+            unsafe {
+                RXANBPSetTuneFrequency(self.channel, frequency.into());
+            }
+        }
+    }
+
     pub fn set_ctun_frequency(&self) {
         let mut offset = self.ctun_frequency - self.frequency;
-        if self.mode == Modes::CWL.to_usize() {
-             offset += self.cw_pitch;
-        } else if self.mode == Modes::CWU.to_usize() {
-             offset -= self.cw_pitch;
-        }
         unsafe {
             SetRXAShiftFreq(self.channel, offset.into());
             RXANBPSetShiftFrequency(self.channel, offset.into());

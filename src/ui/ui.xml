@@ -813,6 +813,33 @@
                         </layout>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkButton" id="XVTR1_button">
+                        <property name="label">XVTR1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">5</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="XVTR2_button">
+                        <property name="label">XVTR2</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">5</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="XVTR3_button">
+                        <property name="label">XVTR3</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">5</property>
+                        </layout>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

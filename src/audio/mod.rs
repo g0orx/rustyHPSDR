@@ -15,8 +15,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use anyhow::{anyhow, Result};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{InputCallbackInfo, OutputCallbackInfo, SampleRate, Stream, StreamConfig};
+use cpal::{BufferSize, ChannelCount, InputCallbackInfo, OutputCallbackInfo, SampleFormat, SampleRate, Stream, StreamConfig, SupportedStreamConfigRange};
 use ringbuf::storage::Heap;
 use ringbuf::traits::{Consumer, Observer, Producer, Split};
 use ringbuf::wrap::caching::Caching;
@@ -24,8 +25,9 @@ use ringbuf::{HeapRb, SharedRb};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-// Needed for keeping streams within this structure. they are marked as !Send only because Android arch.
-// Since this program is not run on Android, it's safe to mark the whole struct as safe to Send between threads.
+const TARGET_SAMPLE_RATE: u32 = 48000;
+const TARGET_BUFFER_SIZE: u32 = 1024;
+
 unsafe impl Send for Audio {}
 
 #[derive(Default, Deserialize, Serialize)]
@@ -37,9 +39,9 @@ pub struct Audio {
     #[serde(skip_serializing, skip_deserializing)]
     pub output_underruns: i32,
     #[serde(skip_serializing, skip_deserializing)]
-    input_buffer: Option<Caching<Arc<SharedRb<Heap<i16>>>, false, true>>,
+    input_buffer: Option<Caching<Arc<SharedRb<Heap<f32>>>, false, true>>,
     #[serde(skip_serializing, skip_deserializing)]
-    output_buffer: Option<Caching<Arc<SharedRb<Heap<i16>>>, true, false>>,
+    output_buffer: Option<Caching<Arc<SharedRb<Heap<f32>>>, true, false>>,
 }
 
 impl Audio {
@@ -77,36 +79,17 @@ impl Audio {
         }
         .ok_or("No input device found")?;
 
-        let config = device.default_input_config()?;
+        let config = Self::find_best_config(&device, true, 1, Some(TARGET_BUFFER_SIZE))?;
 
-        // Create a custom config for stereo 48kHz output
-        let mut stream_config: StreamConfig = config.clone().into();
-        stream_config.channels = 1;
-        stream_config.sample_rate = SampleRate(48000);
-
-        let period_size = match config.buffer_size() {
-            cpal::SupportedBufferSize::Range { min, max } => {
-                if 1024 > *min && 1024 < *max {
-                    1024
-                } else {
-                    *max as usize
-                }
-                //*min as usize
-            }
-            cpal::SupportedBufferSize::Unknown => {
-                1024
-            }
-        };
-
-        let (mut prod, cons) = HeapRb::new(period_size).split();
+        let (mut prod, cons) = HeapRb::new(TARGET_BUFFER_SIZE as usize).split();
         self.input_buffer = Some(cons);
 
         let stream = device.build_input_stream(
-            &config.config(),
-            move |data: &[i16], _: &InputCallbackInfo| {
-                prod.push_slice(data);
+            &config,
+            move |data: &[f32], _: &InputCallbackInfo| {
+                let _pushed = prod.push_slice(data);
             },
-            |err| eprintln!("audio input error: {}", err),
+            |err| eprintln!("audio input failed: {}", err),
             None,
         )?;
 
@@ -116,8 +99,10 @@ impl Audio {
         Ok(())
     }
 
-    pub fn read_input(&mut self) -> Vec<i16> {
-        self.input_buffer.as_mut().unwrap().pop_iter().collect()
+    pub fn read_input(&mut self) -> (Vec<f32>, usize) {
+        let mut read_buffer = vec![0.0_f32; 256];
+        let samples_read = self.input_buffer.as_mut().expect("input buffer failed").pop_slice(&mut read_buffer);
+        (read_buffer, samples_read)
     }
 
     pub fn close_input(&mut self) -> Result<(), Box<dyn std::error::Error>> {
@@ -139,7 +124,7 @@ impl Audio {
         }
         .ok_or("No output device found")?;
 
-        let config = device.default_output_config()?;
+        let config = Self::find_best_config(&device, false, 2, Some(TARGET_BUFFER_SIZE))?;
 
         // Create a custom config for stereo 48kHz output
         let mut stream_config: StreamConfig = config.clone().into();
@@ -151,16 +136,16 @@ impl Audio {
 
         let stream = device.build_output_stream(
             &stream_config,
-            move |data: &mut [i16], _: &OutputCallbackInfo| {
+            move |data: &mut [f32], _: &OutputCallbackInfo| {
                 if cons.occupied_len() < data.len() {
                     for sample in data.iter_mut() {
-                        *sample = 0;
+                        *sample = 0.0;
                     }
                     return;
                 }
                 cons.pop_slice(data);
             },
-            |err| eprintln!("audio output error: {}", err),
+            |err| eprintln!("audio output failed: {}", err),
             None,
         )?;
 
@@ -177,7 +162,7 @@ impl Audio {
         Ok(())
     }
 
-    pub fn write_output(&mut self, buffer: &Vec<i16>) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn write_output(&mut self, buffer: &Vec<f32>) -> Result<(), Box<dyn std::error::Error>> {
         self.output_buffer.as_mut().unwrap().push_slice(buffer);
         Ok(())
     }
@@ -207,4 +192,43 @@ impl Audio {
 
         devices
     }
+
+    fn find_best_config(
+        device: &cpal::Device,
+        is_input: bool,
+        requested_channels: ChannelCount,
+        requested_buffer_size: Option<u32>,
+    ) -> Result<StreamConfig> {
+
+        let supported_configs: Box<dyn Iterator<Item = SupportedStreamConfigRange>> = if is_input {
+            Box::new(device.supported_input_configs()?.into_iter())
+        } else {
+            Box::new(device.supported_output_configs()?.into_iter())
+        };
+
+        let mut config_range = supported_configs
+            .filter(|c| c.max_sample_rate().0 >= TARGET_SAMPLE_RATE)
+            .filter(|c| c.channels() == requested_channels)
+            .find(|c| c.sample_format().is_float())
+            .ok_or_else(|| anyhow!(
+                "No suitable f32 configuration found supporting {} Hz and {} channels for {} device.",
+                TARGET_SAMPLE_RATE,
+                requested_channels, // Use the new parameter in the error message
+                if is_input { "input" } else { "output" }
+            ))?;
+
+        let supported_config = config_range
+            .with_sample_rate(SampleRate(TARGET_SAMPLE_RATE));
+    
+        let mut final_config: StreamConfig = supported_config.clone().into();
+
+        if let Some(size) = requested_buffer_size {
+            final_config.buffer_size = BufferSize::Fixed(size);
+        } else {
+            println!("Using device default buffer size.");
+        }
+
+        Ok(final_config)
+    }
+
 }

@@ -155,7 +155,7 @@ impl Spectrum {
             let dashes = [4.0, 4.0];
             let offset = 0.0;
             cr.set_dash(&dashes, offset);
-            cr.set_line_width(2.0);
+            cr.set_line_width(4.0);
             if display_frequency_low < r.receiver[self.rx].band_info[b].low && display_frequency_high > r.receiver[self.rx].band_info[b].low {
                 let x = (r.receiver[self.rx].band_info[b].low - display_frequency_low) / display_hz_per_pixel;
                 cr.move_to( x.into(), 0.0);
@@ -190,12 +190,13 @@ impl Spectrum {
             if r.receiver[self.rx].ctun {
                 frequency = r.receiver[self.rx].ctun_frequency;
             }
+/*
             if r.receiver[self.rx].mode == Modes::CWL.to_usize() {
                 frequency += r.receiver[self.rx].cw_pitch;
             } else if r.receiver[self.rx].mode == Modes::CWU.to_usize() {
                 frequency -= r.receiver[self.rx].cw_pitch;
             }
-
+*/
             // see if cursor and filter visible
             if display_frequency_low < frequency && display_frequency_high > frequency {
                 // draw the center line frequency marker
@@ -257,7 +258,7 @@ impl Spectrum {
                 cr.set_source_rgb(1.0, 1.0, 1.0);
                 let pango_layout = pangocairo::functions::create_layout(&cr);
                 pango_layout.set_text(&text);
-                let (text_width, text_height) = pango_layout.pixel_size();
+                let (text_width, _text_height) = pango_layout.pixel_size();
                 cr.move_to( (x - (text_width as f32 / 2.0)).into(), height.into());
                 let _ = cr.show_text(&text);
                 f += step as f32;
@@ -280,7 +281,7 @@ impl Spectrum {
 
     }
 
-    pub fn draw(&self, cr: &Context, width: i32, height: i32) {
+    pub fn draw(&self, cr: &Context, _width: i32, _height: i32) {
         if self.updated {
             cr.set_source_surface(&self.surface, 0.0, 0.0).expect("failed to set source surface");
             cr.paint().expect("Failed to pant surface");

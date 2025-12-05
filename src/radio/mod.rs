@@ -34,6 +34,8 @@ use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 
 
+use crate::widgets::AppWidgets;
+use crate::cat::CAT;
 use crate::discovery::{Boards,Device};
 use crate::modes::Modes;
 use crate::receiver::Receiver;
@@ -162,6 +164,8 @@ pub struct Radio {
     pub dot: bool,
 #[serde(skip_serializing, skip_deserializing)]
     pub dash: bool,
+#[serde(skip_serializing, skip_deserializing)]
+    pub external_mox: bool,
     pub audio: Vec<Audio>,
     pub transmitter: Transmitter,
 
@@ -223,6 +227,10 @@ pub struct Radio {
 
     pub notch: i32,
     pub notches: Vec<Notch>,
+
+    pub cat_enabled: bool,
+    pub cat: CAT,
+
 }
 
 #[derive(Clone)]
@@ -298,6 +306,7 @@ impl Radio {
         let tune = false;
         let dot = false;
         let dash = false;
+        let external_mox = false;
         let mut audio: Vec<Audio> = Vec::new();
         for _i in 0..receivers {
             audio.push(Audio::new());
@@ -361,6 +370,9 @@ impl Radio {
         let notch = 0;
         let notches = vec![];
 
+        let cat_enabled = false;
+        let cat = CAT::new();
+
         Radio {
             name,
             dev,
@@ -381,6 +393,7 @@ impl Radio {
             tune,
             dot,
             dash,
+            external_mox,
             audio,
             transmitter,
             filter_board,
@@ -427,6 +440,9 @@ impl Radio {
             meter_2_timeout_id,
             notch,
             notches,
+
+            cat_enabled,
+            cat,
         }
     }
 
@@ -438,6 +454,7 @@ impl Radio {
         self.tune = false;
         self.dot = false;
         self.dash = false;
+        self.external_mox = false;
         self.updated = false;
 
         self.pll_locked = false;
@@ -450,7 +467,7 @@ impl Radio {
     pub fn is_transmitting(&self) -> bool {
         let cw = (self.dot | self.dash) && (self.receiver[0].mode == Modes::CWL.to_usize() || self.receiver[0].mode == Modes::CWU.to_usize());
 
-        self.mox | self.ptt | cw | self.vox | self.tune
+        self.mox | self.ptt | cw | self.vox | self.tune | self.external_mox
     }
 
     pub fn run(&self) {
@@ -473,6 +490,7 @@ impl Radio {
         } 
         let mut pixels = vec![0.0; pixels_len as usize];
         let mut flag: c_int = 0;
+
         if !pixels.is_empty() { // may happen at start of application before spectrum is setup
             unsafe {
                 GetPixels(channel, 0, pixels.as_mut_ptr(), &mut flag);
@@ -535,6 +553,7 @@ impl Radio {
     }
 
     pub fn set_state(&self) {
+eprintln!("set_state: {}", self.is_transmitting());
         if self.is_transmitting() {
             unsafe {
                 if self.rx2_enabled {

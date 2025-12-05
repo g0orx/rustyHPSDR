@@ -36,4 +36,5 @@ pub mod meter;
 pub mod util;
 pub mod notches;
 pub mod cat;
+pub mod widgets;
 

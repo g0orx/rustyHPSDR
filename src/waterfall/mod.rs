@@ -49,7 +49,7 @@ impl Waterfall {
         self.updated = false;
     }
 
-    pub fn update(&mut self, width:i32, height: i32, radio_mutex: &RadioMutex, new_pixels: &Vec<f32>) {
+    pub fn update(&mut self, _width:i32, _height: i32, radio_mutex: &RadioMutex, new_pixels: &Vec<f32>) {
         let low_R = 0.0; // low is black
         let low_G = 0.0;
         let low_B = 0.0;
@@ -67,7 +67,7 @@ impl Waterfall {
             let width = self.pixbuf.width() as usize;
             let height = self.pixbuf.height() as usize;
             let rowstride = self.pixbuf.rowstride() as usize;
-            let channels = self.pixbuf.n_channels() as usize;
+            //let channels = self.pixbuf.n_channels() as usize;
 
             for y in (0..height - 1).rev() { // Iterate in reverse order
                 let src_offset = y * rowstride;
@@ -95,6 +95,16 @@ impl Waterfall {
                     average += value;
                 }
 
+                if value < (r.receiver[self.rx].band_info[b].waterfall_low + 6.0) {
+                    R = 0.0;
+                    G = 0.0;
+                    B = 0.0;
+                } else {
+                    R = 255.0;
+                    G = 255.0;
+                    B = 0.0;
+                }
+/*
                 if value < (r.receiver[self.rx].band_info[b].waterfall_low + 5.0) {
                     R = 0.0;
                     G = 0.0;
@@ -123,7 +133,7 @@ impl Waterfall {
                         R = 255.0;
                         G = R;
                         B = 0.0;
-                    } else if percent < 40.0 {
+                    } else if percent < 50.0 {
                         R = 64.0;
                         G = 0.0;
                         B = 0.0;
@@ -141,6 +151,7 @@ impl Waterfall {
                         B = 0.0;
                     }
                 }
+*/
 
                 let ix = (x * 3) as usize;
                 pixels[ix] = R as u8;
@@ -150,14 +161,12 @@ impl Waterfall {
             //println!("average {} max_percent {}", average / width as f32, max_percent);
             if r.waterfall_auto {
                 r.receiver[self.rx].band_info[b].waterfall_low = (r.receiver[self.rx].band_info[b].waterfall_low + (average / width as f32)) / 2.0;
-                //r.receiver[self.rx].band_info[b].waterfall_low = (average / width as f32) - 14.0;
-                //r.receiver[self.rx].band_info[b].waterfall_high = r.receiver[self.rx].band_info[b].waterfall_low + 80.0;
             }
         } // unsafe
         self.updated = true;
     }
 
-    pub fn draw(&self, cr: &Context, width: i32, height: i32) {
+    pub fn draw(&self, cr: &Context, _width: i32, _height: i32) {
         if self.updated {
             cr.set_source_pixbuf(&self.pixbuf, 0.0, 0.0);
             cr.paint().unwrap();

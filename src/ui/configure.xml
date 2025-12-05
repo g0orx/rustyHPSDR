@@ -28,6 +28,22 @@
     <child>
       <object class="GtkNotebook" id="notebook">
       
+        <!-- CAT -->
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <child>
+               <object class="GtkCheckButton" id="cat_check_button">
+                 <property name="label">Enable CAT:</property>
+               </object>
+             </child>
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="cat_label">
+            <property name="label">CAT</property>
+          </object>
+        </child>
         
         <!-- Display -->
         <child>

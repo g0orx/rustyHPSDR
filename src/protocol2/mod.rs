@@ -18,6 +18,7 @@
 use nix::sys::socket::setsockopt;
 use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
 use std::net::{UdpSocket};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::alex::*;
 use crate::audio::*;
@@ -178,49 +179,17 @@ impl Protocol2 {
                                 self.send_high_priority(radio_mutex);
                                 },
                         1026 => { // Mic/Line In Samples
-                                let data_size = MIC_SAMPLES * MIC_SAMPLE_SIZE;
                                 let mut r = radio_mutex.radio.lock().unwrap();
-                                // always collect microphone samples
-                                let mut sample:f64 = 0.0;
-                                let mut b = MIC_HEADER_SIZE;
-                                if size >= MIC_HEADER_SIZE + data_size {
-                                    for _i in 0..MIC_SAMPLES {
-                                        if buffer[b] & 0x80 != 0 {
-                                            sample = u32::from_be_bytes([0xFF, 0xFF, buffer[b], buffer[b+1]]) as f64;
-                                        } else {
-                                            sample = u32::from_be_bytes([0, 0, buffer[b], buffer[b+1]]) as f64;
-                                        }
-                                        b += 2;
-                                        let x = r.transmitter.microphone_samples * 2;
-                                        r.transmitter.microphone_buffer[x] = sample / 32767.0;
-                                        r.transmitter.microphone_buffer[x+1] = 0.0;
-                                        r.transmitter.microphone_samples += 1;
-                                        if r.transmitter.microphone_samples >= r.transmitter.microphone_buffer_size {
-
-                                            if r.transmitter.local_input && !r.transmitter.local_input_changed {
-                                                // replace samples with local audio samples
-                                                r.transmitter.microphone_samples = 0;
-                                                let mic_buffer = self.tx_audio.read_input();
-                                                for i in 0..mic_buffer.len() {
-                                                    let x = r.transmitter.microphone_samples * 2;
-                                                    r.transmitter.microphone_buffer[x] = mic_buffer[i] as f64 / 32768.0;
-                                                    r.transmitter.microphone_buffer[x+1] = 0.0;
-                                                    r.transmitter.microphone_samples += 1;
-                                                }
-                                                let remaining = r.transmitter.microphone_buffer_size - mic_buffer.len();
-                                                for _i in 0..remaining {
-                                                    let x = r.transmitter.microphone_samples * 2;
-                                                    r.transmitter.microphone_buffer[x] = 0.0;
-                                                    r.transmitter.microphone_buffer[x+1] = 0.0;
-                                                    r.transmitter.microphone_samples += 1;
-                                                }
-                                            }
-
-                                            r.transmitter.microphone_samples = 0;
-                                            if r.is_transmitting() {
-                                            r.transmitter.process_mic_samples();
-                                            r.transmitter.microphone_samples = 0;
-                                            
+                                // use samples from radio microphone if not local microphone or tuning
+                                if !r.transmitter.local_input || r.tune {
+                                    let data_size = MIC_SAMPLES * MIC_SAMPLE_SIZE;
+                                    let mut sample:f32 = 0.0;
+                                    let mut b = MIC_HEADER_SIZE;
+                                    if size >= MIC_HEADER_SIZE + data_size {
+                                        for _i in 0..MIC_SAMPLES {
+                                            sample = ((i16::from_be_bytes([buffer[b], buffer[b+1]])) as f32) / 32767.0;
+                                            b += 2;
+                                            if r.transmitter.add_mic_sample(sample) && r.is_transmitting() {
                                                 for j in 0..r.transmitter.output_samples {
                                                     let ix = j * 2;
                                                     let ox = tx_iq_buffer_offset * 2;
@@ -275,14 +244,14 @@ impl Protocol2 {
                                         r.receiver[ddc].samples = 0;
                                         for i in 0..r.receiver[ddc].output_samples {
                                             let ix = i * 2;
-                                            let left_sample: i32 = (r.receiver[ddc].audio_buffer[ix] * 32767.0) as i32;
-                                            let right_sample: i32 = (r.receiver[ddc].audio_buffer[ix+1] * 32767.0) as i32;
+                                            let left_sample: f32 = (r.receiver[ddc].audio_buffer[ix] * 32767.0) as f32;
+                                            let right_sample: f32 = (r.receiver[ddc].audio_buffer[ix+1] * 32767.0) as f32;
                                             let rox = r.receiver[ddc].remote_audio_buffer_offset;
 
                                             // always stereo to radio
-                                            r.receiver[ddc].remote_audio_buffer[rox] = (left_sample >> 8) as u8;
+                                            r.receiver[ddc].remote_audio_buffer[rox] = (left_sample as i16 >> 8) as u8;
                                             r.receiver[ddc].remote_audio_buffer[rox+1] = left_sample as u8;
-                                            r.receiver[ddc].remote_audio_buffer[rox+2] = (right_sample >> 8) as u8;
+                                            r.receiver[ddc].remote_audio_buffer[rox+2] = (right_sample as i16 >> 8) as u8;
                                             r.receiver[ddc].remote_audio_buffer[rox+3] = right_sample as u8;
                                             /*
                                             match r.receiver[ddc].audio_output {
@@ -325,20 +294,20 @@ impl Protocol2 {
                                                 let lox=r.receiver[ddc].local_audio_buffer_offset * 2;
                                                 match r.receiver[ddc].audio_output {
                                                     AudioOutput::Stereo => {
-                                                        r.receiver[ddc].local_audio_buffer[lox]=left_sample as i16;
-                                                        r.receiver[ddc].local_audio_buffer[lox+1]=right_sample as i16;
+                                                        r.receiver[ddc].local_audio_buffer[lox]=left_sample;
+                                                        r.receiver[ddc].local_audio_buffer[lox+1]=right_sample;
                                                     },
                                                     AudioOutput::Left => {
-                                                        r.receiver[ddc].local_audio_buffer[lox]=left_sample as i16;
-                                                        r.receiver[ddc].local_audio_buffer[lox+1]=0;
+                                                        r.receiver[ddc].local_audio_buffer[lox]=left_sample;
+                                                        r.receiver[ddc].local_audio_buffer[lox+1]=0.0;
                                                     },
                                                     AudioOutput::Right => {
-                                                        r.receiver[ddc].local_audio_buffer[lox]=0;
-                                                        r.receiver[ddc].local_audio_buffer[lox+1]=right_sample as i16;
+                                                        r.receiver[ddc].local_audio_buffer[lox]=0.0;
+                                                        r.receiver[ddc].local_audio_buffer[lox+1]=right_sample;
                                                     },
                                                     AudioOutput::Mute => {
-                                                        r.receiver[ddc].local_audio_buffer[lox]=0;
-                                                        r.receiver[ddc].local_audio_buffer[lox+1]=0;
+                                                        r.receiver[ddc].local_audio_buffer[lox]=0.0;
+                                                        r.receiver[ddc].local_audio_buffer[lox+1]=0.0;
                                                     },
                                                 }
                                                 r.receiver[ddc].local_audio_buffer_offset += 1;
@@ -352,16 +321,44 @@ impl Protocol2 {
                                     }
                                 }
                             }
-                        }
-                        r.received = true;
+                            r.received = true;
+                            }
                         },
-                        _ => eprintln!("Unknown port {}", src.port()),
+                        _ => {
+                            println!("invalid UDP port: {}", src.port());
+                        },
                     }
                 }
-                Err(e) => {
-                    eprintln!("Error receiving UDP packet: {}", e);
+                Err(e) =>  {println!("Error receiving UDP packet: {}", e);}
+            }
+
+            let mut r = radio_mutex.radio.lock().unwrap();
+            if r.transmitter.local_input && !r.transmitter.local_input_changed && !r.tune {
+                // use samples from local audio inpput
+                //r.transmitter.microphone_samples = 0;
+
+                let (mic_buffer, count) = self.tx_audio.read_input();
+                if count != 0 {
+
+                    //eprintln!("{:?}: local mic {}", SystemTime::now(), count);
+                    for i in 0..mic_buffer.len() {
+                        if r.transmitter.add_mic_sample(mic_buffer[i]) && r.is_transmitting() {
+                            for j in 0..r.transmitter.output_samples {
+                                let ix = j * 2;
+                                let ox = tx_iq_buffer_offset * 2;
+                                tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize];
+                                tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize];
+                                tx_iq_buffer_offset += 1;
+                                if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
+                                    self.send_iq_buffer(tx_iq_buffer.clone());
+                                    tx_iq_buffer_offset = 0;
+                                }
+                            }
+                        }
+                    }
                 }
             }
+            drop(r);
 
             // check for any changes we need to handle here
             let mut r = radio_mutex.radio.lock().unwrap();
@@ -375,7 +372,6 @@ impl Protocol2 {
             let input_device_changed = r.transmitter.input_device_changed;
             r.transmitter.local_input_changed = false;
             r.transmitter.input_device_changed = false;
-
             let rx1_local_output_changed_to = r.receiver[0].local_output_changed_to;
             let rx1_local_output_changed = r.receiver[0].local_output_changed;
             let rx1_local_output_device_changed = r.receiver[0].local_output_device_changed;
@@ -388,7 +384,6 @@ impl Protocol2 {
             let rx2_local_output = r.receiver[1].local_output;
             let rx2_output_device = r.receiver[1].output_device.clone();
             r.receiver[1].local_output_device_changed = false;
-
             drop(r);
             if keepalive || updated {
                 self.send_general();
@@ -407,7 +402,7 @@ impl Protocol2 {
                 let _ = self.tx_audio.close_input();
                 let _ = self.tx_audio.open_input(&input_device);
             }
-
+    
             if rx1_local_output_changed {
                 if rx1_local_output_changed_to {
                     let _ = self.rx_audio[0].open_output(&rx1_output_device);
@@ -503,11 +498,6 @@ impl Protocol2 {
         for i in 0..r.receivers {
             // convert frequency to phase
             f = r.receiver[i as usize].frequency;
-            if r.receiver[i as usize].mode == Modes::CWL.to_usize() {
-                 f += r.receiver[i as usize].cw_pitch;
-            } else if r.receiver[i as usize].mode == Modes::CWU.to_usize() {
-                 f -= r.receiver[i as usize].cw_pitch;
-            }
 
             let phase = ((4294967296.0*f)/122880000.0) as u32;
             buf[(9+(i*4)) as usize] = ((phase>>24) & 0xFF) as u8;
@@ -523,20 +513,10 @@ impl Protocol2 {
             if r.receiver[1].ctun {
                 f = r.receiver[1].ctun_frequency;
             }
-            if r.receiver[1].mode == Modes::CWL.to_usize() {
-                 f += r.receiver[1].cw_pitch;
-            } else if r.receiver[1].mode == Modes::CWU.to_usize() {
-                 f -= r.receiver[1].cw_pitch;
-            }
         } else {
             f = r.receiver[0].frequency;
             if r.receiver[0].ctun {
                 f = r.receiver[0].ctun_frequency;
-            }
-            if r.receiver[0].mode == Modes::CWL.to_usize() {
-                 f += r.receiver[0].cw_pitch;
-            } else if r.receiver[0].mode == Modes::CWU.to_usize() {
-                 f -= r.receiver[0].cw_pitch;
             }
         }
         let phase = ((4294967296.0*f)/122880000.0) as u32;
@@ -751,7 +731,12 @@ impl Protocol2 {
 
         buf[4] = 1; // DACs
 
-        buf[5] = 0;
+        if r.cw_keyer_sidetone_volume != 0 {
+            buf[5] = 0x01;
+        } else {
+            buf[5] = 0x00;
+        }
+
         if tx.mode == Modes::CWL.to_usize()  || tx.mode == Modes::CWU.to_usize() {
             buf[5] |= 0x02;
         }
@@ -803,8 +788,9 @@ impl Protocol2 {
             buf[50] |= 0x20;
         }
 
+        buf[51] = r.transmitter.lineingain as u8;
+
         self.device.address.set_port(1026);
-        //println!("send_transmit_specific: 1026");
         self.socket.send_to(&buf, self.device.address).expect("couldn't send data");
         self.transmit_specific_sequence += 1;
     }

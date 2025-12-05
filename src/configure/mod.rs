@@ -18,10 +18,14 @@
 use gtk::prelude::*;
 use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
 
+use std::thread;
+use std::sync::mpsc;
+
 use crate::bands::Bands;
 use crate::radio::{Keyer, RadioModels, RadioMutex};
 use crate::receiver::{AudioOutput};
 use crate::audio::*;
+use crate::cat::{CatMessage, CAT};
 
 pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMutex) -> Window {
 
@@ -34,6 +38,33 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
             .expect("Could not get object `configure_window` from builder.");
 
     window.set_transient_for(Some(parent)); // keeps it on top
+
+    // CAT
+    let r = radio_mutex.radio.lock().unwrap();
+        let cat_enabled = r.cat_enabled;
+    drop(r);
+    let cat_check_button: CheckButton = builder
+            .object("cat_check_button")
+            .expect("Could not get object `cat_check_button` from builder.");
+    cat_check_button.set_active(cat_enabled);
+    let radio_mutex_clone = radio_mutex.clone();
+    cat_check_button.connect_toggled(move |button| {
+        let is_active = button.is_active();
+        let cat_enabled = is_active;
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.cat_enabled = cat_enabled;
+        let mut cat = r.cat.clone();
+        drop(r);
+        let radio_mutex_clone = radio_mutex_clone.clone();
+        let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
+        if cat_enabled {
+            let tx_clone = tx.clone();
+            thread::spawn(move || {
+                cat.run(&radio_mutex_clone, tx_clone);
+            });
+        }    
+    });
+    
     
     // Microphone
     let r = radio_mutex.radio.lock().unwrap();

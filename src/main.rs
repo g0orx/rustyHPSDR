@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use glib::{self, clone};
 use glib::ControlFlow::Continue;
 use glib::timeout_add_local;
 use gtk::prelude::*;
@@ -33,11 +34,14 @@ use std::path::PathBuf;
 use std::process;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{self, Sender, Receiver, TryRecvError};
 use std::thread;
 use std::time::Duration;
 
+
 use rustyHPSDR::agc::*;
 use rustyHPSDR::bands::*;
+use rustyHPSDR::cat::{CatMessage, CAT};
 use rustyHPSDR::modes::*;
 use rustyHPSDR::filters::*;
 use rustyHPSDR::discovery::create_discovery_dialog;
@@ -53,292 +57,7 @@ use rustyHPSDR::meter::*;
 use rustyHPSDR::util::*;
 use rustyHPSDR::wdsp::*;
 use rustyHPSDR::notches::*;
-
-struct AppWidgets {
-    pub main_window: ApplicationWindow,
-    pub configure_button: Button,
-    pub vfo_a_frequency: Label,
-    pub vfo_b_frequency: Label,
-    pub a_to_b_button: Button,
-    pub b_to_a_button: Button,
-    pub a_swap_b_button: Button,
-    pub split_button: ToggleButton,
-    pub ctun_button: ToggleButton,
-    pub rx2_button: ToggleButton,
-    pub step_dropdown: DropDown,
-    pub meter_1_display: DrawingArea,
-    pub meter_2_display: DrawingArea,
-    //pub meter_tx_display: DrawingArea,
-    pub spectrum_display: DrawingArea,
-    pub waterfall_display: DrawingArea,
-    pub spectrum_2_display: DrawingArea,
-    pub waterfall_2_display: DrawingArea,
-    pub zoom_adjustment: Adjustment,
-    pub pan_adjustment: Adjustment,
-    pub nr_button: ToggleButton,
-    pub nb_button: ToggleButton,
-    pub anf_button: ToggleButton,
-    pub snb_button: ToggleButton,
-    pub mox_button: ToggleButton,
-    pub tun_button: ToggleButton,
-    pub afgain_adjustment: Adjustment,
-    pub agc_dropdown: DropDown,
-    pub agcgain_adjustment: Adjustment,
-    pub attenuation_adjustment: Adjustment,
-    pub micgain_adjustment: Adjustment,
-    pub drive_adjustment: Adjustment,
-    pub band_frame: Frame,
-    pub mode_frame: Frame,
-    pub filter_frame: Frame,
-    pub band_grid: BandGrid,
-    pub mode_grid: ModeGrid,
-    pub filter_grid: FilterGrid,
-    pub cwpitch_adjustment: Adjustment,
-    pub low_adjustment: Adjustment,
-    pub high_adjustment: Adjustment,
-    pub tx_power: Label,
-    pub tx_swr: Label,
-    pub tx_alc: Label,
-    //pub input_level: Label,
-    pub input_level: ProgressBar,
-}
-
-impl AppWidgets {
-    fn from_builder(builder: &Builder) -> Self {
-        let main_window: ApplicationWindow = builder
-            .object("main_window")
-            .expect("Could not get object `main_window` from builder.");
-
-        let configure_button: Button = builder
-            .object("configure_button")
-            .expect("Could not get configure_button from builder");
-
-        let vfo_a_frequency: Label = builder
-            .object("vfo_a_frequency")
-            .expect("Could not get vfo_a_frequency from builder");
-
-        let vfo_b_frequency: Label = builder
-            .object("vfo_b_frequency")
-            .expect("Could not get vfo_b_frequency from builder");
-
-        let a_to_b_button: Button = builder
-            .object("a_to_b_button")
-            .expect("Could not get a_to_b_button from builder");
-
-        let b_to_a_button: Button = builder
-            .object("b_to_a_button")
-            .expect("Could not get b_to_a_button from builder");
-
-        let a_swap_b_button: Button = builder
-            .object("a_swap_b_button")
-            .expect("Could not get a_swap_b_button from builder");
-
-        let split_button: ToggleButton = builder
-            .object("split_button")
-            .expect("Could not get split_button from builder");
-
-        let ctun_button: ToggleButton = builder
-            .object("ctun_button")
-            .expect("Could not get ctun_button from builder");
-
-        let rx2_button: ToggleButton = builder
-            .object("rx2_button")
-            .expect("Could not get rx2_button from builder");
-
-        let step_dropdown = builder
-            .object("step_dropdown")
-            .expect("Could not get step_dropdown from builder");
-
-        let meter_1_display: DrawingArea = builder
-            .object("meter_1_display")
-            .expect("Could not get meter_1_display from builder");
-
-        let meter_2_display: DrawingArea = builder
-            .object("meter_2_display")
-            .expect("Could not get meter_2_display from builder");
-
-        //let meter_tx_display: DrawingArea = builder
-        //    .object("meter_tx_display")
-        //    .expect("Could not get meter_tx_display from builder");
-
-        let spectrum_display: DrawingArea = builder
-            .object("spectrum_display")
-            .expect("Could not get spectrum_display from builder");
-
-        let waterfall_display: DrawingArea = builder
-            .object("waterfall_display")
-            .expect("Could not get waterfall_display from builder");
-
-        let spectrum_2_display: DrawingArea = builder
-            .object("spectrum_2_display")
-            .expect("Could not get spectrum_2_display from builder");
-
-        let waterfall_2_display: DrawingArea = builder
-            .object("waterfall_2_display")
-            .expect("Could not get waterfall_2_display from builder");
-
-        let band_grid: Grid = builder
-            .object("band_grid")
-            .expect("Could not get band_grid from builder");
-
-        let mode_grid: Grid = builder
-            .object("mode_grid")
-            .expect("Could not get mode_grid from builder");
-
-        let filter_grid: Grid = builder
-            .object("filter_grid")
-            .expect("Could not get filter_grid from builder");
-
-        let zoom_adjustment: Adjustment = builder
-            .object("zoom_adjustment")
-            .expect("Could not get zoom_adjustment from builder");
-
-        let pan_adjustment: Adjustment = builder
-            .object("pan_adjustment")
-            .expect("Could not get pan_adjustment from builder");
-
-        let nr_button: ToggleButton = builder
-            .object("nr_button")
-            .expect("Could not get nr_button from builder");
-
-        let nb_button: ToggleButton = builder
-            .object("nb_button")
-            .expect("Could not get nb_button from builder");
-
-        let anf_button: ToggleButton = builder
-            .object("anf_button")
-            .expect("Could not get anf_button from builder");
-
-        let snb_button: ToggleButton = builder
-            .object("snb_button")
-            .expect("Could not get snb_button from builder");
-
-        let mox_button: ToggleButton = builder
-            .object("mox_button")
-            .expect("Could not get mox_button from builder");
-
-        let tun_button: ToggleButton = builder
-            .object("tun_button")
-            .expect("Could not get tun_button from builder");
-
-        let afgain_adjustment: Adjustment = builder
-            .object("afgain_adjustment")
-            .expect("Could not get afgain_adjustment from builder");
-
-        let agc_dropdown: DropDown = builder
-            .object("agc_dropdown")
-            .expect("Could not get agc_dropdown from builder");
-
-        let agcgain_adjustment: Adjustment = builder
-            .object("agcgain_adjustment")
-            .expect("Could not get agcgain_adjustment from builder");
-
-        let attenuation_adjustment: Adjustment = builder
-            .object("attenuation_adjustment")
-            .expect("Could not get attenuation_adjustment from builder");
-
-        let micgain_adjustment: Adjustment = builder
-            .object("micgain_adjustment")
-            .expect("Could not get micgain_adjustment from builder");
-
-        let drive_adjustment: Adjustment = builder
-            .object("drive_adjustment")
-            .expect("Could not get drive_adjustment from builder");
-
-        let cwpitch_adjustment: Adjustment = builder
-            .object("cwpitch_adjustment")
-            .expect("Could not get cwpitch_adjustment from builder");
-
-        let low_adjustment: Adjustment = builder
-            .object("low_adjustment")
-            .expect("Could not get low_adjustment from builder");
-
-        let high_adjustment: Adjustment = builder
-            .object("high_adjustment")
-            .expect("Could not get high_adjustment from builder");
-
-        let band_frame: Frame = builder
-            .object("band_frame")
-            .expect("Could not get band_frame from builder");
-
-        let mode_frame: Frame = builder
-            .object("mode_frame")
-            .expect("Could not get mode_frame from builder");
-
-        let filter_frame: Frame = builder
-            .object("filter_frame")
-            .expect("Could not get filter_frame from builder");
-
-        let band_grid = BandGrid::new(builder);
-        let mode_grid = ModeGrid::new(builder);
-        let filter_grid = FilterGrid::new(builder);
-
-        let tx_power: Label = builder
-            .object("tx_power")
-            .expect("Could not get tx_power from builder");
-
-        let tx_swr: Label = builder
-            .object("tx_swr")
-            .expect("Could not get tx_swr from builder");
-
-        let tx_alc: Label = builder
-            .object("tx_alc")
-            .expect("Could not get tx_alc from builder");
-
-        //let input_level: Label = builder
-        let input_level: ProgressBar = builder
-            .object("input_level")
-            .expect("Could not get input_level from builder");
-
-        AppWidgets {
-            main_window,
-            configure_button,
-            vfo_a_frequency,
-            vfo_b_frequency,
-            a_to_b_button,
-            b_to_a_button,
-            a_swap_b_button,
-            split_button,
-            ctun_button,
-            rx2_button,
-            step_dropdown,
-            meter_1_display,
-            meter_2_display,
-            //meter_tx_display,
-            spectrum_display,
-            waterfall_display,
-            spectrum_2_display,
-            waterfall_2_display,
-            zoom_adjustment,
-            pan_adjustment,
-            nr_button,
-            nb_button,
-            anf_button,
-            snb_button,
-            mox_button,
-            tun_button,
-            afgain_adjustment,
-            agc_dropdown,
-            agcgain_adjustment,
-            attenuation_adjustment,
-            micgain_adjustment,
-            drive_adjustment,
-            cwpitch_adjustment,
-            low_adjustment,
-            high_adjustment,
-            band_frame,
-            mode_frame,
-            filter_frame,
-            band_grid,
-            mode_grid,
-            filter_grid,
-            tx_power,
-            tx_swr,
-            tx_alc,
-            input_level,
-        }
-    }
-}
+use rustyHPSDR::widgets::*;
 
 fn main() {
     let id = format!("org.g0orx.rustyHPSDR.pid{}", process::id());
@@ -569,9 +288,12 @@ fn build_ui(app: &Application) {
                         if r.dev == 6 { // HEMES_LITE
                             app_widgets.attenuation_adjustment.set_lower(-12.0);
                             app_widgets.attenuation_adjustment.set_upper(48.0);
+                            let b = r.receiver[0].band.to_usize();
+                            app_widgets.attenuation_adjustment.set_value(r.receiver[0].band_info[b].attenuation.into());
+                        } else {
+                            let b = r.receiver[rx].band.to_usize();
+                            app_widgets.attenuation_adjustment.set_value(r.receiver[rx].band_info[b].attenuation.into());
                         }
-                        let b = r.receiver[rx].band.to_usize();
-                        app_widgets.attenuation_adjustment.set_value(r.receiver[rx].band_info[b].attenuation.into());
                         app_widgets.micgain_adjustment.set_value(r.transmitter.micgain.into());
                         app_widgets.micgain_adjustment.set_value(r.transmitter.micgain.into());
                         app_widgets.drive_adjustment.set_value(r.transmitter.drive.into());
@@ -1185,7 +907,6 @@ fn build_ui(app: &Application) {
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.band_grid.set_callback(move|index| {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
-                        // save current band info
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let mut rx = 0;
                         if r.receiver[1].active {
@@ -1214,19 +935,19 @@ fn build_ui(app: &Application) {
                         if b != index { // band has changed
                             r.receiver[rx].mode = r.receiver[rx].band_info[index].mode.to_usize();
                             app_widgets.mode_grid.set_active_index(r.receiver[rx].mode);
-                            let (low, high) = app_widgets.filter_grid.get_filter_values(r.receiver[rx].band_info[index].mode.to_usize(), r.receiver[rx].band_info[index].filter.to_usize());
+                            let (mut low, mut high) = app_widgets.filter_grid.get_filter_values(r.receiver[rx].band_info[index].mode.to_usize(), r.receiver[rx].band_info[index].filter.to_usize());
                             app_widgets.filter_grid.set_active_values(low, high);
+                            if r.receiver[rx].mode == Modes::CWL.to_usize() {
+                                low += -r.receiver[rx].cw_pitch;
+                                high += -r.receiver[rx].cw_pitch;
+                            } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
+                                low += r.receiver[rx].cw_pitch;
+                                high += r.receiver[rx].cw_pitch;
+                            }
                             r.receiver[rx].filter_low = low;
                             r.receiver[rx].filter_high = high;
-                            if r.receiver[rx].mode == Modes::CWL.to_usize() {
-                                r.receiver[rx].filter_low = -r.receiver[rx].cw_pitch - low;
-                                r.receiver[rx].filter_high = -r.receiver[rx].cw_pitch + high;
-                            } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
-                                r.receiver[rx].filter_low = r.receiver[rx].cw_pitch - low;
-                                r.receiver[rx].filter_high = r.receiver[rx].cw_pitch + high;
-                            }
                             r.receiver[rx].set_mode();
-
+                            
                             r.transmitter.filter_low = low;
                             r.transmitter.filter_high = high;
                             r.transmitter.mode = r.receiver[rx].band_info[index].mode.to_usize();
@@ -1239,8 +960,13 @@ fn build_ui(app: &Application) {
                             } else {
                                 app_widgets.vfo_b_frequency.set_label(&formatted_value);
                             }
-                            b = r.receiver[rx].band.to_usize();
-                            let attenuation = r.receiver[rx].band_info[b].attenuation;
+
+                            let mut b = r.receiver[rx].band.to_usize();
+                            let mut attenuation = r.receiver[rx].band_info[b].attenuation;
+                            if r.dev == 6 { // HEMES_LITE
+                                b = r.receiver[0].band.to_usize();
+                                attenuation = r.receiver[0].band_info[b].attenuation;
+                            }
                             drop(r);
                             app_widgets.attenuation_adjustment.set_value(attenuation.into());
                             r = radio_mutex_clone.radio.lock().unwrap();
@@ -1248,8 +974,6 @@ fn build_ui(app: &Application) {
                         unsafe {
                             RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
                         }
-
-
                     }, band);
 
 
@@ -1265,20 +989,19 @@ fn build_ui(app: &Application) {
                         r.receiver[rx].mode = index; 
                         app_widgets.filter_grid.update_filter_buttons(index);
 
-                        let (low, high) = app_widgets.filter_grid.get_filter_values(index, r.receiver[rx].filter);
+                        let (mut low, mut high) = app_widgets.filter_grid.get_filter_values(index, r.receiver[rx].filter);
                         app_widgets.filter_grid.set_active_values(low, high);
+                        if r.receiver[rx].mode == Modes::CWL.to_usize() {
+                            low += -r.receiver[rx].cw_pitch;
+                            high += -r.receiver[rx].cw_pitch;
+                        } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
+                            low += r.receiver[rx].cw_pitch;
+                            high += r.receiver[rx].cw_pitch;
+                        }
                         r.receiver[rx].filter_low = low;
                         r.receiver[rx].filter_high = high;
 
-                        if r.receiver[rx].mode == Modes::CWL.to_usize() {
-                            r.receiver[rx].filter_low = -r.receiver[rx].cw_pitch - low;
-                            r.receiver[rx].filter_high = -r.receiver[rx].cw_pitch + high;
-                        } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
-                            r.receiver[rx].filter_low = r.receiver[rx].cw_pitch - low;
-                            r.receiver[rx].filter_high = r.receiver[rx].cw_pitch + high;
-                        }
                         r.receiver[rx].set_mode();
-
                         r.transmitter.mode = index;
                         r.transmitter.set_mode();
                         r.transmitter.filter_low = low;
@@ -1296,20 +1019,19 @@ fn build_ui(app: &Application) {
                         }
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         r.receiver[rx].filter = index;
-                        let (low, high) = app_widgets.filter_grid.get_filter_values(r.receiver[rx].mode, r.receiver[rx].filter);
+                        let (mut low, mut high) = app_widgets.filter_grid.get_filter_values(r.receiver[rx].mode, r.receiver[rx].filter);
+                        if r.receiver[rx].mode == Modes::CWL.to_usize() {
+                            low += -r.receiver[rx].cw_pitch;
+                            high += -r.receiver[rx].cw_pitch;
+                        } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
+                            low += r.receiver[rx].cw_pitch;
+                            high += r.receiver[rx].cw_pitch;
+                        }
+
                         app_widgets.filter_grid.set_active_values(low, high);
                         r.receiver[rx].filter_low = low;
                         r.receiver[rx].filter_high = high;
-
-                        if r.receiver[rx].mode == Modes::CWL.to_usize() {
-                            r.receiver[rx].filter_low = -r.receiver[rx].cw_pitch - low;
-                            r.receiver[rx].filter_high = -r.receiver[rx].cw_pitch + high;
-                        } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
-                            r.receiver[rx].filter_low = r.receiver[rx].cw_pitch - low;
-                            r.receiver[rx].filter_high = r.receiver[rx].cw_pitch + high;
-                        }
                         r.receiver[rx].set_filter();
-
                         r.transmitter.filter_low = low;
                         r.transmitter.filter_high = high;
                         r.transmitter.set_filter();
@@ -1492,12 +1214,17 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.attenuation_adjustment.connect_value_changed(move |adjustment| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
+                        if r.dev == 6 { // HEMES_LITE
+                            let b = r.receiver[0].band.to_usize();
+                            r.receiver[0].band_info[b].attenuation = adjustment.value() as i32;
+                        } else {
+                            let mut rx = 0;
+                            if r.receiver[1].active {
+                                rx = 1;
+                            }
+                            let b = r.receiver[rx].band.to_usize();
+                            r.receiver[rx].band_info[b].attenuation = adjustment.value() as i32;
                         }
-                        let b = r.receiver[rx].band.to_usize();
-                        r.receiver[rx].band_info[b].attenuation = adjustment.value() as i32;
                     });
 
                     let radio_mutex_clone = radio_mutex.clone();
@@ -1522,6 +1249,7 @@ fn build_ui(app: &Application) {
                             rx = 1;
                         }
                         r.receiver[rx].cw_pitch = adjustment.value() as f32;
+                        r.receiver[rx].set_filter();
                     });
 
                     let radio_mutex_clone = radio_mutex.clone();
@@ -1773,6 +1501,7 @@ fn build_ui(app: &Application) {
                     r.meter_2_timeout_id = Some(meter_2_timeout_id);
                     drop(r);
 
+                    // protocol 2 needs to send a keep alive message
                     if device.protocol == 2 {
                         let radio_mutex_clone = radio_mutex.clone();
                         let keepalive_timeout_id = timeout_add_local(Duration::from_millis(250), move || {
@@ -1786,6 +1515,71 @@ fn build_ui(app: &Application) {
                             Continue
                         });
                     }
+
+                    let mut r = radio_mutex.radio.lock().unwrap();
+                    let cat_enabled = r.cat_enabled;
+                    let mut cat = r.cat.clone();
+                    drop(r);
+                    if cat_enabled {
+                        let (tx_channel, rx_channel): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
+
+                        let radio_mutex_clone = radio_mutex.clone();
+                        let tx_clone = tx_channel.clone();
+                        thread::spawn(move || {
+                            cat.run(&radio_mutex_clone, tx_clone);
+                        });
+
+
+                        let radio_mutex_clone = radio_mutex.clone();
+                        let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
+                        glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
+                        match rx_channel.try_recv() {
+                            Ok(msg) => {
+                                // Message received, update the UI
+                                match msg {
+                                    CatMessage::UpdateMox(state) => {
+                                        eprintln!("Received UpdateMox({})", state);
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let app_widgets = rc_app_widgets_clone.borrow();
+                                        r.mox = state;
+                                        r.updated = true;
+                                        r.set_state();
+                                        if r.mox {
+                                            if r.split {
+                                                app_widgets.vfo_b_frequency.remove_css_class("vfo-b-label");
+                                                app_widgets.vfo_b_frequency.add_css_class("vfo-tx-label");
+                                            } else {
+                                                app_widgets.vfo_a_frequency.remove_css_class("vfo-a-label");
+                                                app_widgets.vfo_a_frequency.add_css_class("vfo-tx-label");
+                                            }
+                                        } else if r.split {
+                                            app_widgets.vfo_b_frequency.remove_css_class("vfo-tx-label");
+                                            app_widgets.vfo_b_frequency.add_css_class("vfo-b-label");
+                                        } else {
+                                            app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
+                                            app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
+                                        }
+
+                                    }
+                                }
+                                // Continue the polling timeout (return Continue(true))
+                                glib::ControlFlow::Continue
+                            }
+                            Err(TryRecvError::Empty) => {
+                                // No message yet, keep polling
+                                glib::ControlFlow::Continue
+                            }
+                            Err(TryRecvError::Disconnected) => {
+                                // The Sender (tx) has been dropped, meaning the thread finished.
+                                eprintln!("Thread disconnected!");
+                                // Stop the polling timeout (return Break)
+                                glib::ControlFlow::Break
+                            }
+                        }
+                    }));
+
+                    }
+
 
                 } else {
                     // try again
@@ -1928,13 +1722,9 @@ fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWid
         app_widgets.tx_swr.set_label(&formatted_swr);
         let formatted_alc = format!("ALC: {:.3}", alc);
         app_widgets.tx_alc.set_label(&formatted_alc);
-        //let formatted_level = format!("Input Level: {:.2}", input_level);
-        //app_widgets.input_level.set_label(&formatted_level);
-        app_widgets.input_level.set_fraction(input_level);
+        app_widgets.input_level.set_fraction(input_level.into());
     } else {
-        //let formatted_level = format!("Input Level: {:.2}", input_level);
-        //app_widgets.input_level.set_label(&formatted_level);
-        app_widgets.input_level.set_fraction(input_level);
+        app_widgets.input_level.set_fraction(input_level.into());
     }
 }
 
@@ -1965,32 +1755,20 @@ fn spectrum_waterfall_clicked(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefC
     let display_hz_per_pixel = display_frequency_range / width as f32;
         
         
-    let f1 = display_frequency_low + (x as f32 * display_hz_per_pixel);
-    let f1 = (f1 as u32 / r.receiver[rx].step as u32 * r.receiver[rx].step as u32) as f32;
-        
-    if r.receiver[rx].ctun {
-        r.receiver[rx].ctun_frequency = f1;
-        r.receiver[rx].set_ctun_frequency();
-        let formatted_value = format_u32_with_separators(r.receiver[rx].ctun_frequency as u32);
-        if rx == 0 {
-            app_widgets.vfo_a_frequency.set_label(&formatted_value);
-        } else {
-            app_widgets.vfo_b_frequency.set_label(&formatted_value);
-        }
+    let mut f1 = display_frequency_low + (x as f32 * display_hz_per_pixel);
+    f1 = (f1 as u32 / r.receiver[rx].step as u32 * r.receiver[rx].step as u32) as f32;
+    if r.receiver[rx].mode == Modes::CWL.to_usize() {
+        f1 += r.receiver[rx].cw_pitch as f32;
+    } else if r.receiver[rx].mode == Modes::CWU.to_usize() {
+        f1 -= r.receiver[rx].cw_pitch as f32;
+    }
+    r.receiver[rx].set_frequency(f1);
+    let formatted_value = format_u32_with_separators(f1 as u32);
+    if rx == 0 {
+        app_widgets.vfo_a_frequency.set_label(&formatted_value);
     } else {
-        r.receiver[rx].frequency = f1;
-        let formatted_value = format_u32_with_separators(r.receiver[rx].frequency as u32);
-        if rx == 0 {
-            app_widgets.vfo_a_frequency.set_label(&formatted_value);
-        } else {
-            app_widgets.vfo_b_frequency.set_label(&formatted_value);
-        }
+        app_widgets.vfo_b_frequency.set_label(&formatted_value);
     }
-
-    unsafe {
-        RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
-    }
-
     true
 }
 
@@ -2000,32 +1778,18 @@ fn spectrum_waterfall_scroll(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCe
 
     let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f32;
     let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f32;
-    if r.receiver[rx].ctun {
-        r.receiver[rx].ctun_frequency -= r.receiver[rx].step * dy as f32;
-        if r.receiver[rx].ctun_frequency < frequency_low {
-            r.receiver[rx].ctun_frequency = frequency_low;
-        } else if r.receiver[rx].ctun_frequency > frequency_high {
-            r.receiver[rx].ctun_frequency = frequency_high;
-        }
-        let formatted_value = format_u32_with_separators(r.receiver[rx].ctun_frequency as u32);
-        if rx == 0 {
-            app_widgets.vfo_a_frequency.set_label(&formatted_value);
-        } else {
-            app_widgets.vfo_b_frequency.set_label(&formatted_value);
-        }
-        r.receiver[rx].set_ctun_frequency();
+    let mut f1 = if r.receiver[rx].ctun {
+                     r.receiver[rx].ctun_frequency
+                  } else {
+                     r.receiver[rx].frequency
+                  };
+    f1 -= r.receiver[rx].step * dy as f32;
+    r.receiver[rx].set_frequency(f1);
+    let formatted_value = format_u32_with_separators(f1 as u32);
+    if rx == 0 {
+        app_widgets.vfo_a_frequency.set_label(&formatted_value);
     } else {
-        r.receiver[rx].frequency -= r.receiver[rx].step * dy as f32;
-        let formatted_value = format_u32_with_separators(r.receiver[rx].frequency as u32);
-        if rx == 0 {
-            app_widgets.vfo_a_frequency.set_label(&formatted_value);
-        } else {
-            app_widgets.vfo_b_frequency.set_label(&formatted_value);
-        }
-    }
-
-    unsafe {
-        RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
+        app_widgets.vfo_b_frequency.set_label(&formatted_value);
     }
 }
 
@@ -2052,8 +1816,16 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     let zoom = r.receiver[rx].zoom;
     let pan = r.receiver[rx].pan;
     let cw_pitch = r.receiver[rx].cw_pitch;
-    let b = r.receiver[rx].band.to_usize();
-    let attenuation = r.receiver[rx].band_info[b].attenuation;
+
+    let mut b = r.receiver[rx].band.to_usize();
+    let mut attenuation = r.receiver[rx].band_info[b].attenuation;
+    if r.dev == 6 {
+        b = r.receiver[0].band.to_usize();
+        attenuation = r.receiver[0].band_info[b].attenuation;
+    } else {
+        b = r.receiver[rx].band.to_usize();
+        attenuation = r.receiver[rx].band_info[b].attenuation;
+    }
     drop(r);
 
     let app_widgets = rc_app_widgets.borrow();
