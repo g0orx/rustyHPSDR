@@ -23,6 +23,7 @@ use std::os::raw::{c_char, c_int};
 use serde::{Deserialize, Serialize};
 
 use crate::alex::*;
+use crate::antenna::Antenna;
 use crate::discovery::Boards;
 use crate::modes::Modes;
 use crate::wdsp::*;
@@ -60,7 +61,6 @@ pub struct Transmitter {
     pub spectrum_low: f32,
     pub micgain: f32,
     pub lineingain: f32,
-    pub tx_antenna: u32,
 #[serde(skip_serializing, skip_deserializing)]
     pub exciter_power: u16,
 #[serde(skip_serializing, skip_deserializing)]
@@ -130,7 +130,6 @@ impl Transmitter {
         let micgain = 0.0;
         let lineingain = 16.0;
 
-        let tx_antenna = ALEX_ANTENNA_1;
         let exciter_power:u16 = 0;
         let alex_forward_power:u16 = 0;
         let alex_reverse_power:u16 = 0;
@@ -184,7 +183,6 @@ impl Transmitter {
             spectrum_low,
             micgain,
             lineingain,
-            tx_antenna,
             exciter_power,
             alex_forward_power,
             alex_reverse_power,

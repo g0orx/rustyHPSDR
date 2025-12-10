@@ -21,7 +21,6 @@ use crate::alex::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Adc {
-    pub rx_antenna: u32,
     pub random: bool,
     pub dither: bool,
 }
@@ -35,10 +34,9 @@ impl Default for Adc {
 impl Adc {
 
     pub fn new() -> Adc {
-        let rx_antenna = ALEX_ANTENNA_1;
         let random = false;
         let dither = false;
 
-        Adc {rx_antenna, random, dither}
+        Adc {random, dither}
     }
 }

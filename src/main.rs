@@ -220,11 +220,7 @@ fn build_ui(app: &Application) {
                     // setup the ui state
                     {
                         let mut r = radio_mutex.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
-
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         if rx==0 {
                             app_widgets.band_frame.set_label(Some("RX1 Band"));
                             app_widgets.mode_frame.set_label(Some("RX1 Mode"));
@@ -294,7 +290,13 @@ fn build_ui(app: &Application) {
                             let b = r.receiver[rx].band.to_usize();
                             app_widgets.attenuation_adjustment.set_value(r.receiver[rx].band_info[b].attenuation.into());
                         }
-                        app_widgets.micgain_adjustment.set_value(r.transmitter.micgain.into());
+
+                        let mut sq = r.receiver[rx].am_squelch_threshold;
+                        if r.receiver[rx].mode == Modes::FMN.to_usize() {
+                            sq = r.receiver[rx].fm_squelch_threshold;
+                        }
+                        app_widgets.squelch_adjustment.set_value(sq);
+
                         app_widgets.micgain_adjustment.set_value(r.transmitter.micgain.into());
                         app_widgets.drive_adjustment.set_value(r.transmitter.drive.into());
                         app_widgets.cwpitch_adjustment.set_value(r.receiver[rx].cw_pitch.into());
@@ -377,7 +379,7 @@ fn build_ui(app: &Application) {
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.configure_button.connect_clicked(move |_| {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
-                        let configure_dialog = create_configure_dialog(&app_widgets.main_window, &radio_mutex_clone);
+                        let configure_dialog = create_configure_dialog(&rc_app_widgets_clone_clone.clone(), &radio_mutex_clone);
                         app_widgets.configure_button.set_sensitive(false);
                         configure_dialog.present();
                         let rc_app_widgets = rc_app_widgets_clone_clone.clone();
@@ -481,10 +483,7 @@ fn build_ui(app: &Application) {
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.ctun_button.connect_clicked(move |button| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         let style_context = button.style_context();
                         r.receiver[rx].ctun = button.is_active();
@@ -587,10 +586,7 @@ fn build_ui(app: &Application) {
                         } else if gesture.current_button() == 3 { // right button
                             // add a notch?
                             let mut r = radio_mutex_clone.radio.lock().unwrap();
-                            let mut rx: usize = 0;
-                            if r.receiver[1].active {
-                                rx = 1;
-                            }
+                            let rx = if r.receiver[0].active { 0 } else { 1 };
                             let notch = Notch::new(rx as i32, r.receiver[rx].frequency as f64, 500.0, 1);
                             r.add_notch_to_vector(notch);
                             r.add_notch(notch);
@@ -844,10 +840,7 @@ fn build_ui(app: &Application) {
                     app_widgets.zoom_adjustment.connect_value_changed(move |adjustment| {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].zoom = adjustment.value() as i32;
                         let channel = r.receiver[rx].channel;
                         let width = r.receiver[rx].spectrum_width;
@@ -877,10 +870,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.pan_adjustment.connect_value_changed(move |adjustment| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         if r.receiver[rx].zoom > 1 {
                             r.receiver[rx].pan = adjustment.value() as i32;
                         } else {
@@ -890,10 +880,7 @@ fn build_ui(app: &Application) {
                     });
 
                     let r = radio_mutex.radio.lock().unwrap();
-                    let mut rx = 0;
-                    if r.receiver[1].active {
-                        rx = 1;
-                    }
+                    let rx = if r.receiver[0].active { 0 } else { 1 };
                     let band = r.receiver[rx].band.to_usize();
                     let mode = r.receiver[rx].mode;
                     let filter = r.receiver[rx].filter;
@@ -908,11 +895,7 @@ fn build_ui(app: &Application) {
                     app_widgets.band_grid.set_callback(move|index| {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
-
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         let mut b = r.receiver[rx].band.to_usize();
                         if b != index { // band has changed
                             r.receiver[rx].band_info[b].current = r.receiver[rx].frequency;
@@ -973,7 +956,9 @@ fn build_ui(app: &Application) {
                         }
                         unsafe {
                             RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
-                        }
+                        } 
+                        drop(r);
+                        update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
                     }, band);
 
 
@@ -982,10 +967,7 @@ fn build_ui(app: &Application) {
                     app_widgets.mode_grid.set_callback(move|index| {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].mode = index; 
                         app_widgets.filter_grid.update_filter_buttons(index);
 
@@ -1007,16 +989,15 @@ fn build_ui(app: &Application) {
                         r.transmitter.filter_low = low;
                         r.transmitter.filter_high = high;
                         r.transmitter.set_filter();
+                        drop(r);
+                        update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
                     }, mode);
 
                     let radio_mutex_clone = radio_mutex.clone();
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.filter_grid.set_callback(move|index| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         r.receiver[rx].filter = index;
                         let (mut low, mut high) = app_widgets.filter_grid.get_filter_values(r.receiver[rx].mode, r.receiver[rx].filter);
@@ -1040,10 +1021,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.nr_button.clone().connect_clicked(move |button| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         let active = button.is_active();
 
                         if button.is_active() {
@@ -1069,10 +1047,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.nb_button.clone().connect_clicked(move |button| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         let active = button.is_active();
 
                         if button.is_active() {
@@ -1098,10 +1073,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.anf_button.clone().connect_clicked(move |button| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].anf = button.is_active();
                         r.receiver[rx].set_anf();
                     });
@@ -1109,10 +1081,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.snb_button.clone().connect_clicked(move |button| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].snb = button.is_active();
                         r.receiver[rx].set_snb();
                     });
@@ -1180,10 +1149,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.afgain_adjustment.connect_value_changed(move |adjustment| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].afgain = (adjustment.value() / 100.0) as f32;
                         r.receiver[rx].set_afgain();
                     });
@@ -1191,10 +1157,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.agc_dropdown.connect_selected_notify(move |dropdown| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         let index = dropdown.selected();
                         r.receiver[rx].agc = AGC::from_i32(index as i32).expect("Invalid AGC");
                         AGC::set_agc(&r.receiver[rx], r.receiver[rx].channel);
@@ -1203,10 +1166,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.agcgain_adjustment.connect_value_changed(move |adjustment| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].agcgain = adjustment.value() as f32;
                         r.receiver[rx].set_agcgain();
                     });
@@ -1218,13 +1178,23 @@ fn build_ui(app: &Application) {
                             let b = r.receiver[0].band.to_usize();
                             r.receiver[0].band_info[b].attenuation = adjustment.value() as i32;
                         } else {
-                            let mut rx = 0;
-                            if r.receiver[1].active {
-                                rx = 1;
-                            }
+                            let rx = if r.receiver[0].active { 0 } else { 1 };
                             let b = r.receiver[rx].band.to_usize();
                             r.receiver[rx].band_info[b].attenuation = adjustment.value() as i32;
                         }
+                    });
+
+                    let radio_mutex_clone = radio_mutex.clone();
+                    app_widgets.squelch_adjustment.connect_value_changed(move |adjustment| {
+                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                        let sq = adjustment.value();
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
+                        if r.receiver[rx].mode == Modes::FMN.to_usize() {
+                            r.receiver[rx].fm_squelch_threshold = sq;
+                        } else {
+                            r.receiver[rx].am_squelch_threshold = sq;
+                        }
+                        r.receiver[rx].set_squelch_threshold();
                     });
 
                     let radio_mutex_clone = radio_mutex.clone();
@@ -1244,10 +1214,7 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     app_widgets.cwpitch_adjustment.connect_value_changed(move |adjustment| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].cw_pitch = adjustment.value() as f64;
                         r.receiver[rx].set_filter();
                     });
@@ -1286,10 +1253,7 @@ fn build_ui(app: &Application) {
                     // initialize ui
                     {
                         let mut r = radio_mutex.radio.lock().unwrap();
-                        let mut rx = 0;
-                        if r.receiver[1].active {
-                            rx = 1;
-                        }
+                        let rx = if r.receiver[0].active { 0 } else { 1 };
 
                         app_widgets.filter_grid.update_filter_buttons(r.receiver[rx].mode);
                         r.audio[0].init();
@@ -1796,10 +1760,7 @@ fn spectrum_waterfall_scroll(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCe
 
 fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>) {
     let r = radio_mutex.radio.lock().unwrap();
-    let mut rx = 0;
-    if r.receiver[1].active {
-        rx = 1;
-    }
+    let rx = if r.receiver[0].active { 0 } else { 1 };
     let step_index = r.receiver[rx].step_index;
     let band = r.receiver[rx].band;
     let mode = r.receiver[rx].mode;
@@ -1827,9 +1788,11 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
         b = r.receiver[rx].band.to_usize();
         attenuation = r.receiver[rx].band_info[b].attenuation;
     }
+    let am_squelch_threshold = r.receiver[rx].am_squelch_threshold;
+    let fm_squelch_threshold = r.receiver[rx].fm_squelch_threshold;
     drop(r);
 
-    let app_widgets = rc_app_widgets.borrow();
+    let mut app_widgets = rc_app_widgets.borrow_mut();
 
     // update step index
     app_widgets.step_dropdown.set_selected(step_index as u32);
@@ -1844,16 +1807,14 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
         app_widgets.mode_frame.set_label(Some("RX2 Mode"));
         app_widgets.filter_frame.set_label(Some("RX2 Filter"));
     }
-    let band_button = app_widgets.band_grid.get_button(band.to_usize());
-    band_button.emit_by_name::<()>("clicked", &[]);
+    app_widgets.band_grid.set_active_index(b);
+ 
 
     // update mode
-    let mode_button = app_widgets.mode_grid.get_button(mode);
-    mode_button.emit_by_name::<()>("clicked", &[]);
+    app_widgets.mode_grid.set_active_index(mode);
 
     // update filter
-    let filter_button = app_widgets.filter_grid.get_button(filter);
-    filter_button.emit_by_name::<()>("clicked", &[]);
+    app_widgets.filter_grid.set_active_index(filter);
 
     // update NR/NR2
     app_widgets.nr_button.set_active(nr | nr2);
@@ -1898,4 +1859,12 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
 
     // Attenuation
     app_widgets.attenuation_adjustment.set_value(attenuation.into());
+
+    // Squelch
+    if mode == Modes::FMN.to_usize() {
+        app_widgets.squelch_adjustment.set_value(fm_squelch_threshold);
+    } else {
+        app_widgets.squelch_adjustment.set_value(am_squelch_threshold);
+    }
+
 }

@@ -15,27 +15,35 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-pub mod discovery;
-pub mod radio;
-pub mod receiver;
-pub mod transmitter;
-pub mod bands;
-pub mod modes;
-pub mod filters;
-pub mod agc;
-pub mod configure;
-pub mod protocol1;
-pub mod protocol2;
-pub mod wdsp;
-pub mod audio;
-pub mod alex;
-pub mod adc;
-pub mod spectrum;
-pub mod waterfall;
-pub mod meter;
-pub mod util;
-pub mod notches;
-pub mod cat;
-pub mod widgets;
-pub mod antenna;
+use serde::{Deserialize, Serialize};
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Antenna {
+    ANT1=0,
+    ANT2,
+    ANT3,
+    EXT1,
+    EXT2,
+    XVTR
+}
+
+impl Antenna {
+
+    pub fn from_usize(value: usize) -> Option<Self> {
+        match value {
+            0 => Some(Antenna::ANT1),
+            1 => Some(Antenna::ANT2),
+            2 => Some(Antenna::ANT3),
+            3 => Some(Antenna::EXT1),
+            4 => Some(Antenna::EXT2),
+            5 => Some(Antenna::XVTR),
+            _ => None,
+        }
+    }
+
+    pub fn to_usize(&self) -> usize {
+        *self as usize
+    }
+
+}

@@ -28,6 +28,1245 @@
     <child>
       <object class="GtkNotebook" id="notebook">
       
+        <!-- Antenna -->
+        <child>
+          <object class="GtkGrid" id="antenna_grid">
+            <property name="column-spacing">3</property>
+            <!-- Headers -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Receive</property>
+                <property name="halign">start</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                  <property name="column-span">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Transmit</property>
+                <property name="halign">start</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">0</property>
+                  <property name="column-span">3</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Band</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">1</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">2</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">3</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">EXT1</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">EXT2</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">XVTR</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">1</property>
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">2</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">3</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 160 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">160</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_160">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_160">
+                <property name="halign">center</property>
+                <property name="group">ant_1_160</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_160">
+                <property name="halign">center</property>
+                <property name="group">ant_1_160</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_160">
+                <property name="halign">center</property>
+                <property name="group">ant_1_160</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_160">
+                <property name="halign">center</property>
+                <property name="group">ant_ext1_160</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_160">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_160">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_160">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_160</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_160">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_160</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 80 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">80</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_80">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_80">
+                <property name="halign">center</property>
+                <property name="group">ant_1_80</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_80">
+                <property name="halign">center</property>
+                <property name="group">ant_1_80</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_80">
+                <property name="halign">center</property>
+                <property name="group">ant_1_80</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_80">
+                <property name="halign">center</property>
+                <property name="group">ant_1_80</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_80">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_80">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_80">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_80</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_80">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_80</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 60 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">60</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_60">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_60">
+                <property name="halign">center</property>
+                <property name="group">ant_1_60</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_60">
+                <property name="halign">center</property>
+                <property name="group">ant_1_60</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_60">
+                <property name="halign">center</property>
+                <property name="group">ant_1_60</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_60">
+                <property name="halign">center</property>
+                <property name="group">ant_1_60</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_60">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_60">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_60">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_60</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_60">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_60</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 40 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">40</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_40">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_40">
+                <property name="halign">center</property>
+                <property name="group">ant_1_40</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_40">
+                <property name="halign">center</property>
+                <property name="group">ant_1_40</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_40">
+                <property name="halign">center</property>
+                <property name="group">ant_1_40</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_40">
+                <property name="halign">center</property>
+                <property name="group">ant_1_40</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_40">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_40">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_40">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_40</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_40">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_40</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">5</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 30 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">30</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_30">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_30">
+                <property name="halign">center</property>
+                <property name="group">ant_1_30</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_30">
+                <property name="halign">center</property>
+                <property name="group">ant_1_30</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_30">
+                <property name="halign">center</property>
+                <property name="group">ant_1_30</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_30">
+                <property name="halign">center</property>
+                <property name="group">ant_1_30</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_30">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_30">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_30">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_30</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_30">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_30</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 20 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">20</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_20">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_20">
+                <property name="halign">center</property>
+                <property name="group">ant_1_20</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_20">
+                <property name="halign">center</property>
+                <property name="group">ant_1_20</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_20">
+                <property name="halign">center</property>
+                <property name="group">ant_1_20</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_20">
+                <property name="halign">center</property>
+                <property name="group">ant_1_20</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_20">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_20">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_20">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_20</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_20">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_20</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">7</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 17 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">17</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_17">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_17">
+                <property name="halign">center</property>
+                <property name="group">ant_1_17</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_17">
+                <property name="halign">center</property>
+                <property name="group">ant_1_17</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_17">
+                <property name="halign">center</property>
+                <property name="group">ant_1_17</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_17">
+                <property name="halign">center</property>
+                <property name="group">ant_1_17</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_17">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_17">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_17">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_17</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_17">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_17</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">8</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 15 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">15</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_15">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_15">
+                <property name="halign">center</property>
+                <property name="group">ant_1_15</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_15">
+                <property name="halign">center</property>
+                <property name="group">ant_1_15</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_15">
+                <property name="halign">center</property>
+                <property name="group">ant_1_15</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_15">
+                <property name="halign">center</property>
+                <property name="group">ant_1_15</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_15">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_15">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_15">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_15</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_15">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_15</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">9</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 12 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">12</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_12">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_12">
+                <property name="halign">center</property>
+                <property name="group">ant_1_12</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_12">
+                <property name="halign">center</property>
+                <property name="group">ant_1_12</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_12">
+                <property name="halign">center</property>
+                <property name="group">ant_1_12</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_12">
+                <property name="halign">center</property>
+                <property name="group">ant_1_12</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_12">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_12">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_12">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_12</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_12">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_12</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">10</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 10 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">10</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_10">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_10">
+                <property name="halign">center</property>
+                <property name="group">ant_1_10</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_10">
+                <property name="halign">center</property>
+                <property name="group">ant_1_10</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_10">
+                <property name="halign">center</property>
+                <property name="group">ant_1_10</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_10">
+                <property name="halign">center</property>
+                <property name="group">ant_1_10</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_10">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_10">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_10">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_10</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_10">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_10</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">11</property>
+                </layout>
+              </object>
+            </child>
+
+            <!-- 6 -->
+            <child>
+              <object class="GtkLabel">
+                <property name="label">6</property>
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_1_6">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_2_6">
+                <property name="halign">center</property>
+                <property name="group">ant_1_6</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_3_6">
+                <property name="halign">center</property>
+                <property name="group">ant_1_6</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext1_6">
+                <property name="halign">center</property>
+                <property name="group">ant_1_6</property>
+                <layout>
+                  <property name="column">4</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_ext2_6">
+                <property name="halign">center</property>
+                <property name="group">ant_1_6</property>
+                <layout>
+                  <property name="column">5</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_xvtr_6">
+                <property name="halign">center</property>
+                <layout>
+                  <property name="column">6</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx1_6">
+                <property name="halign">center</property>
+                <property name="margin-start">30</property>
+                <layout>
+                  <property name="column">7</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx2_6">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_6</property>
+                <layout>
+                  <property name="column">8</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ant_tx3_6">
+                <property name="halign">center</property>
+                <property name="group">ant_tx1_6</property>
+                <layout>
+                  <property name="column">9</property>
+                  <property name="row">12</property>
+                </layout>
+              </object>
+            </child>
+
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="antenna_label">
+            <property name="label">Antenna</property>
+          </object>
+        </child>
+
         <!-- CAT -->
         <child>
           <object class="GtkBox">
@@ -515,11 +1754,9 @@
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
-
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">2200: </property>
@@ -543,7 +1780,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">630: </property>
@@ -567,7 +1803,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">160: </property>
@@ -591,7 +1826,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">80: </property>
@@ -615,7 +1849,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">60: </property>
@@ -639,7 +1872,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">40: </property>
@@ -663,7 +1895,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">30: </property>
@@ -687,7 +1918,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">20: </property>
@@ -711,7 +1941,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">17: </property>
@@ -735,7 +1964,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">15: </property>
@@ -759,7 +1987,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">12: </property>
@@ -783,7 +2010,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">10: </property>
@@ -807,7 +2033,6 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <!-- <property name="halign">end</property> -->
                 <child>
                   <object class="GtkLabel">
                     <property name="label">6: </property>
@@ -899,39 +2124,6 @@
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkDropDown" id="adc0_antenna_dropdown">
-                        <property name="model">
-                        <object class="GtkStringList">
-                        <items>
-                          <item>ANT 1</item>
-                          <item>ANT 2</item>
-                          <item>ANT 3</item>
-                        </items>
-                        </object>
-                        </property>
-                        <property name="selected">0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkDropDown" id="adc0_ext_dropdown">
-                        <property name="model">
-                        <object class="GtkStringList">
-                        <items>
-                          <item>None</item>
-                          <item>EXT 1</item>
-                          <item>EXT 2</item>
-                        </items>
-                        </object>
-                        </property>
-                        <property name="selected">0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="adc_xvtr_check_button">
-                        <property name="label">XVTR</property>
-                      </object>
-                    </child>
                     <child>
                       <object class="GtkDropDown" id="adc0_filters_dropdown">
                         <property name="model">

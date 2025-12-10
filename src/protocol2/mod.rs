@@ -21,6 +21,7 @@ use std::net::{UdpSocket};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::alex::*;
+use crate::antenna::Antenna;
 use crate::audio::*;
 use crate::discovery::Device;
 use crate::modes::Modes;
@@ -539,27 +540,34 @@ impl Protocol2 {
         buf[345] = power as u8;
 
         let mut filter: u32 = 0x00000000;
-        //filter |= r.adc[r.receiver[0].adc].rx_antenna;
         if r.is_transmitting() {
             filter |= 0x08000000; // TX_ENABLE
-            match r.transmitter.tx_antenna {
-                0 => filter |= ALEX_ANTENNA_1,
-                1 => filter |= ALEX_ANTENNA_2,
-                2 => filter |= ALEX_ANTENNA_3,
-                3 => filter |= ALEX_RX_ANTENNA_EXT1,
-                4 => filter |= ALEX_RX_ANTENNA_EXT2,
-                5 => filter |= ALEX_RX_ANTENNA_XVTR,
+            let b = if r.split {
+                        r.receiver[1].band.to_usize()
+                    } else {
+                        r.receiver[0].band.to_usize()
+                    };
+            let tx_antenna = if r.split {
+                                 r.receiver[1].band_info[b].tx_antenna
+                             } else {
+                                 r.receiver[0].band_info[b].tx_antenna
+                             };
+            match tx_antenna {
+                Antenna::ANT1 => filter |= ALEX_ANTENNA_1,
+                Antenna::ANT2 => filter |= ALEX_ANTENNA_2,
+                Antenna::ANT3 => filter |= ALEX_ANTENNA_3,
                 _ => filter |= ALEX_ANTENNA_1,
             }
         } else {
             // set the rx antenna
-            match r.adc[r.receiver[0].adc].rx_antenna {
-                0 => filter |= ALEX_ANTENNA_1,
-                1 => filter |= ALEX_ANTENNA_2,
-                2 => filter |= ALEX_ANTENNA_3,
-                3 => filter |= ALEX_RX_ANTENNA_EXT1,
-                4 => filter |= ALEX_RX_ANTENNA_EXT2,
-                5 => filter |= ALEX_RX_ANTENNA_XVTR,
+            let b = r.receiver[0].band.to_usize();
+            match r.receiver[0].band_info[b].antenna {
+                Antenna::ANT1 => filter |= ALEX_ANTENNA_1,
+                Antenna::ANT2 => filter |= ALEX_ANTENNA_2,
+                Antenna::ANT3 => filter |= ALEX_ANTENNA_3,
+                Antenna::EXT1 => filter |= ALEX_RX_ANTENNA_EXT1,
+                Antenna::EXT2 => filter |= ALEX_RX_ANTENNA_EXT2,
+                Antenna::XVTR => filter |= ALEX_RX_ANTENNA_XVTR,
                 _ => filter |= ALEX_ANTENNA_1,
             }
         }

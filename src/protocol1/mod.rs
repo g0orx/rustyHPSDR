@@ -30,6 +30,7 @@ use nix::sys::socket::setsockopt;
 use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
 use std::net::{UdpSocket};
 
+use crate::antenna::Antenna;
 use crate::audio::Audio;
 use crate::receiver::AudioOutput;
 use crate::discovery::Device;
@@ -611,19 +612,29 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                 _ => {00}, 
             };
             c2 = 0x00; // TODO Class E and OC
-            c3 = match r.adc[r.receiver[0].adc].rx_antenna {
-                0 => 0x00, // ANT 1
-                1 => 0x01, // ANT 2
-                2 => 0x02, // ANT 3
-                3 => 0x00, // EXT 1
-                4 => 0x00, // EXT 2
-                5 => 0x00, // XVTR
+            c3 = match r.receiver[0].band_info[b].antenna {
+                Antenna::ANT1 => 0x00, // ANT 1
+                Antenna::ANT2 => 0x01, // ANT 2
+                Antenna::ANT3 => 0x02, // ANT 3
+                Antenna::EXT1 => 0x00, // EXT 1
+                Antenna::EXT2 => 0x00, // EXT 2
+                Antenna::XVTR => 0x00, // XVTR
                 _ => 0x00, // None
             };
-            c4 = match r.adc[r.receiver[0].adc].rx_antenna {
-                0 => 0x00,
-                1 => 0x01,
-                2 => 0x02,
+            b = if r.split {
+                    r.receiver[1].band.to_usize()
+                } else {
+                    r.receiver[0].band.to_usize()
+                };
+            let tx_antenna = if r.split {
+                                 r.receiver[1].band_info[b].tx_antenna
+                             } else {
+                                 r.receiver[0].band_info[b].tx_antenna
+                             };
+            c4 = match tx_antenna {
+                Antenna::ANT1 => 0x00, // ANT 1
+                Antenna::ANT2 => 0x01, // ANT 2
+                Antenna::ANT3 => 0x02, // ANT 3
                 _ => 0x00,
             };
             c4 |= (self.receivers - 1) << 3;

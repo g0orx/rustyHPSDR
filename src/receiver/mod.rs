@@ -22,6 +22,7 @@ use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
 
 use crate::agc::AGC;
+use crate::antenna::Antenna;
 use crate::bands::{Bands, BandInfo};
 use crate::filters::Filters;
 use crate::modes::Modes;
@@ -154,6 +155,11 @@ pub struct Receiver {
 #[serde(skip_serializing, skip_deserializing)]
     pub local_output_device_changed: bool,
 
+    pub am_squelch: bool,
+    pub am_squelch_threshold: f64,
+    pub fm_squelch: bool,
+    pub fm_squelch_threshold: f64,
+
 }
 
 impl Receiver {
@@ -241,6 +247,10 @@ impl Receiver {
         let local_output_changed = false;
         let local_output_changed_to = false;
         let local_output_device_changed = false;
+        let am_squelch: bool = false;
+        let am_squelch_threshold: f64 = 0.0;
+        let fm_squelch: bool = false;
+        let fm_squelch_threshold: f64 = 0.0;
 
         
 
@@ -324,7 +334,10 @@ impl Receiver {
                             local_output_changed,
                             local_output_changed_to,
                             local_output_device_changed,
-
+                            am_squelch,
+                            am_squelch_threshold,
+                            fm_squelch,
+                            fm_squelch_threshold,
         }
     }
 
@@ -367,7 +380,7 @@ impl Receiver {
 
     }
 
-    fn init_wdsp(&self, channel: i32) {
+    fn init_wdsp(&mut self, channel: i32) {
         unsafe {
             OpenChannel(channel, self.buffer_size as i32, self.fft_size, self.sample_rate, self.dsp_rate, self.output_rate, 0, 1, 0.010, 0.025, 0.0, 0.010, 0);
             create_anbEXT(channel, 1, self.buffer_size as i32, self.sample_rate.into(), 0.0001, 0.0001, 0.0001, 0.05, 20.0);
@@ -421,6 +434,8 @@ impl Receiver {
                 SetRXAShiftFreq(channel, offset.into());
                 RXANBPSetShiftFrequency(channel, 0.0);
             }
+
+            self.set_squelch_threshold();
         }
     }
 
@@ -499,9 +514,10 @@ impl Receiver {
         }
     }
 
-    pub fn set_mode(&self) {
+    pub fn set_mode(&mut self) {
         unsafe {
             SetRXAMode(self.channel, self.mode as i32);
+            self.set_squelch_threshold();
         }
         self.set_filter();
     }
@@ -565,6 +581,36 @@ impl Receiver {
         unsafe {
             SetRXAANRRun(self.channel, self.nr as i32);
         }  
+    }
+
+    pub fn set_squelch_threshold(&mut self) {
+        if self.mode == Modes::FMN.to_usize() {
+            let sq = 10.0_f32.powf((-2.0 * self.fm_squelch_threshold / 100.0) as f32);
+            unsafe {
+                SetRXAFMSQThreshold(self.channel, sq as f64);
+            }
+            if self.fm_squelch_threshold > 0.0 {
+                self.fm_squelch = true;
+            } else {
+                self.fm_squelch = false;
+            }
+            unsafe {
+                SetRXAFMSQRun(self.channel, self.fm_squelch as i32);
+            }
+        } else {
+            let sq = -140.0 + self.am_squelch_threshold;
+            unsafe {
+                SetRXAAMSQThreshold(self.channel, sq as f64);
+            }
+            if self.am_squelch_threshold > 0.0 {
+                self.am_squelch = true;
+            } else {
+                self.am_squelch = false;
+            }
+            unsafe {
+                SetRXAAMSQRun(self.channel, self.am_squelch as i32);
+            }
+        }
     }
 
     pub fn set_nr2(&self) {

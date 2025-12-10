@@ -51,6 +51,7 @@ pub struct AppWidgets {
     pub agc_dropdown: DropDown,
     pub agcgain_adjustment: Adjustment,
     pub attenuation_adjustment: Adjustment,
+    pub squelch_adjustment: Adjustment,
     pub micgain_adjustment: Adjustment,
     pub drive_adjustment: Adjustment,
     pub band_frame: Frame,
@@ -199,6 +200,10 @@ impl AppWidgets {
             .object("attenuation_adjustment")
             .expect("Could not get attenuation_adjustment from builder");
 
+        let squelch_adjustment: Adjustment = builder
+            .object("squelch_adjustment")
+            .expect("Could not get squelch_adjustment from builder");
+
         let micgain_adjustment: Adjustment = builder
             .object("micgain_adjustment")
             .expect("Could not get micgain_adjustment from builder");
@@ -282,6 +287,7 @@ impl AppWidgets {
             agc_dropdown,
             agcgain_adjustment,
             attenuation_adjustment,
+            squelch_adjustment,
             micgain_adjustment,
             drive_adjustment,
             cwpitch_adjustment,

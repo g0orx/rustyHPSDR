@@ -16,19 +16,23 @@
 */
 
 use gtk::prelude::*;
-use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Entry, Frame, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
+use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Entry, Frame, Grid, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
 use glib::clone;
 
-use std::thread;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::mpsc;
+use std::thread;
 
-use crate::bands::Bands;
+use crate::antenna::Antenna;
+use crate::bands::{Bands, BandGrid};
 use crate::radio::{Keyer, RadioModels, RadioMutex};
 use crate::receiver::{AudioOutput};
 use crate::audio::*;
 use crate::cat::{CatMessage, CAT};
+use crate::widgets::*;
 
-pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMutex) -> Window {
+pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_mutex: &RadioMutex) -> Window {
 
 
     let ui_xml = include_str!("../ui/configure.xml");
@@ -38,7 +42,810 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
             .object("configure_window")
             .expect("Could not get object `configure_window` from builder.");
 
-    window.set_transient_for(Some(parent)); // keeps it on top
+    let app_widgets = rc_app_widgets.borrow();
+    window.set_transient_for(Some(&app_widgets.main_window)); // keeps it on top
+
+    // get the model
+    let r = radio_mutex.radio.lock().unwrap();
+    let model = r.model;
+    drop(r);
+    
+
+    // Antenna RX
+    let r = radio_mutex.radio.lock().unwrap();
+      let ant_160 = r.receiver[0].band_info[Bands::Band160.to_usize()].antenna;
+      let ant_80 = r.receiver[0].band_info[Bands::Band80.to_usize()].antenna;
+      let ant_60 = r.receiver[0].band_info[Bands::Band60.to_usize()].antenna;
+      let ant_40 = r.receiver[0].band_info[Bands::Band80.to_usize()].antenna;
+      let ant_30 = r.receiver[0].band_info[Bands::Band30.to_usize()].antenna;
+      let ant_20 = r.receiver[0].band_info[Bands::Band20.to_usize()].antenna;
+      let ant_17 = r.receiver[0].band_info[Bands::Band17.to_usize()].antenna;
+      let ant_15 = r.receiver[0].band_info[Bands::Band15.to_usize()].antenna;
+      let ant_12 = r.receiver[0].band_info[Bands::Band12.to_usize()].antenna;
+      let ant_10 = r.receiver[0].band_info[Bands::Band10.to_usize()].antenna;
+      let ant_6 = r.receiver[0].band_info[Bands::Band6.to_usize()].antenna;
+    drop(r);
+
+    let ant_1_160: CheckButton = builder
+            .object("ant_1_160")
+            .expect("Could not get object `ant_1_160` from builder.");
+    ant_1_160.set_active(ant_160 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_160.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_160: CheckButton = builder
+            .object("ant_2_160")
+            .expect("Could not get object `ant_2_160` from builder.");
+    ant_2_160.set_active(ant_160 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_160.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_160: CheckButton = builder
+            .object("ant_3_160")
+            .expect("Could not get object `ant_3_160` from builder.");
+    ant_3_160.set_active(ant_160 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_160.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+    
+
+    let ant_1_80: CheckButton = builder
+            .object("ant_1_80")
+            .expect("Could not get object `ant_1_80` from builder.");
+    ant_1_80.set_active(ant_80 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_80.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_80: CheckButton = builder
+            .object("ant_2_80")
+            .expect("Could not get object `ant_2_80` from builder.");
+    ant_2_80.set_active(ant_80 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_80.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_80: CheckButton = builder
+            .object("ant_3_80")
+            .expect("Could not get object `ant_3_80` from builder.");
+    ant_3_80.set_active(ant_80 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_80.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_60: CheckButton = builder
+            .object("ant_1_60")
+            .expect("Could not get object `ant_1_60` from builder.");
+    ant_1_60.set_active(ant_60 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_60.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_60: CheckButton = builder
+            .object("ant_2_60")
+            .expect("Could not get object `ant_2_60` from builder.");
+    ant_2_60.set_active(ant_60 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_60.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_60: CheckButton = builder
+            .object("ant_3_60")
+            .expect("Could not get object `ant_3_60` from builder.");
+    ant_3_60.set_active(ant_60 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_60.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_40: CheckButton = builder
+            .object("ant_1_40")
+            .expect("Could not get object `ant_1_40` from builder.");
+    ant_1_40.set_active(ant_40 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_40.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_40: CheckButton = builder
+            .object("ant_2_40")
+            .expect("Could not get object `ant_2_40` from builder.");
+    ant_2_40.set_active(ant_40 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_40.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_40: CheckButton = builder
+            .object("ant_3_40")
+            .expect("Could not get object `ant_3_40` from builder.");
+    ant_3_40.set_active(ant_40 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_40.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_30: CheckButton = builder
+            .object("ant_1_30")
+            .expect("Could not get object `ant_1_30` from builder.");
+    ant_1_30.set_active(ant_30 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_30.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_30: CheckButton = builder
+            .object("ant_2_30")
+            .expect("Could not get object `ant_2_30` from builder.");
+    ant_2_30.set_active(ant_30 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_30.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_30: CheckButton = builder
+            .object("ant_3_30")
+            .expect("Could not get object `ant_3_30` from builder.");
+    ant_3_30.set_active(ant_30 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_30.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_20: CheckButton = builder
+            .object("ant_1_20")
+            .expect("Could not get object `ant_1_20` from builder.");
+    ant_1_20.set_active(ant_20 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_20.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_20: CheckButton = builder
+            .object("ant_2_20")
+            .expect("Could not get object `ant_2_20` from builder.");
+    ant_2_20.set_active(ant_20 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_20.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_20: CheckButton = builder
+            .object("ant_3_20")
+            .expect("Could not get object `ant_3_20` from builder.");
+    ant_3_20.set_active(ant_20 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_20.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_17: CheckButton = builder
+            .object("ant_1_17")
+            .expect("Could not get object `ant_1_17` from builder.");
+    ant_1_17.set_active(ant_17 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_17.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_17: CheckButton = builder
+            .object("ant_2_17")
+            .expect("Could not get object `ant_2_17` from builder.");
+    ant_2_17.set_active(ant_17 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_17.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_17: CheckButton = builder
+            .object("ant_3_17")
+            .expect("Could not get object `ant_3_17` from builder.");
+    ant_3_17.set_active(ant_17 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_17.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_15: CheckButton = builder
+            .object("ant_1_15")
+            .expect("Could not get object `ant_1_15` from builder.");
+    ant_1_15.set_active(ant_15 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_15.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_15: CheckButton = builder
+            .object("ant_2_15")
+            .expect("Could not get object `ant_2_15` from builder.");
+    ant_2_15.set_active(ant_15 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_15.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_15: CheckButton = builder
+            .object("ant_3_15")
+            .expect("Could not get object `ant_3_15` from builder.");
+    ant_3_15.set_active(ant_15 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_15.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_12: CheckButton = builder
+            .object("ant_1_12")
+            .expect("Could not get object `ant_1_12` from builder.");
+    ant_1_12.set_active(ant_12 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_12.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_12: CheckButton = builder
+            .object("ant_2_12")
+            .expect("Could not get object `ant_2_12` from builder.");
+    ant_2_12.set_active(ant_12 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_12.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_12: CheckButton = builder
+            .object("ant_3_12")
+            .expect("Could not get object `ant_3_12` from builder.");
+    ant_3_12.set_active(ant_12 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_12.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_10: CheckButton = builder
+            .object("ant_1_10")
+            .expect("Could not get object `ant_1_10` from builder.");
+    ant_1_10.set_active(ant_10 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_10.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_10: CheckButton = builder
+            .object("ant_2_10")
+            .expect("Could not get object `ant_2_10` from builder.");
+    ant_2_10.set_active(ant_10 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_10.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_10: CheckButton = builder
+            .object("ant_3_10")
+            .expect("Could not get object `ant_3_10` from builder.");
+    ant_3_10.set_active(ant_10 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_10.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_1_6: CheckButton = builder
+            .object("ant_1_6")
+            .expect("Could not get object `ant_1_6` from builder.");
+    ant_1_6.set_active(ant_6 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_1_6.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].antenna = Antenna::ANT1;
+        }
+    });
+    let ant_2_6: CheckButton = builder
+            .object("ant_2_6")
+            .expect("Could not get object `ant_2_6` from builder.");
+    ant_2_6.set_active(ant_6 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_2_6.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].antenna = Antenna::ANT2;
+        }
+    });
+    let ant_3_6: CheckButton = builder
+            .object("ant_3_6")
+            .expect("Could not get object `ant_3_6` from builder.");
+    ant_3_6.set_active(ant_6 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_3_6.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].antenna = Antenna::ANT3;
+        }
+    });
+
+
+    // Antenna - TX
+    let r = radio_mutex.radio.lock().unwrap();
+      let tx_ant_160 = r.receiver[0].band_info[Bands::Band160.to_usize()].tx_antenna;
+      let tx_ant_80 = r.receiver[0].band_info[Bands::Band80.to_usize()].tx_antenna;
+      let tx_ant_60 = r.receiver[0].band_info[Bands::Band60.to_usize()].tx_antenna;
+      let tx_ant_40 = r.receiver[0].band_info[Bands::Band80.to_usize()].tx_antenna;
+      let tx_ant_30 = r.receiver[0].band_info[Bands::Band30.to_usize()].tx_antenna;
+      let tx_ant_20 = r.receiver[0].band_info[Bands::Band20.to_usize()].tx_antenna;
+      let tx_ant_17 = r.receiver[0].band_info[Bands::Band17.to_usize()].tx_antenna;
+      let tx_ant_15 = r.receiver[0].band_info[Bands::Band15.to_usize()].tx_antenna;
+      let tx_ant_12 = r.receiver[0].band_info[Bands::Band12.to_usize()].tx_antenna;
+      let tx_ant_10 = r.receiver[0].band_info[Bands::Band10.to_usize()].tx_antenna;
+      let tx_ant_6 = r.receiver[0].band_info[Bands::Band6.to_usize()].tx_antenna;
+    drop(r);
+    
+
+    let ant_tx1_160: CheckButton = builder
+            .object("ant_tx1_160")
+            .expect("Could not get object `ant_tx1_160` from builder.");
+    ant_tx1_160.set_active(tx_ant_160 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_160.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_160: CheckButton = builder
+            .object("ant_tx2_160")
+            .expect("Could not get object `ant_tx2_160` from builder.");
+    ant_tx2_160.set_active(tx_ant_160 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_160.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_160: CheckButton = builder
+            .object("ant_tx3_160")
+            .expect("Could not get object `ant_tx3_160` from builder.");
+    ant_tx3_160.set_active(tx_ant_160 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_160.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_80: CheckButton = builder
+            .object("ant_tx1_80")
+            .expect("Could not get object `ant_tx1_80` from builder.");
+    ant_tx1_80.set_active(tx_ant_80 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_80.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_80: CheckButton = builder
+            .object("ant_tx2_80")
+            .expect("Could not get object `ant_tx2_80` from builder.");
+    ant_tx2_80.set_active(tx_ant_80 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_80.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_80: CheckButton = builder
+            .object("ant_tx3_80")
+            .expect("Could not get object `ant_tx3_80` from builder.");
+    ant_tx3_80.set_active(tx_ant_80 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_80.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_60: CheckButton = builder
+            .object("ant_tx1_60")
+            .expect("Could not get object `ant_tx1_60` from builder.");
+    ant_tx1_60.set_active(tx_ant_60 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_60.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_60: CheckButton = builder
+            .object("ant_tx2_60")
+            .expect("Could not get object `ant_tx2_60` from builder.");
+    ant_tx2_60.set_active(tx_ant_60 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_60.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_60: CheckButton = builder
+            .object("ant_tx3_60")
+            .expect("Could not get object `ant_tx3_60` from builder.");
+    ant_tx3_60.set_active(tx_ant_60 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_60.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_40: CheckButton = builder
+            .object("ant_tx1_40")
+            .expect("Could not get object `ant_tx1_40` from builder.");
+    ant_tx1_40.set_active(tx_ant_40 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_40.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_40: CheckButton = builder
+            .object("ant_tx2_40")
+            .expect("Could not get object `ant_tx2_40` from builder.");
+    ant_tx2_40.set_active(tx_ant_40 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_40.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_40: CheckButton = builder
+            .object("ant_tx3_40")
+            .expect("Could not get object `ant_tx3_40` from builder.");
+    ant_tx3_40.set_active(tx_ant_40 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_40.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+ 
+    let ant_tx1_30: CheckButton = builder
+            .object("ant_tx1_30")
+            .expect("Could not get object `ant_tx1_30` from builder.");
+    ant_tx1_30.set_active(tx_ant_30 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_30.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_30: CheckButton = builder
+            .object("ant_tx2_30")
+            .expect("Could not get object `ant_tx2_30` from builder.");
+    ant_tx2_30.set_active(tx_ant_30 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_30.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_30: CheckButton = builder
+            .object("ant_tx3_30")
+            .expect("Could not get object `ant_tx3_30` from builder.");
+    ant_tx3_30.set_active(tx_ant_30 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_30.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_20: CheckButton = builder
+            .object("ant_tx1_20")
+            .expect("Could not get object `ant_tx1_20` from builder.");
+    ant_tx1_20.set_active(tx_ant_20 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_20.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_20: CheckButton = builder
+            .object("ant_tx2_20")
+            .expect("Could not get object `ant_tx2_20` from builder.");
+    ant_tx2_20.set_active(tx_ant_20 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_20.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_20: CheckButton = builder
+            .object("ant_tx3_20")
+            .expect("Could not get object `ant_tx3_20` from builder.");
+    ant_tx3_20.set_active(tx_ant_20 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_20.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_17: CheckButton = builder
+            .object("ant_tx1_17")
+            .expect("Could not get object `ant_tx1_17` from builder.");
+    ant_tx1_17.set_active(tx_ant_17 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_17.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_17: CheckButton = builder
+            .object("ant_tx2_17")
+            .expect("Could not get object `ant_tx2_17` from builder.");
+    ant_tx2_17.set_active(tx_ant_17 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_17.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_17: CheckButton = builder
+            .object("ant_tx3_17")
+            .expect("Could not get object `ant_tx3_17` from builder.");
+    ant_tx3_17.set_active(tx_ant_17 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_17.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_15: CheckButton = builder
+            .object("ant_tx1_15")
+            .expect("Could not get object `ant_tx1_15` from builder.");
+    ant_tx1_15.set_active(tx_ant_15 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_15.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_15: CheckButton = builder
+            .object("ant_tx2_15")
+            .expect("Could not get object `ant_tx2_15` from builder.");
+    ant_tx2_15.set_active(tx_ant_15 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_15.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_15: CheckButton = builder
+            .object("ant_tx3_15")
+            .expect("Could not get object `ant_tx3_15` from builder.");
+    ant_tx3_15.set_active(tx_ant_15 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_15.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_12: CheckButton = builder
+            .object("ant_tx1_12")
+            .expect("Could not get object `ant_tx1_12` from builder.");
+    ant_tx1_12.set_active(tx_ant_12 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_12.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_12: CheckButton = builder
+            .object("ant_tx2_12")
+            .expect("Could not get object `ant_tx2_12` from builder.");
+    ant_tx2_12.set_active(tx_ant_12 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_12.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_12: CheckButton = builder
+            .object("ant_tx3_12")
+            .expect("Could not get object `ant_tx3_12` from builder.");
+    ant_tx3_12.set_active(tx_ant_12 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_12.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_10: CheckButton = builder
+            .object("ant_tx1_10")
+            .expect("Could not get object `ant_tx1_10` from builder.");
+    ant_tx1_10.set_active(tx_ant_10 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_10.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_10: CheckButton = builder
+            .object("ant_tx2_10")
+            .expect("Could not get object `ant_tx2_10` from builder.");
+    ant_tx2_10.set_active(tx_ant_10 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_10.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_10: CheckButton = builder
+            .object("ant_tx3_10")
+            .expect("Could not get object `ant_tx3_10` from builder.");
+    ant_tx3_10.set_active(tx_ant_10 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_10.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+    let ant_tx1_6: CheckButton = builder
+            .object("ant_tx1_6")
+            .expect("Could not get object `ant_tx1_6` from builder.");
+    ant_tx1_6.set_active(tx_ant_6 == Antenna::ANT1);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx1_6.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].tx_antenna = Antenna::ANT1;
+        }
+    });
+    let ant_tx2_6: CheckButton = builder
+            .object("ant_tx2_6")
+            .expect("Could not get object `ant_tx2_6` from builder.");
+    ant_tx2_6.set_active(tx_ant_6 == Antenna::ANT2);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx2_6.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].tx_antenna = Antenna::ANT2;
+        }
+    });
+    let ant_tx3_6: CheckButton = builder
+            .object("ant_tx3_6")
+            .expect("Could not get object `ant_tx3_6` from builder.");
+    ant_tx3_6.set_active(tx_ant_6 == Antenna::ANT3);
+    let radio_mutex_clone = radio_mutex.clone();
+    ant_tx3_6.connect_toggled(move |button| {
+        if button.is_active() {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].tx_antenna = Antenna::ANT3;
+        }
+    });
+
+
+    if model == RadioModels::HermesLite || model == RadioModels::HermesLite2 {
+        let antenna_grid: Grid = builder
+            .object("antenna_grid")
+            .expect("Could not get object `antenna_grid` from builder.");
+        let antenna_label: Label = builder
+            .object("antenna_label")
+            .expect("Could not get object `antenna_label` from builder.");
+
+        antenna_grid.set_visible(false);
+        antenna_label.set_visible(false);
+    }
+
+
 
     // CAT
     let r = radio_mutex.radio.lock().unwrap();
@@ -215,28 +1022,14 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
         if r.receiver[1].local_output {
             r.receiver[1].local_output_device_changed = true;
         }
-     });
+    });
 
 
     let r = radio_mutex.radio.lock().unwrap();
     let model = r.model;
-    let adc_0_rx_antenna = r.adc[0].rx_antenna;
     let adc_0_dither = r.adc[0].dither;
     let adc_0_random = r.adc[0].random;
     drop(r);
-
-    if model != RadioModels::HermesLite || model != RadioModels::HermesLite2 {
-    let adc_0_antenna_dropdown: DropDown = builder
-        .object("adc0_antenna_dropdown")
-        .expect("Could not get object `adc0_antenna_dropdown` from builder.");
-    adc_0_antenna_dropdown.set_selected(adc_0_rx_antenna);
-    let radio_mutex_clone = radio_mutex.clone();
-    adc_0_antenna_dropdown.connect_selected_notify(move |dropdown| {
-        let antenna = dropdown.selected();
-        let mut r = radio_mutex_clone.radio.lock().unwrap();
-        r.adc[0].rx_antenna = antenna;
-        r.updated = true;
-    });
 
     let adc0_dither_check_button: CheckButton = builder
         .object("adc0_dither_check_button")
@@ -268,22 +1061,9 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
     drop(r);
     if adcs == 2 {
         let r = radio_mutex.radio.lock().unwrap();
-        let adc_1_rx_antenna = r.adc[1].rx_antenna;
         let adc_1_dither = r.adc[1].dither;
         let adc_1_random = r.adc[1].random;
         drop(r);
-        let adc_1_antenna_dropdown: DropDown = builder
-            .object("adc1_antenna_dropdown")
-            .expect("Could not get object `adc1_antenna_dropdown` from builder.");
-        adc_1_antenna_dropdown.set_selected(adc_1_rx_antenna);
-        let radio_mutex_clone = radio_mutex.clone();
-        adc_1_antenna_dropdown.connect_selected_notify(move |dropdown| {
-            let antenna = dropdown.selected();
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.adc[1].rx_antenna = antenna;
-            r.updated = true;
-        });
-
         let adc1_dither_check_button: CheckButton = builder
             .object("adc1_dither_check_button")
             .expect("Could not get object `adc1_dither_check_button` from builder.");
@@ -313,7 +1093,6 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
                 .object("adc-1-frame")
                 .expect("Could not get object `adc-1-frame` from builder.");
         adc1_frame.set_visible(false);
-    }
     }
 
 
@@ -1121,21 +1900,73 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
             .object("xvtr1_id")
             .expect("Could not get object `xvtr1_id` from builder.");
     xvtr1_id.set_text(&label);
+    let radio_mutex_clone = radio_mutex.clone();
+    let rc_app_widgets_clone = rc_app_widgets.clone();
+    xvtr1_id.connect_changed(clone!(@weak xvtr1_id => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr1_id.text();
+        let rx = r.active_receiver;
+        r.receiver[rx].band_info[Bands::XVTR1.to_usize()].label = text.to_string();
+        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+        app_widgets.band_grid.update_band_label(Bands::XVTR1, &text.to_string());
+    }));
     let xvtr1_low: Entry = builder
             .object("xvtr1_low")
             .expect("Could not get object `xvtr1_low` from builder.");
     let low_str = format!("{}", low as i32);
     xvtr1_low.set_text(&low_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr1_low.connect_changed(clone!(@weak xvtr1_low => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr1_low.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR1.to_usize()].low = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr1_high: Entry = builder
             .object("xvtr1_high")
             .expect("Could not get object `xvtr1_high` from builder.");
     let high_str = format!("{}", high as i32);
     xvtr1_high.set_text(&high_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr1_high.connect_changed(clone!(@weak xvtr1_high => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr1_high.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR1.to_usize()].high = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr1_lo: Entry = builder
             .object("xvtr1_lo")
             .expect("Could not get object `xvtr1_lo` from builder.");
     let lo_str = format!("{}", lo as i32);
     xvtr1_lo.set_text(&lo_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr1_lo.connect_changed(clone!(@weak xvtr1_lo => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr1_lo.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR1.to_usize()].lo = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr1_lo_error: Entry = builder
             .object("xvtr1_lo_error")
             .expect("Could not get object `xvtr1_lo_error` from builder.");
@@ -1147,17 +1978,16 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
         let text = xvtr1_lo_error.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
-        Ok(number) => {
-            r.receiver[rx].band_info[Bands::XVTR1.to_usize()].lo_error = number as f64;
-        },
-        Err(e) => {
-            eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR1.to_usize()].lo_error = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
         }
-    }
-        
-        println!("LO Error changed to: {}", text);
     }));
     
+
     let r = radio_mutex.radio.lock().unwrap();
     let rx = r.active_receiver;
     let label = r.receiver[rx].band_info[Bands::XVTR2.to_usize()].label.clone();
@@ -1170,26 +2000,92 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
             .object("xvtr2_id")
             .expect("Could not get object `xvtr2_id` from builder.");
     xvtr2_id.set_text(&label);
+    let radio_mutex_clone = radio_mutex.clone();
+    let rc_app_widgets_clone = rc_app_widgets.clone();
+    xvtr2_id.connect_changed(clone!(@weak xvtr2_id => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr2_id.text();
+        let rx = r.active_receiver;
+        r.receiver[rx].band_info[Bands::XVTR2.to_usize()].label = text.to_string();
+        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+        app_widgets.band_grid.update_band_label(Bands::XVTR2, &text.to_string());
+    }));
     let xvtr2_low: Entry = builder
             .object("xvtr2_low")
             .expect("Could not get object `xvtr2_low` from builder.");
     let low_str = format!("{}", low as i32);
     xvtr2_low.set_text(&low_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr2_low.connect_changed(clone!(@weak xvtr2_low => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr2_low.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR2.to_usize()].low = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr2_high: Entry = builder
             .object("xvtr2_high")
             .expect("Could not get object `xvtr2_high` from builder.");
     let high_str = format!("{}", high as i32);
     xvtr2_high.set_text(&high_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr2_high.connect_changed(clone!(@weak xvtr2_high => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr2_high.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR2.to_usize()].high = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr2_lo: Entry = builder
             .object("xvtr2_lo")
             .expect("Could not get object `xvtr2_lo` from builder.");
     let lo_str = format!("{}", lo as i32);
     xvtr2_lo.set_text(&lo_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr2_lo.connect_changed(clone!(@weak xvtr2_lo => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr2_lo.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR2.to_usize()].lo = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr2_lo_error: Entry = builder
             .object("xvtr2_lo_error")
             .expect("Could not get object `xvtr2_lo_error` from builder.");
     let lo_error_str = format!("{}", lo_error as i32);
     xvtr2_lo_error.set_text(&lo_error_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr2_lo_error.connect_changed(clone!(@weak xvtr2_lo_error => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr2_lo_error.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR2.to_usize()].lo_error = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
 
     let r = radio_mutex.radio.lock().unwrap();
     let rx = r.active_receiver;
@@ -1203,28 +2099,94 @@ pub fn create_configure_dialog(parent: &ApplicationWindow, radio_mutex: &RadioMu
             .object("xvtr3_id")
             .expect("Could not get object `xvtr3_id` from builder.");
     xvtr3_id.set_text(&label);
+    let radio_mutex_clone = radio_mutex.clone();
+    let rc_app_widgets_clone = rc_app_widgets.clone();
+    xvtr3_id.connect_changed(clone!(@weak xvtr3_id => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr3_id.text();
+        let rx = r.active_receiver;
+        r.receiver[rx].band_info[Bands::XVTR3.to_usize()].label = text.to_string();
+        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+        app_widgets.band_grid.update_band_label(Bands::XVTR3, &text.to_string());
+    }));
     let xvtr3_low: Entry = builder
             .object("xvtr3_low")
             .expect("Could not get object `xvtr3_low` from builder.");
     let low_str = format!("{}", low as i32);
     xvtr3_low.set_text(&low_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr3_low.connect_changed(clone!(@weak xvtr3_low => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr3_low.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR3.to_usize()].low = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr3_high: Entry = builder
             .object("xvtr3_high")
             .expect("Could not get object `xvtr3_high` from builder.");
     let high_str = format!("{}", high as i32);
     xvtr3_high.set_text(&high_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr3_high.connect_changed(clone!(@weak xvtr3_high => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr3_high.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR3.to_usize()].high = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+       }
+    }));
     let xvtr3_lo: Entry = builder
             .object("xvtr3_lo")
             .expect("Could not get object `xvtr3_lo` from builder.");
     let lo_str = format!("{}", lo as i32);
     xvtr3_lo.set_text(&lo_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr3_lo.connect_changed(clone!(@weak xvtr3_lo => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr3_lo.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR3.to_usize()].lo = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     let xvtr3_lo_error: Entry = builder
             .object("xvtr3_lo_error")
             .expect("Could not get object `xvtr3_lo_error` from builder.");
     let lo_error_str = format!("{}", lo_error as i32);
     xvtr3_lo_error.set_text(&lo_error_str);
+    let radio_mutex_clone = radio_mutex.clone();
+    xvtr3_lo_error.connect_changed(clone!(@weak xvtr3_lo_error => move |_| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        let text = xvtr3_lo_error.text();
+        let rx = r.active_receiver;
+        match text.parse::<i32>() {
+            Ok(number) => {
+                r.receiver[rx].band_info[Bands::XVTR3.to_usize()].lo_error = number as f64;
+            },
+            Err(e) => {
+                eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
+            }
+        }
+    }));
     
-
+    // OK button
     let ok_button: Button = builder
             .object("ok_button")
             .expect("Could not get object `ok_button` from builder.");
