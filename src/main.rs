@@ -958,7 +958,6 @@ fn build_ui(app: &Application) {
                             RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
                         } 
                         drop(r);
-                        update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
                     }, band);
 
 
@@ -990,7 +989,6 @@ fn build_ui(app: &Application) {
                         r.transmitter.filter_high = high;
                         r.transmitter.set_filter();
                         drop(r);
-                        update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
                     }, mode);
 
                     let radio_mutex_clone = radio_mutex.clone();
