@@ -2,6 +2,8 @@
 name = "rustyHPSDR"
 version = "0.1.0"
 edition = "2024"
+description = "An SDR Radio application for HPSDR radios"
+authors = ["John Melton G0ORX <john.d.melton@googlemail.com>"]
 
 [dependencies]
 gtk = { version = "0.9", package =  "gtk4", features = ["v4_12"] }
@@ -22,3 +24,22 @@ dirs = "6.0"
 anyhow = "1.0"
 cpal = "0.16"
 ringbuf = "0.4.8"
+
+[package.metadata.deb]
+maintainer = "John Melton G0ORX <john.d.melton@googlemail.com>"
+copyright = "2025, John Melton G0ORX <john.d.melton@googlemail.com>"
+license-file = ["LICENSE", "4"]
+extended-description = """\
+A simple subcommand for the Cargo package manager for \
+building Debian packages from Rust projects."""
+depends = "$auto"
+section = "utility"
+priority = "optional"
+assets = [
+    # target/release path is special, and gets replaced by cargo-deb with the actual target dir path.
+    ["target/release/rustyHPSDR", "usr/bin/", "755"],
+    ["assets/rustyHPSDR.desktop", "/usr/share/applications/", "644"],
+    ["assets/rustyHPSDR.png", "/usr/share/pixmaps/rustyHPSDR.png", "644"],
+    { source = "README.md", dest = "usr/share/doc/rustyHPSDR/README", mode = "644"},
+]
+# assets = ["$auto"] # the default if assets are not specified

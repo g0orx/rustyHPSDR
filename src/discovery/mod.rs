@@ -29,7 +29,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Duration;
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Boards {
     Metis,
     Hermes,

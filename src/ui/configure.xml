@@ -108,7 +108,7 @@
               </object>
             </child>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkLabel" id="ext2_label">
                 <property name="label">EXT2</property>
                 <property name="halign">center</property>
                 <layout>

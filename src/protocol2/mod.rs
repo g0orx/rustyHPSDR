@@ -23,7 +23,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::alex::*;
 use crate::antenna::Antenna;
 use crate::audio::*;
-use crate::discovery::Device;
+use crate::discovery::{Device, Boards};
 use crate::modes::Modes;
 use crate::radio::{Keyer, RadioMutex};
 use crate::receiver::{AudioOutput, Receiver};
@@ -48,7 +48,7 @@ const XVTR_RX_IN: u32 =    0x00000100;
 const RX_2_IN: u32 =       0x00000200;
 const RX_1_IN: u32 =       0x00000400;
 const RX_1_OUT: u32 =      0x00000800;
-const BYPASS: u32 =        0x00001000;
+const HPF_BYPASS: u32 =    0x00001000;
 const ATTEN_20_dB: u32 =   0x00002000;
 const ATTEN_10_dB: u32 =   0x00004000;
 const RX_RED_LED: u32 =    0x00008000;
@@ -65,7 +65,7 @@ const ANT_2: u32 =         0x02000000;
 const ANT_3: u32 =         0x04000000;
 const TR_RELAY: u32 =      0x08000000;
 const TX_RED_LED: u32 =    0x10000000;
-const LPF_6: u32 =         0x20000000;
+const LPF_BYPASS: u32 =    0x20000000;
 const LPF_12_10: u32 =     0x40000000;
 const LPF_17_15: u32 =     0x80000000;
 
@@ -465,16 +465,14 @@ impl Protocol2 {
 
         buf[58] = 0x01; // enable PA
 
-        if self.device.device == 5 {
+        if self.device.adcs == 2 {
           buf[59] = 0x03; // enable ALEX 0 and 1
         } else {
           buf[59] = 0x01; // enable ALEX 0
         }
 
         self.device.address.set_port(1024);
-        //println!("send_general: 1024");
         self.socket.send_to(&buf, self.device.address).expect("couldn't send data");
-
         self.general_sequence += 1;
     }
 
@@ -575,7 +573,7 @@ impl Protocol2 {
         // set BPF
         let mut f = r.receiver[0].frequency;
         if f < 1500000.0 {
-            filter |= BYPASS; // BYPASS
+            filter |= HPF_BYPASS;
         } else if f < 2100000.0 {
             filter |= HPF_1_5MHZ;
         } else if f < 5500000.0 {
@@ -592,36 +590,22 @@ impl Protocol2 {
 
 
         // set LPF
-        if self.device.device == 5 { // ORION 2
-            if f > 32000000.0 {
-                filter |= LPF_6; // 6M/Bypass
-            } else if f > 22000000.0 {
-                filter |= LPF_12_10; // 12M/10M
-            } else if f > 15000000.0 {
-                filter |= LPF_17_15; // 17M/15M
-            } else if f > 8000000.0 {
-                filter |= LPF_30_20; // 30M/20M
-            } else if f > 4500000.0 {
-                filter |= LPF_60_40; // 60M/40M
-            } else if f > 2400000.0 {
-                filter |= LPF_80; // 80M
-            } else {
-                filter |= LPF_160; // 160M
-            }
-        } else if f > 35600000.0 {
-            filter |= 0x08;
-        } else if f > 24000000.0 {
-            filter |= 0x04;
-        } else if f > 16500000.0 {
-            filter |= 0x02;
+        if f > 32000000.0 {
+            filter |= LPF_BYPASS; // 6M
+        } else if f > 22000000.0 {
+            filter |= LPF_12_10; // 12M/10M
+        } else if f > 15000000.0 {
+            filter |= LPF_17_15; // 17M/15M
         } else if f > 8000000.0 {
-            filter |= 0x10;
-        } else if f > 5000000.0 {
-            filter |= 0x20;
-        } else if f > 2500000.0 {
-            filter |= 0x40;
+            filter |= LPF_30_20; // 30M/20M
+        } else if f > 4500000.0 {
+            filter |= LPF_60_40; // 60M/40M
+        } else if f > 2400000.0 {
+            filter |= LPF_80; // 80M
+        } else if f > 1500000.0 {
+            filter |= LPF_160; // 160M
         } else {
-            filter |= 0x40;
+            filter |= LPF_BYPASS;
         }
 
         
@@ -632,9 +616,9 @@ impl Protocol2 {
  
         let mut filter1: u32 = 0x00000000;
         f = r.receiver[1].frequency;
-        if self.device.device == 5 { // ORION 2
+        if self.device.board == Boards::Orion2 {
             if f < 1500000.0 {
-                filter1 |= BYPASS; // BYPASS
+                filter1 |= HPF_BYPASS; // BYPASS
             } else if f < 2100000.0 {
                 filter1 |= HPF_1_5MHZ;
             } else if f < 5500000.0 {

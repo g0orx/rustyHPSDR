@@ -511,25 +511,26 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.rx2_button.connect_clicked(move |button| {
-                        let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let app_widgets = rc_app_widgets_clone_clone.borrow();
-                        r.rx2_enabled = button.is_active();
-                        if r.rx2_enabled {
-                            app_widgets.spectrum_2_display.set_visible(true);
-                            app_widgets.waterfall_2_display.set_visible(true);
-                            app_widgets.meter_2_display.set_visible(true);
-                        } else {
-                            app_widgets.spectrum_2_display.set_visible(false);
-                            app_widgets.waterfall_2_display.set_visible(false);
-                            app_widgets.meter_2_display.set_visible(false);
-                        }
                         let mut update = false;
-                        if r.receiver[1].active {
-                            r.receiver[1].active = false;
-                            r.receiver[0].active = true;
-                            update = true;
+                        {
+                            let mut r = radio_mutex_clone.radio.lock().unwrap();
+                            let app_widgets = rc_app_widgets_clone_clone.borrow();
+                            r.rx2_enabled = button.is_active();
+                            if r.rx2_enabled {
+                                app_widgets.spectrum_2_display.set_visible(true);
+                                app_widgets.waterfall_2_display.set_visible(true);
+                                app_widgets.meter_2_display.set_visible(true);
+                            } else {
+                                app_widgets.spectrum_2_display.set_visible(false);
+                                app_widgets.waterfall_2_display.set_visible(false);
+                                app_widgets.meter_2_display.set_visible(false);
+                            }
+                            if r.receiver[1].active {
+                                r.receiver[1].active = false;
+                                r.receiver[0].active = true;
+                                update = true;
+                            }
                         }
-                        drop(r);
                         if update {
                             update_ui(&radio_mutex_clone.clone(), &rc_app_widgets_clone_clone.clone());
                         }
@@ -839,31 +840,32 @@ fn build_ui(app: &Application) {
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.zoom_adjustment.connect_value_changed(move |adjustment| {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
-                        let mut r = radio_mutex_clone.radio.lock().unwrap();
-                        let rx = if r.receiver[0].active { 0 } else { 1 };
-                        r.receiver[rx].zoom = adjustment.value() as i32;
-                        let channel = r.receiver[rx].channel;
-                        let width = r.receiver[rx].spectrum_width;
-                        r.receiver[rx].init_analyzer(channel, width);
                         let mut p = 0.0;
-                        if adjustment.value() == 1.0 {
-                            r.receiver[rx].pan = p as i32;
-                        } else {
-                            // try to keep the current frequency in the zoomed area
-                            let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f64;
-                            let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f64;
-                            let frequency_range = frequency_high - frequency_low;
-                            let width = r.receiver[rx].spectrum_width * r.receiver[rx].zoom;
-                            let mut f = r.receiver[rx].frequency;
-                            let hz_per_pixel = frequency_range / width as f64;
-                            if r.receiver[rx].ctun {
-                                f = r.receiver[rx].ctun_frequency;
+                        {
+                            let mut r = radio_mutex_clone.radio.lock().unwrap();
+                            let rx = if r.receiver[0].active { 0 } else { 1 };
+                            r.receiver[rx].zoom = adjustment.value() as i32;
+                            let channel = r.receiver[rx].channel;
+                            let width = r.receiver[rx].spectrum_width;
+                            r.receiver[rx].init_analyzer(channel, width);
+                            if adjustment.value() == 1.0 {
+                                r.receiver[rx].pan = p as i32;
+                            } else {
+                                // try to keep the current frequency in the zoomed area
+                                let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f64;
+                                let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f64;
+                                let frequency_range = frequency_high - frequency_low;
+                                let width = r.receiver[rx].spectrum_width * r.receiver[rx].zoom;
+                                let mut f = r.receiver[rx].frequency;
+                                let hz_per_pixel = frequency_range / width as f64;
+                                if r.receiver[rx].ctun {
+                                    f = r.receiver[rx].ctun_frequency;
+                                }
+                                p = (f - frequency_low) / hz_per_pixel;
+                                p = (p / width as f64) * 100.0;
+                                r.receiver[rx].pan = p as i32;
                             }
-                            p = (f - frequency_low) / hz_per_pixel;
-                            p = (p / width as f64) * 100.0;
-                            r.receiver[rx].pan = p as i32;
                         }
-                        drop(r);
                         app_widgets.pan_adjustment.set_value(p as f64);
                     });
 
@@ -957,7 +959,6 @@ fn build_ui(app: &Application) {
                         unsafe {
                             RXANBPSetTuneFrequency(rx as i32, r.receiver[rx].frequency as f64);
                         } 
-                        drop(r);
                     }, band);
 
 
@@ -988,7 +989,6 @@ fn build_ui(app: &Application) {
                         r.transmitter.filter_low = low;
                         r.transmitter.filter_high = high;
                         r.transmitter.set_filter();
-                        drop(r);
                     }, mode);
 
                     let radio_mutex_clone = radio_mutex.clone();
@@ -1418,10 +1418,11 @@ fn build_ui(app: &Application) {
                     let waterfall_timeout_id = timeout_add_local(Duration::from_millis(update_interval as u64), move || {
                         let mut rx2 = false;
                         let mut is_transmitting = false;
-                        let r = radio_mutex_clone.radio.lock().unwrap();
-                        rx2 = r.rx2_enabled;
-                        is_transmitting = r.is_transmitting();
-                        drop(r);
+                        {
+                            let r = radio_mutex_clone.radio.lock().unwrap();
+                            rx2 = r.rx2_enabled;
+                            is_transmitting = r.is_transmitting();
+                        }
                         waterfall_update(&radio_mutex_clone, &rc_app_widgets_clone2, &rc_waterfall_clone2);
                         if rx2 && !is_transmitting {
                             waterfall_2_update(&radio_mutex_clone, &rc_app_widgets_clone2, &rc_waterfall_2_clone2);

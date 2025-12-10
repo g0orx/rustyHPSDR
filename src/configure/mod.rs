@@ -833,6 +833,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     });
 
 
+    // HermesLite does not have multiple antenna ports
     if model == RadioModels::HermesLite || model == RadioModels::HermesLite2 {
         let antenna_grid: Grid = builder
             .object("antenna_grid")
@@ -845,6 +846,57 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         antenna_label.set_visible(false);
     }
 
+    // 7000dle does not have EXT2 antenna port
+    if model == RadioModels::Anan7000dle {
+        let ext2_label: Label = builder
+            .object("ext2_label")
+            .expect("Could not get object `ext2_label` from builder.");
+        ext2_label.set_visible(false);
+        let ant_ext2_160: CheckButton = builder
+            .object("ant_ext2_160")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_160.set_visible(false);
+        let ant_ext2_80: CheckButton = builder
+            .object("ant_ext2_80")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_80.set_visible(false);
+        let ant_ext2_60: CheckButton = builder
+            .object("ant_ext2_60")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_60.set_visible(false);
+        let ant_ext2_40: CheckButton = builder
+            .object("ant_ext2_40")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_40.set_visible(false);
+        let ant_ext2_30: CheckButton = builder
+            .object("ant_ext2_30")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_30.set_visible(false);
+        let ant_ext2_20: CheckButton = builder
+            .object("ant_ext2_20")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_20.set_visible(false);
+        let ant_ext2_17: CheckButton = builder
+            .object("ant_ext2_17")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_17.set_visible(false);
+        let ant_ext2_15: CheckButton = builder
+            .object("ant_ext2_15")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_15.set_visible(false);
+        let ant_ext2_12: CheckButton = builder
+            .object("ant_ext2_12")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_12.set_visible(false);
+        let ant_ext2_10: CheckButton = builder
+            .object("ant_ext2_10")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_10.set_visible(false);
+        let ant_ext2_6: CheckButton = builder
+            .object("ant_ext2_6")
+            .expect("Could not get object `ext2_label` from builder.");
+        ant_ext2_6.set_visible(false);
+    }
 
 
     // CAT
