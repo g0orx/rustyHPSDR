@@ -84,6 +84,23 @@ cargo build --release
 
 Note that the first time it is run it will create the FFTW3 Wisdom File, which may take several minutes to complete.
 
+# Creating a debian package
+
+## Install cargo-deb crate
+<pre>
+cargo install cargo-deb
+</pre>
+
+## Create the Debian package
+<pre>
+cargo deb
+</pre>
+
+## Install Debian package
+<pre>
+dpkg -i target/Debian/rustyHPSDR.deb
+</pre>
+
 # System Utilization with 2 receivers running Ubuntu 25.04 on a BOSGAME P3 Ryzen 9 Mini PC - 8 Cores (16 threads), 32GB Memory
 
 <img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/system.png">
