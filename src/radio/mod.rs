@@ -229,7 +229,6 @@ pub struct Radio {
     pub notches: Vec<Notch>,
 
     pub cat_enabled: bool,
-    pub cat: CAT,
 
 }
 
@@ -371,7 +370,6 @@ impl Radio {
         let notches = vec![];
 
         let cat_enabled = false;
-        let cat = CAT::new();
 
         Radio {
             name,
@@ -442,7 +440,6 @@ impl Radio {
             notches,
 
             cat_enabled,
-            cat,
         }
     }
 

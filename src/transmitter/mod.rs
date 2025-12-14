@@ -133,7 +133,7 @@ impl Transmitter {
         let exciter_power:u16 = 0;
         let alex_forward_power:u16 = 0;
         let alex_reverse_power:u16 = 0;
-        let pa_calibration: Vec<f32> =  vec![38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8]; // 15 bands
+        let pa_calibration: Vec<f32> =  vec![38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8, 38.8]; // 18 bands
 
         let (c1, c2) = match board {
             Boards::Metis => (3.3, 0.09),

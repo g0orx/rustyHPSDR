@@ -34,6 +34,7 @@ use std::path::PathBuf;
 use std::process;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+use std::sync::{atomic::{AtomicBool, Ordering}};
 use std::sync::mpsc::{self, Sender, Receiver, TryRecvError};
 use std::thread;
 use std::time::Duration;
@@ -260,6 +261,10 @@ fn build_ui(app: &Application) {
                         let style_context = app_widgets.ctun_button.style_context();
                         style_context.add_class("toggle");
                         app_widgets.ctun_button.set_active(r.receiver[rx].ctun);
+
+                        let style_context = app_widgets.cat_button.style_context();
+                        style_context.add_class("toggle");
+                        app_widgets.cat_button.set_active(r.cat_enabled);
 
                         let style_context = app_widgets.split_button.style_context();
                         style_context.add_class("toggle");
@@ -1479,24 +1484,53 @@ fn build_ui(app: &Application) {
                         });
                     }
 
+                    let mut cat = CAT::new();
+                    let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
+
                     let mut r = radio_mutex.radio.lock().unwrap();
                     let cat_enabled = r.cat_enabled;
-                    let mut cat = r.cat.clone();
                     drop(r);
+
+                    let stop_cat_flag = Arc::new(AtomicBool::new(false));
+
+                    let tx_clone = tx.clone();
+                    let stop_flag = Arc::clone(&stop_cat_flag);
                     if cat_enabled {
-                        let (tx_channel, rx_channel): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
-
                         let radio_mutex_clone = radio_mutex.clone();
-                        let tx_clone = tx_channel.clone();
+                        let mut cat_clone = cat.clone();
+                        let stop_flag_clone = stop_flag.clone();
                         thread::spawn(move || {
-                            cat.run(&radio_mutex_clone, tx_clone);
+                            cat_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
                         });
+                    }
 
+                    // handle CAT button
+                    let radio_mutex_clone = radio_mutex.clone();
+                    let tx_clone = tx.clone();
+                    let mut cat_clone = cat.clone();
+                    app_widgets.cat_button.connect_clicked(move |button| {
+                        if button.is_active() {
+                            let mut r = radio_mutex_clone.radio.lock().unwrap();
+                            r.cat_enabled = true;
+                            drop(r);
+                            stop_flag.store(false, Ordering::SeqCst);
+                            let radio_mutex_clone_clone = radio_mutex_clone.clone();
+                            let mut cat_clone = cat.clone();
+                            let tx_clone_clone = tx_clone.clone();
+                            let stop_flag_clone = stop_flag.clone();
+                            thread::spawn(move || {
+                                cat_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+                            });
+                        } else {
+                            stop_flag.store(true, Ordering::SeqCst);
+                        }
+                    });
 
-                        let radio_mutex_clone = radio_mutex.clone();
-                        let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
-                        glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
-                        match rx_channel.try_recv() {
+                    // handle CAT messages
+                    let radio_mutex_clone = radio_mutex.clone();
+                    let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
+                    glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
+                        match rx.try_recv() {
                             Ok(msg) => {
                                 // Message received, update the UI
                                 match msg {
@@ -1522,8 +1556,29 @@ fn build_ui(app: &Application) {
                                             app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
                                             app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
                                         }
-
-                                    }
+                                    },
+                                    CatMessage::UpdateFrequencyA() => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let app_widgets = rc_app_widgets_clone.borrow();
+                                        if r.receiver[0].ctun {
+                                            let formatted_value = format_u32_with_separators(r.receiver[0].ctun_frequency as u32);
+                                            app_widgets.vfo_a_frequency.set_label(&formatted_value);
+                                        } else {
+                                            let formatted_value = format_u32_with_separators(r.receiver[0].frequency as u32);
+                                            app_widgets.vfo_a_frequency.set_label(&formatted_value);
+                                        }    
+                                    },
+                                    CatMessage::UpdateFrequencyB() => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let app_widgets = rc_app_widgets_clone.borrow();
+                                        if r.receiver[1].ctun {
+                                            let formatted_value = format_u32_with_separators(r.receiver[1].ctun_frequency as u32);
+                                            app_widgets.vfo_b_frequency.set_label(&formatted_value);
+                                        } else {
+                                            let formatted_value = format_u32_with_separators(r.receiver[1].frequency as u32);
+                                            app_widgets.vfo_b_frequency.set_label(&formatted_value);
+                                        }    
+                                    },
                                 }
                                 // Continue the polling timeout (return Continue(true))
                                 glib::ControlFlow::Continue
@@ -1540,10 +1595,6 @@ fn build_ui(app: &Application) {
                             }
                         }
                     }));
-
-                    }
-
-
                 } else {
                     // try again
                 }

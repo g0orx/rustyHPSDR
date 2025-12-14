@@ -900,8 +900,10 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
 
 
     // CAT
+/*
     let r = radio_mutex.radio.lock().unwrap();
         let cat_enabled = r.cat_enabled;
+        let cat = r.cat;
     drop(r);
     let cat_check_button: CheckButton = builder
             .object("cat_check_button")
@@ -913,18 +915,15 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         let cat_enabled = is_active;
         let mut r = radio_mutex_clone.radio.lock().unwrap();
         r.cat_enabled = cat_enabled;
-        let mut cat = r.cat.clone();
         drop(r);
         let radio_mutex_clone = radio_mutex_clone.clone();
-        let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
         if cat_enabled {
-            let tx_clone = tx.clone();
             thread::spawn(move || {
-                cat.run(&radio_mutex_clone, tx_clone);
+                cat.run(&radio_mutex_clone);
             });
         }    
     });
-    
+*/   
     
     // Microphone
     let r = radio_mutex.radio.lock().unwrap();
@@ -1954,23 +1953,25 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     xvtr1_id.set_text(&label);
     let radio_mutex_clone = radio_mutex.clone();
     let rc_app_widgets_clone = rc_app_widgets.clone();
-    xvtr1_id.connect_changed(clone!(@weak xvtr1_id => move |_| {
+    let xvtr1_id_clone = xvtr1_id.clone();
+    xvtr1_id.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr1_id.text();
+        let text = xvtr1_id_clone.text();
         let rx = r.active_receiver;
         r.receiver[rx].band_info[Bands::XVTR1.to_usize()].label = text.to_string();
         let mut app_widgets = rc_app_widgets_clone.borrow_mut();
         app_widgets.band_grid.update_band_label(Bands::XVTR1, &text.to_string());
-    }));
+    });
     let xvtr1_low: Entry = builder
             .object("xvtr1_low")
             .expect("Could not get object `xvtr1_low` from builder.");
     let low_str = format!("{}", low as i32);
     xvtr1_low.set_text(&low_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr1_low.connect_changed(clone!(@weak xvtr1_low => move |_| {
+    let xvtr1_low_clone = xvtr1_low.clone();
+    xvtr1_low.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr1_low.text();
+        let text = xvtr1_low_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -1980,16 +1981,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr1_high: Entry = builder
             .object("xvtr1_high")
             .expect("Could not get object `xvtr1_high` from builder.");
     let high_str = format!("{}", high as i32);
     xvtr1_high.set_text(&high_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr1_high.connect_changed(clone!(@weak xvtr1_high => move |_| {
+    let xvtr1_high_clone = xvtr1_high.clone();
+    xvtr1_high.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr1_high.text();
+        let text = xvtr1_high_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -1999,16 +2001,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr1_lo: Entry = builder
             .object("xvtr1_lo")
             .expect("Could not get object `xvtr1_lo` from builder.");
     let lo_str = format!("{}", lo as i32);
     xvtr1_lo.set_text(&lo_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr1_lo.connect_changed(clone!(@weak xvtr1_lo => move |_| {
+    let xvtr1_lo_clone = xvtr1_lo.clone();
+    xvtr1_lo.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr1_lo.text();
+        let text = xvtr1_lo_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2018,16 +2021,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr1_lo_error: Entry = builder
             .object("xvtr1_lo_error")
             .expect("Could not get object `xvtr1_lo_error` from builder.");
     let lo_error_str = format!("{}", lo_error as i32);
     xvtr1_lo_error.set_text(&lo_error_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr1_lo_error.connect_changed(clone!(@weak xvtr1_lo_error => move |_| {
+    let xvtr1_lo_error_clone = xvtr1_lo_error.clone();
+    xvtr1_lo_error.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr1_lo_error.text();
+        let text = xvtr1_lo_error_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2037,7 +2041,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     
 
     let r = radio_mutex.radio.lock().unwrap();
@@ -2054,23 +2058,25 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     xvtr2_id.set_text(&label);
     let radio_mutex_clone = radio_mutex.clone();
     let rc_app_widgets_clone = rc_app_widgets.clone();
-    xvtr2_id.connect_changed(clone!(@weak xvtr2_id => move |_| {
+    let xvtr2_id_clone = xvtr2_id.clone();
+    xvtr2_id.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr2_id.text();
+        let text = xvtr2_id_clone.text();
         let rx = r.active_receiver;
         r.receiver[rx].band_info[Bands::XVTR2.to_usize()].label = text.to_string();
         let mut app_widgets = rc_app_widgets_clone.borrow_mut();
         app_widgets.band_grid.update_band_label(Bands::XVTR2, &text.to_string());
-    }));
+    });
     let xvtr2_low: Entry = builder
             .object("xvtr2_low")
             .expect("Could not get object `xvtr2_low` from builder.");
     let low_str = format!("{}", low as i32);
     xvtr2_low.set_text(&low_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr2_low.connect_changed(clone!(@weak xvtr2_low => move |_| {
+    let xvtr2_low_clone = xvtr2_low.clone();
+    xvtr2_low.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr2_low.text();
+        let text = xvtr2_low_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2080,16 +2086,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr2_high: Entry = builder
             .object("xvtr2_high")
             .expect("Could not get object `xvtr2_high` from builder.");
     let high_str = format!("{}", high as i32);
     xvtr2_high.set_text(&high_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr2_high.connect_changed(clone!(@weak xvtr2_high => move |_| {
+    let xvtr2_high_clone = xvtr2_high.clone();
+    xvtr2_high.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr2_high.text();
+        let text = xvtr2_high_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2099,16 +2106,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr2_lo: Entry = builder
             .object("xvtr2_lo")
             .expect("Could not get object `xvtr2_lo` from builder.");
     let lo_str = format!("{}", lo as i32);
     xvtr2_lo.set_text(&lo_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr2_lo.connect_changed(clone!(@weak xvtr2_lo => move |_| {
+    let xvtr2_lo_clone = xvtr2_lo.clone();
+    xvtr2_lo.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr2_lo.text();
+        let text = xvtr2_lo_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2118,16 +2126,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr2_lo_error: Entry = builder
             .object("xvtr2_lo_error")
             .expect("Could not get object `xvtr2_lo_error` from builder.");
     let lo_error_str = format!("{}", lo_error as i32);
     xvtr2_lo_error.set_text(&lo_error_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr2_lo_error.connect_changed(clone!(@weak xvtr2_lo_error => move |_| {
+    let xvtr2_lo_error_clone = xvtr2_lo_error.clone();
+    xvtr2_lo_error.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr2_lo_error.text();
+        let text = xvtr2_lo_error_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2137,7 +2146,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
 
     let r = radio_mutex.radio.lock().unwrap();
     let rx = r.active_receiver;
@@ -2153,23 +2162,25 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     xvtr3_id.set_text(&label);
     let radio_mutex_clone = radio_mutex.clone();
     let rc_app_widgets_clone = rc_app_widgets.clone();
-    xvtr3_id.connect_changed(clone!(@weak xvtr3_id => move |_| {
+    let xvtr3_id_clone = xvtr3_id.clone();
+    xvtr3_id.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr3_id.text();
+        let text = xvtr3_id_clone.text();
         let rx = r.active_receiver;
         r.receiver[rx].band_info[Bands::XVTR3.to_usize()].label = text.to_string();
         let mut app_widgets = rc_app_widgets_clone.borrow_mut();
         app_widgets.band_grid.update_band_label(Bands::XVTR3, &text.to_string());
-    }));
+    });
     let xvtr3_low: Entry = builder
             .object("xvtr3_low")
             .expect("Could not get object `xvtr3_low` from builder.");
     let low_str = format!("{}", low as i32);
     xvtr3_low.set_text(&low_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr3_low.connect_changed(clone!(@weak xvtr3_low => move |_| {
+    let xvtr3_low_clone = xvtr3_low.clone();
+    xvtr3_low.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr3_low.text();
+        let text = xvtr3_low_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2179,16 +2190,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr3_high: Entry = builder
             .object("xvtr3_high")
             .expect("Could not get object `xvtr3_high` from builder.");
     let high_str = format!("{}", high as i32);
     xvtr3_high.set_text(&high_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr3_high.connect_changed(clone!(@weak xvtr3_high => move |_| {
+    let xvtr3_high_clone = xvtr3_high.clone();
+    xvtr3_high.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr3_high.text();
+        let text = xvtr3_high_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2198,16 +2210,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
        }
-    }));
+    });
     let xvtr3_lo: Entry = builder
             .object("xvtr3_lo")
             .expect("Could not get object `xvtr3_lo` from builder.");
     let lo_str = format!("{}", lo as i32);
     xvtr3_lo.set_text(&lo_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr3_lo.connect_changed(clone!(@weak xvtr3_lo => move |_| {
+    let xvtr3_lo_clone = xvtr3_lo.clone();
+    xvtr3_lo.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr3_lo.text();
+        let text = xvtr3_lo_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2217,16 +2230,17 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     let xvtr3_lo_error: Entry = builder
             .object("xvtr3_lo_error")
             .expect("Could not get object `xvtr3_lo_error` from builder.");
     let lo_error_str = format!("{}", lo_error as i32);
     xvtr3_lo_error.set_text(&lo_error_str);
     let radio_mutex_clone = radio_mutex.clone();
-    xvtr3_lo_error.connect_changed(clone!(@weak xvtr3_lo_error => move |_| {
+    let xvtr3_lo_error_clone = xvtr3_lo_error.clone();
+    xvtr3_lo_error.connect_changed(move |_| {
         let mut r = radio_mutex_clone.radio.lock().unwrap();
-        let text = xvtr3_lo_error.text();
+        let text = xvtr3_lo_error_clone.text();
         let rx = r.active_receiver;
         match text.parse::<i32>() {
             Ok(number) => {
@@ -2236,7 +2250,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
                 eprintln!("Failed to convert '{}' to i32. Error: {}", text, e);
             }
         }
-    }));
+    });
     
     // OK button
     let ok_button: Button = builder

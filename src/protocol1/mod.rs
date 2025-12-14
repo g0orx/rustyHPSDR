@@ -157,7 +157,6 @@ impl Protocol1 {
         }
 
         self.metis_start();
-
         let mut buffer = vec![0; 2048];
         loop {
             match self.socket.recv_from(&mut buffer) {
@@ -644,10 +643,13 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                 1 => {
                     c0 = 0x02; // C0
                     // TX frequency
-                    let mut f: i32 = frequency as i32;
-                    if r.split {
-                        f = frequency_b as i32;
-                    }
+                    let mut f = if r.split {
+                                    frequency_b as i32
+                                } else {
+                                    frequency as i32
+                                };
+                    f = f - r.receiver[0].band_info[b].lo as i32;
+                    f = f + r.receiver[0].band_info[b].lo_error as i32;
                     c1 = (f >> 24) as u8; // C1
                     c2 = (f>>16) as u8; // C2
                     c3 = (f>>8) as u8; // C3

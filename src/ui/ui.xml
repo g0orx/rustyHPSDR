@@ -161,6 +161,15 @@
                       </layout>
                     </object>
                   </child>
+                  <child>
+                    <object class="GtkToggleButton" id="cat_button">
+                      <property name="label">CAT</property>
+                      <layout>
+                        <property name="column">0</property>
+                        <property name="row">2</property>
+                      </layout>
+                    </object>
+                  </child>
                 </object>
               </child>
               <child>

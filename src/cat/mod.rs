@@ -17,52 +17,65 @@
 
 use std::io::{self, BufReader, BufWriter, BufRead, Read, Write};
 use std::net::TcpListener;
-use std::sync::mpsc;
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::sync::mpsc::{self, Sender, Receiver, TryRecvError};
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use crate::radio::RadioMutex;
 
-const ADDRESS: &str = "127.0.0.1:19001";
-const RIG_ID: &str = "019"; // TS-2000
-
+const RIG_ID: &str = "019"; // Kenwood TS-2000
 const DEBUG_CAT: bool = false;
 
-#[derive(Debug)]
 pub enum CatMessage {
     UpdateMox(bool),
+    UpdateFrequencyA(),
+    UpdateFrequencyB(),
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+impl Default for CatMessage {
+    fn default() -> Self {
+        CatMessage::UpdateFrequencyA()
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct CAT {
-    pub running: bool,
+    pub address: String,
 }
 
 impl CAT {
  
     pub fn new() -> Self {
-        let running = false;
+if DEBUG_CAT {eprintln!("CAT::new");}
+        let address = "127.0.0.1:19001".to_string(); // default
         CAT {
-            running,
+            address,
         }
     }
 
-    pub fn run(&mut self, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> io::Result<()> {
+    pub fn run(&mut self, radio_mutex: &RadioMutex, tx: &mpsc::Sender<CatMessage>, stop_flag: Arc<AtomicBool>) -> io::Result<()> {
 if DEBUG_CAT {eprintln!("CAT::run");}
         // lsten for a connection
-        let listener = TcpListener::bind(ADDRESS)?;
+        let listener = TcpListener::bind(&self.address)?;
+
+
+        while !stop_flag.load(Ordering::Relaxed) {
+
+if DEBUG_CAT {eprintln!("CAT::listening");}
         let stream = listener.incoming().next().expect("Failed to accept connection")?;
         let reader_stream = stream.try_clone()?;
         let mut writer_stream = stream.try_clone()?;
         let mut reader = BufReader::new(reader_stream);
         let mut writer = BufWriter::new(writer_stream);
         let mut received_data = [0; 1024];
-        self.running = true;
 
-        while self.running {
+if DEBUG_CAT {eprintln!("CAT::running");}
+        while !stop_flag.load(Ordering::Relaxed) {
             match reader.read(&mut received_data) {
                 Ok(0) => {
                     // client closed
                     eprintln!("cat: client closed connection");
-                    self.running = false;
+                    break;
                     }
                 Ok(bytes_read) => {
                     let reply = self.parse_commands(&String::from_utf8_lossy(&received_data[..bytes_read]), radio_mutex, tx.clone());
@@ -76,16 +89,13 @@ if DEBUG_CAT {eprintln!("CAT::run: reply {:?}", reply);}
                     }
                 Err(e) => {
                     eprintln!("cat error {}", e);
-                    self.running = false;
+                    break;
                     }
             }
         }
+        }
 if DEBUG_CAT {eprintln!("CAT::run: exiting");}
         Ok(())
-    }
-
-    pub fn stop(&mut self, radio_mutex: &RadioMutex) {
-        self.running = false;
     }
 
     fn parse_commands(&self, input: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> Vec<String> {
@@ -149,6 +159,9 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
             } else {
                 r.receiver[0].frequency = f;
             }
+            if tx.send(CatMessage::UpdateFrequencyA()).is_err() {
+                eprintln!("TX_cmd: Main thread receiver was dropped.");
+            }
         }
         reply
     }
@@ -170,6 +183,9 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
                 r.receiver[1].ctun_frequency = f;
             } else {
                 r.receiver[1].frequency = f;
+            }
+            if tx.send(CatMessage::UpdateFrequencyB()).is_err() {
+                eprintln!("TX_cmd: Main thread receiver was dropped.");
             }
         }
         reply
@@ -258,4 +274,3 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
     }
 
 }
-
