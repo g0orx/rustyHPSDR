@@ -19,14 +19,14 @@ use glib::{self, clone};
 use glib::ControlFlow::Continue;
 use glib::timeout_add_local;
 use gtk::prelude::*;
-use gtk::{Adjustment, Application, ApplicationWindow, Builder, Button, DrawingArea, DropDown, Frame, Grid, Label, ProgressBar, ToggleButton};
+use gtk::{Adjustment, Application, ApplicationWindow, Builder, Button, DrawingArea, DropDown, Frame, Grid, Label, ProgressBar, ToggleButton, Window};
 use gtk::{EventController, EventControllerMotion, EventControllerScroll, EventControllerScrollFlags, GestureClick};
 use gtk::gdk::Cursor;
 use gtk::glib::Propagation;
 
 use std::cell::{Cell, RefCell};
 use std::env;
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::fs;
 use std::os::raw::c_char;
 use std::os::unix::ffi::OsStringExt;
@@ -100,10 +100,50 @@ fn build_ui(app: &Application) {
             return;
         }
     };
-    let c_path_ptr: *const c_char = c_string.as_ptr();
-    unsafe {
-        WDSPwisdom(c_path_ptr);
+
+    let wisdom_completed = Arc::new(AtomicBool::new(false));
+
+    let wisdom_completed_clone = wisdom_completed.clone();
+    thread::spawn(move || {
+        let c_path_ptr: *const c_char = c_string.as_ptr();
+        unsafe {
+            WDSPwisdom(c_path_ptr);
+        }
+        wisdom_completed_clone.store(true, Ordering::SeqCst);
+    });
+
+    let wisdom_xml = include_str!("./ui/wisdom.xml");
+    let wisdom_builder = Builder::from_string(wisdom_xml);
+
+    let wisdom_window: Window = wisdom_builder
+            .object("wisdom_window")
+            .expect("Could not get object `wisdom_window` from builder.");
+
+    wisdom_window.set_modal(true);
+
+    wisdom_window.present();
+
+    let wisdom_label: Label = wisdom_builder
+            .object("wisdom_label")
+            .expect("Could not get object `wisdom_label` from builder.");
+
+    while !wisdom_completed.load(Ordering::Relaxed) {
+        unsafe {
+            let c_ptr: *mut c_char = unsafe {
+                wisdom_get_status()
+            };
+            if !c_ptr.is_null() {
+                let c_str: &CStr = unsafe {
+                    CStr::from_ptr(c_ptr)
+                };
+                let rust_string: String = c_str.to_string_lossy().into_owned();
+                wisdom_label.set_text(&rust_string);
+            }
+        }
+        thread::sleep(Duration::from_millis(250));
     }
+    eprintln!("WDSPwisdom completed");
+    wisdom_window.close();
 
     let ui_css = include_str!("ui/ui.css");
     let provider = gtk::CssProvider::new();
@@ -1225,14 +1265,16 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.low_adjustment.connect_value_changed(move |adjustment| {
-                        //let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let mut lock = radio_mutex_clone.radio.try_lock();
                         if let Ok(ref mut mutex) = lock {
-                            // update the filter low setting
+                            let mut r = lock.unwrap();
+                            let rx = if r.receiver[0].active { 0 } else { 1 };
                             let app_widgets = rc_app_widgets_clone_clone.borrow();
-                            app_widgets.filter_grid.set_filter_low(adjustment.value());
-
-                            // update the receiver low setting
+                            app_widgets.filter_grid.set_filter_low(adjustment.value(), r.receiver[rx].mode, r.receiver[rx].filter);
+                            r.receiver[rx].filter_low = adjustment.value();
+                            r.receiver[rx].set_filter();
+                            r.transmitter.filter_low = adjustment.value();
+                            r.transmitter.set_filter();
                         } else {
                             // already locked - must be updating the filters
                         }
@@ -1241,13 +1283,16 @@ fn build_ui(app: &Application) {
                     let radio_mutex_clone = radio_mutex.clone();
                     let rc_app_widgets_clone_clone = rc_app_widgets_clone.clone();
                     app_widgets.high_adjustment.connect_value_changed(move |adjustment| {
-                        //let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let mut lock = radio_mutex_clone.radio.try_lock();
                         if let Ok(ref mut mutex) = lock {
-                            // update the filter high setting
+                            let mut r = lock.unwrap();
+                            let rx = if r.receiver[0].active { 0 } else { 1 };
                             let app_widgets = rc_app_widgets_clone_clone.borrow();
-                            app_widgets.filter_grid.set_filter_high(adjustment.value());
-                            // update the receiver high setting
+                            app_widgets.filter_grid.set_filter_high(adjustment.value(), r.receiver[rx].mode, r.receiver[rx].filter );
+                            r.receiver[rx].filter_high = adjustment.value();
+                            r.receiver[rx].set_filter();
+                            r.transmitter.filter_high = adjustment.value();
+                            r.transmitter.set_filter();
                         } else {
                             // already locked - must be updating the filters
                         }

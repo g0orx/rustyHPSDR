@@ -456,10 +456,42 @@ impl FilterGrid {
         self.high_adjustment.set_value(high);
     }
 
-    pub fn set_filter_low(&self, low: f64) {
+    pub fn set_filter_low(&self, low: f64, mode: usize, filter: usize) {
+        let mut m = match Modes::from_usize(mode) {
+           Some(Modes::LSB) => Self::filterLSB,
+           Some(Modes::USB) => Self::filterUSB,
+           Some(Modes::DSB) => Self::filterDSB,
+           Some(Modes::CWL) => Self::filterCWL,
+           Some(Modes::CWU) => Self::filterCWU,
+           Some(Modes::FMN) => Self::filterFMN,
+           Some(Modes::AM) => Self::filterAM,
+           Some(Modes::DIGU) => Self::filterDIGU,
+           Some(Modes::SPEC) => Self::filterSPEC,
+           Some(Modes::DIGL) => Self::filterDIGL,
+           Some(Modes::SAM) => Self::filterSAM,
+           Some(Modes::DRM) => Self::filterDRM,
+           None => Self::filterUSB,
+        };
+        m[filter].low = low;
     }
 
-    pub fn set_filter_high(&self, high: f64) {
+    pub fn set_filter_high(&self, high: f64, mode: usize, filter: usize) {
+        let mut m = match Modes::from_usize(mode) {
+           Some(Modes::LSB) => Self::filterLSB,
+           Some(Modes::USB) => Self::filterUSB,
+           Some(Modes::DSB) => Self::filterDSB,
+           Some(Modes::CWL) => Self::filterCWL,
+           Some(Modes::CWU) => Self::filterCWU,
+           Some(Modes::FMN) => Self::filterFMN,
+           Some(Modes::AM) => Self::filterAM,
+           Some(Modes::DIGU) => Self::filterDIGU,
+           Some(Modes::SPEC) => Self::filterSPEC,
+           Some(Modes::DIGL) => Self::filterDIGL,
+           Some(Modes::SAM) => Self::filterSAM,
+           Some(Modes::DRM) => Self::filterDRM,
+           None => Self::filterUSB,
+        };
+        m[filter].high = high;
     }
 
 }

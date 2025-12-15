@@ -22,8 +22,6 @@ use std::os::raw::{c_char, c_int};
 
 use serde::{Deserialize, Serialize};
 
-use crate::alex::*;
-use crate::antenna::Antenna;
 use crate::discovery::Boards;
 use crate::modes::Modes;
 use crate::wdsp::*;
@@ -240,11 +238,11 @@ impl Transmitter {
                 1,
                 1,
                 flp.as_mut_ptr(),
-                self.fft_size,
+                8192, // self.fft_size,
                 self.output_samples,
                 4,
                 14.0,
-                4096,
+                2048, //4096,
                 0,
                 0,
                 0,

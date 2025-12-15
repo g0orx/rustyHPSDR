@@ -1,4 +1,5 @@
-/*
+
+<!--
     Copyright (C) 2025  John Melton G0ORX/N6LYT
 
     This program is free software: you can redistribute it and/or modify
@@ -13,28 +14,23 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Adc {
-    pub random: bool,
-    pub dither: bool,
-}
-
-impl Default for Adc {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Adc {
-
-    pub fn new() -> Adc {
-        let random = false;
-        let dither = false;
-
-        Adc {random, dither}
-    }
-}
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkWindow" id="wisdom_window">
+    <property name="title">rustyHPSDR Create FFTW3 Wisdom File</property>
+    <property name="default-width">800</property>
+    <property name="default-height">200</property>
+    <child>
+      <object class="GtkBox" id="vbox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkLabel" id="wisdom_label">
+            <property name="label">Planning FFTW3 Wisdom</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

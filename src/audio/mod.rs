@@ -17,7 +17,7 @@
 
 use anyhow::{anyhow, Result};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BufferSize, ChannelCount, InputCallbackInfo, OutputCallbackInfo, SampleFormat, SampleRate, Stream, StreamConfig, SupportedStreamConfigRange};
+use cpal::{BufferSize, ChannelCount, InputCallbackInfo, OutputCallbackInfo, SampleRate, Stream, StreamConfig, SupportedStreamConfigRange};
 use ringbuf::storage::Heap;
 use ringbuf::traits::{Consumer, Observer, Producer, Split};
 use ringbuf::wrap::caching::Caching;

@@ -22,7 +22,6 @@ use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
 
 use crate::agc::AGC;
-use crate::antenna::Antenna;
 use crate::bands::{Bands, BandInfo};
 use crate::filters::Filters;
 use crate::modes::Modes;
@@ -429,7 +428,7 @@ impl Receiver {
             RXASetPassband(channel,self.filter_low,self.filter_high);
 
             if self.ctun {
-                let mut offset = self.ctun_frequency - self.frequency;
+                let offset = self.ctun_frequency - self.frequency;
                 SetRXAShiftRun(channel, 1);
                 SetRXAShiftFreq(channel, offset.into());
                 RXANBPSetShiftFrequency(channel, 0.0);
@@ -494,11 +493,30 @@ impl Receiver {
         let mut flp = [0];
         let keep_time: f32 = 0.1;
         let fft_size = 8192; 
+        let overlap = 2048; 
         let max_w = fft_size + min((keep_time * self.spectrum_fps) as i32, (keep_time * fft_size as f32  * self.spectrum_fps) as i32);
         let buffer_size: i32 = self.buffer_size as i32;
         let pixels = self.spectrum_width * self.zoom;
         unsafe {
-            SetAnalyzer(display, 2, 1, 1, flp.as_mut_ptr(), fft_size, buffer_size, 4, 14.0, 2048, 0, 0, 0, pixels, 1, 0, 0.0, 0.0, max_w);
+            SetAnalyzer(display,
+                2,
+                1,
+                1,
+                flp.as_mut_ptr(),
+                fft_size,
+                buffer_size,
+                4,
+                14.0,
+                overlap,
+                0,
+                0,
+                0,
+                pixels,
+                1,
+                0,
+                0.0,
+                0.0,
+                max_w);
             SetDisplayDetectorMode(display, 0, DETECTOR_MODE_AVERAGE.try_into().expect("SetDisplayDetectorMode failed!"));
             SetDisplayAverageMode(display, 0,  AVERAGE_MODE_LOG_RECURSIVE.try_into().expect("SetDisplayAverageMode failed!"));
             SetDisplayDetectorMode(display, 1, DETECTOR_MODE_AVERAGE.try_into().expect("SetDisplayDetectorMode failed!"));
@@ -525,7 +543,7 @@ impl Receiver {
     pub fn set_frequency(&mut self, frequency: f64) {
         if self.ctun {
             self.ctun_frequency = frequency;
-            let mut offset = self.ctun_frequency - self.frequency;
+            let offset = self.ctun_frequency - self.frequency;
             unsafe {
                 SetRXAShiftFreq(self.channel, offset.into());
                 RXANBPSetShiftFrequency(self.channel, offset.into());
@@ -539,7 +557,7 @@ impl Receiver {
     }
 
     pub fn set_ctun_frequency(&self) {
-        let mut offset = self.ctun_frequency - self.frequency;
+        let offset = self.ctun_frequency - self.frequency;
         unsafe {
             SetRXAShiftFreq(self.channel, offset.into());
             RXANBPSetShiftFrequency(self.channel, offset.into());

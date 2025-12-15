@@ -16,20 +16,16 @@
 */
 
 use gtk::prelude::*;
-use gtk::{Adjustment, ApplicationWindow, Builder, Button, CheckButton, DropDown, Entry, Frame, Grid, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
-use glib::clone;
+use gtk::{Adjustment, Builder, Button, CheckButton, DropDown, Entry, Frame, Grid, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::mpsc;
-use std::thread;
 
 use crate::antenna::Antenna;
-use crate::bands::{Bands, BandGrid};
+use crate::bands::Bands;
 use crate::radio::{Keyer, RadioModels, RadioMutex};
 use crate::receiver::{AudioOutput};
 use crate::audio::*;
-use crate::cat::{CatMessage, CAT};
 use crate::widgets::*;
 
 pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_mutex: &RadioMutex) -> Window {

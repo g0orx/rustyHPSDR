@@ -34,8 +34,6 @@ use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 
 
-use crate::widgets::AppWidgets;
-use crate::cat::CAT;
 use crate::discovery::{Boards,Device};
 use crate::modes::Modes;
 use crate::receiver::Receiver;

@@ -18,7 +18,6 @@
 use gtk::cairo::{Context, Format, ImageSurface, LineCap, LineJoin, LinearGradient};
 
 use crate::radio::RadioMutex;
-use crate::modes::*;
 use crate::util::*;
 
 #[derive(Clone)]
@@ -93,7 +92,7 @@ impl Spectrum {
             let center = spectrum_width / 2;
             let filter_left = center as f64 + (r.transmitter.filter_low / hz_per_pixel);
             let filter_right = center as f64 + (r.transmitter.filter_high / hz_per_pixel);
-            cr.rectangle(filter_left.into(), 0.0, (filter_right-filter_left), spectrum_height.into());
+            cr.rectangle(filter_left.into(), 0.0, filter_right-filter_left, spectrum_height.into());
             let _ = cr.fill();
 
             // draw the cursor
@@ -259,7 +258,7 @@ impl Spectrum {
                 let pango_layout = pangocairo::functions::create_layout(&cr);
                 pango_layout.set_text(&text);
                 let (text_width, _text_height) = pango_layout.pixel_size();
-                cr.move_to( (x - (text_width as f64 / 2.0)), height as f64);
+                cr.move_to( x - (text_width as f64 / 2.0), height as f64);
                 let _ = cr.show_text(&text);
                 f += step;
             }

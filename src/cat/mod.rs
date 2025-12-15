@@ -15,11 +15,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use std::io::{self, BufReader, BufWriter, BufRead, Read, Write};
+use std::io::{self, BufReader, BufWriter, Read, Write};
 use std::net::TcpListener;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
-use std::sync::mpsc::{self, Sender, Receiver, TryRecvError};
-use std::time::Duration;
+use std::sync::mpsc::{self};
 use serde::{Deserialize, Serialize};
 use crate::radio::RadioMutex;
 

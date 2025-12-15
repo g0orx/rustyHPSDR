@@ -18,7 +18,6 @@
 use nix::sys::socket::setsockopt;
 use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
 use std::net::{UdpSocket};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::alex::*;
 use crate::antenna::Antenna;

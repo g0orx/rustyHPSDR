@@ -116,7 +116,7 @@ impl Protocol1 {
     pub fn run(&mut self, radio_mutex: &RadioMutex) {
 
         // setup local audio nput and output if configured
-        let mut r = radio_mutex.radio.lock().unwrap();
+        let r = radio_mutex.radio.lock().unwrap();
         if r.receiver[0].local_output {
             let _ = self.rx_audio[0].open_output(&r.receiver[0].output_device);
         }
