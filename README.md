@@ -97,8 +97,15 @@ cargo deb
 </pre>
 
 ## Install Debian package
+
+### x86-64 system
 <pre>
-dpkg -i target/Debian/rustyHPSDR.deb
+dpkg -i target/debian/rustyhpsdr_0.1.0-1_amd64.deb
+</pre>
+
+### Arm-64 system (Raspberry Pi 5)
+<pre>
+dpkg -i target/debian/rustyhpsdr_0.1.0-1_arm64.deb
 </pre>
 
 # System Utilization with 2 receivers running Ubuntu 25.04 on a BOSGAME P3 Ryzen 9 Mini PC - 8 Cores (16 threads), 32GB Memory
