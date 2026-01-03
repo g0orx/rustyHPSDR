@@ -24,7 +24,7 @@ use glib::{self, clone};
 use glib::ControlFlow::Continue;
 use glib::timeout_add_local;
 use gtk::prelude::*;
-use gtk::{Adjustment, Application, ApplicationWindow, Builder, Button, DrawingArea, DropDown, Frame, Grid, Label, ProgressBar, ToggleButton, Window};
+use gtk::{Application, Builder, Label, Window};
 use gtk::{EventController, EventControllerMotion, EventControllerScroll, EventControllerScrollFlags, GestureClick};
 use gtk::gdk::Cursor;
 use gtk::glib::Propagation;
@@ -40,7 +40,7 @@ use std::process;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use std::sync::{atomic::{AtomicBool, Ordering}};
-use std::sync::mpsc::{self, Sender, Receiver, TryRecvError};
+use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 use std::time::Duration;
 
@@ -50,7 +50,6 @@ use rustyHPSDR::bands::*;
 use rustyHPSDR::cat::{CatMessage, CAT};
 use rustyHPSDR::midi::{MidiMessage, MIDI};
 use rustyHPSDR::modes::*;
-use rustyHPSDR::filters::*;
 use rustyHPSDR::discovery::create_discovery_dialog;
 use rustyHPSDR::discovery::device_name;
 use rustyHPSDR::radio::Radio;
@@ -953,7 +952,7 @@ fn build_ui(app: &Application) {
                         let app_widgets = rc_app_widgets_clone_clone.borrow();
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let rx = if r.receiver[0].active { 0 } else { 1 };
-                        let mut b = r.receiver[rx].band.to_usize();
+                        let b = r.receiver[rx].band.to_usize();
                         if b != index { // band has changed
                             r.receiver[rx].band_info[b].current = r.receiver[rx].frequency;
 
@@ -1544,7 +1543,7 @@ fn build_ui(app: &Application) {
                     let cat_enabled = r.cat_enabled;
                     drop(r);
 
-                    let mut cat = CAT::new("127.0.0.1:19001".to_string());
+                    let cat = CAT::new("127.0.0.1:19001".to_string());
                     let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
                     let stop_cat_flag = Arc::new(AtomicBool::new(false));
                     let tx_clone = tx.clone();
@@ -1613,7 +1612,7 @@ fn build_ui(app: &Application) {
                                         }
                                     },
                                     CatMessage::UpdateFrequencyA() => {
-                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let r = radio_mutex_clone.radio.lock().unwrap();
                                         let app_widgets = rc_app_widgets_clone.borrow();
                                         if r.receiver[0].ctun {
                                             let formatted_value = format_u32_with_separators(r.receiver[0].ctun_frequency as u32);
@@ -1654,7 +1653,7 @@ fn build_ui(app: &Application) {
                     let r = radio_mutex.radio.lock().unwrap();
                     let midi_enabled = r.midi_enabled;
                     drop(r);
-                    let mut midi = MIDI::new("Studio 2A:Studio 2A MIDI 1 28:0".to_string());
+                    let midi = MIDI::new("Studio 2A:Studio 2A MIDI 1 28:0".to_string());
                     let (tx, rx): (mpsc::Sender<MidiMessage>, mpsc::Receiver<MidiMessage>) = mpsc::channel();
                     let stop_midi_flag = Arc::new(AtomicBool::new(false));
                     let tx_clone = tx.clone();
@@ -1662,7 +1661,7 @@ fn build_ui(app: &Application) {
                     let midi_clone = midi.clone();
                     if midi_enabled {
                         let radio_mutex_clone = radio_mutex.clone();
-                        let mut midi_clone_clone = midi_clone.clone();
+                        let midi_clone_clone = midi_clone.clone();
                         let stop_flag_clone = stop_flag.clone();
                         thread::spawn(move || {
                             midi_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
@@ -1680,7 +1679,7 @@ fn build_ui(app: &Application) {
                             drop(r);
                             stop_flag.store(false, Ordering::SeqCst);
                             let radio_mutex_clone_clone = radio_mutex_clone.clone();
-                            let mut midi_clone_clone = midi_clone.clone();
+                            let midi_clone_clone = midi_clone.clone();
                             let tx_clone_clone = tx_clone.clone();
                             let stop_flag_clone = stop_flag.clone();
                             thread::spawn(move || {
