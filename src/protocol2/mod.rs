@@ -79,8 +79,8 @@ pub struct Protocol2 {
     transmit_specific_sequence: u32,
     audio_sequence: u32,
     tx_iq_sequence: u32,
-    previous_filter: u32,
     previous_filter1: u32,
+    previous_filter2: u32,
     rx_audio: Vec<Audio>,
     tx_audio: Audio,
 }   
@@ -99,8 +99,8 @@ impl Protocol2 {
         let transmit_specific_sequence: u32 = 0; 
         let audio_sequence: u32 = 0; 
         let tx_iq_sequence: u32 = 0; 
-        let previous_filter: u32 = 0;
         let previous_filter1: u32 = 0;
+        let previous_filter2: u32 = 0;
         let mut rx_audio: Vec<Audio> = Vec::new();
         for _i in 0..receivers {
             rx_audio.push(Audio::new());
@@ -118,8 +118,8 @@ impl Protocol2 {
                            transmit_specific_sequence,
                            audio_sequence,
                            tx_iq_sequence,
-                           previous_filter,
                            previous_filter1,
+                           previous_filter2,
                            rx_audio,
                            tx_audio,
         }
@@ -183,11 +183,10 @@ impl Protocol2 {
                                 // use samples from radio microphone if not local microphone or tuning
                                 if !r.transmitter.local_input || r.tune {
                                     let data_size = MIC_SAMPLES * MIC_SAMPLE_SIZE;
-                                    let mut sample:f32 = 0.0;
                                     let mut b = MIC_HEADER_SIZE;
                                     if size >= MIC_HEADER_SIZE + data_size {
                                         for _i in 0..MIC_SAMPLES {
-                                            sample = ((i16::from_be_bytes([buffer[b], buffer[b+1]])) as f32) / 32767.0;
+                                            let sample = ((i16::from_be_bytes([buffer[b], buffer[b+1]])) as f32) / 32767.0;
                                             b += 2;
                                             if r.transmitter.add_mic_sample(sample) && r.is_transmitting() {
                                                 for j in 0..r.transmitter.output_samples {
@@ -216,23 +215,21 @@ impl Protocol2 {
 
                             let iq_sample_count = u16::from_be_bytes([buffer[14], buffer[15]]) as usize;
                             let data_size = iq_sample_count * SAMPLE_SIZE * INTERLEAVE_FACTOR;
-                            let mut i_sample: i32 = 0;
-                            let mut q_sample: i32 = 0;
                             let mut b = HEADER_SIZE;
     
                             if size >= HEADER_SIZE + data_size {
                                 for _i in 0..iq_sample_count {
-                                    if buffer[b] & 0x80 != 0 {
-                                        i_sample = u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                                    } else {
-                                        i_sample = u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                                    }
+                                    let i_sample = if buffer[b] & 0x80 != 0 {
+                                                       u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                                                   } else {
+                                                       u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                                                   };
                                     b += 3;
-                                    if buffer[b] & 0x80 != 0 {
-                                        q_sample = u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                                    } else {
-                                        q_sample = u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                                    }
+                                    let q_sample = if buffer[b] & 0x80 != 0 {
+                                                       u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                                                   } else {
+                                                       u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                                                   };
                                     b += 3;
 
                                     let i = r.receiver[ddc].samples*2;
@@ -334,25 +331,19 @@ impl Protocol2 {
 
             let mut r = radio_mutex.radio.lock().unwrap();
             if r.transmitter.local_input && !r.transmitter.local_input_changed && !r.tune {
-                // use samples from local audio inpput
-                //r.transmitter.microphone_samples = 0;
-
                 let (mic_buffer, count) = self.tx_audio.read_input();
-                if count != 0 {
-
-                    //eprintln!("{:?}: local mic {}", SystemTime::now(), count);
-                    for i in 0..mic_buffer.len() {
-                        if r.transmitter.add_mic_sample(mic_buffer[i]) && r.is_transmitting() {
-                            for j in 0..r.transmitter.output_samples {
-                                let ix = j * 2;
-                                let ox = tx_iq_buffer_offset * 2;
-                                tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize];
-                                tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize];
-                                tx_iq_buffer_offset += 1;
-                                if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
-                                    self.send_iq_buffer(tx_iq_buffer.clone());
-                                    tx_iq_buffer_offset = 0;
-                                }
+                //eprintln!("mic samples {}", count);
+                for i in 0..count {
+                    if r.transmitter.add_mic_sample(mic_buffer[i]) && r.is_transmitting() {
+                        for j in 0..r.transmitter.output_samples {
+                            let ix = j * 2;
+                            let ox = tx_iq_buffer_offset * 2;
+                            tx_iq_buffer[ox] = r.transmitter.iq_buffer[ix as usize];
+                            tx_iq_buffer[ox+1] = r.transmitter.iq_buffer[(ix+1) as usize];
+                            tx_iq_buffer_offset += 1;
+                            if tx_iq_buffer_offset >= IQ_BUFFER_SIZE {
+                                self.send_iq_buffer(tx_iq_buffer.clone());
+                                tx_iq_buffer_offset = 0;
                             }
                         }
                     }
@@ -514,11 +505,17 @@ impl Protocol2 {
             if r.receiver[1].ctun {
                 f = r.receiver[1].ctun_frequency;
             }
+            let b = r.receiver[1].band.to_usize();
+            f = f - r.receiver[1].band_info[b].lo;
+            f = f - r.receiver[1].band_info[b].lo_error;
         } else {
             f = r.receiver[0].frequency;
             if r.receiver[0].ctun {
                 f = r.receiver[0].ctun_frequency;
             }
+            let b = r.receiver[0].band.to_usize();
+            f = f - r.receiver[0].band_info[b].lo;
+            f = f - r.receiver[0].band_info[b].lo_error;
         }
         let phase = ((4294967296.0*f)/122880000.0) as u32;
         buf[329] = ((phase>>24) & 0xFF) as u8;
@@ -536,9 +533,10 @@ impl Protocol2 {
         }
         buf[345] = power as u8;
 
-        let mut filter: u32 = 0x00000000;
+        let mut filter1: u32 = 0x00000000;
+
         if r.is_transmitting() {
-            filter |= 0x08000000; // TX_ENABLE
+            filter1 |= 0x08000000; // TX_ENABLE
             let b = if r.split {
                         r.receiver[1].band.to_usize()
                     } else {
@@ -550,105 +548,104 @@ impl Protocol2 {
                                  r.receiver[0].band_info[b].tx_antenna
                              };
             match tx_antenna {
-                Antenna::ANT1 => filter |= ALEX_ANTENNA_1,
-                Antenna::ANT2 => filter |= ALEX_ANTENNA_2,
-                Antenna::ANT3 => filter |= ALEX_ANTENNA_3,
-                _ => filter |= ALEX_ANTENNA_1,
+                Antenna::ANT1 => filter1 |= ALEX_ANTENNA_1,
+                Antenna::ANT2 => filter1 |= ALEX_ANTENNA_2,
+                Antenna::ANT3 => filter1 |= ALEX_ANTENNA_3,
+                _ => filter1 |= ALEX_ANTENNA_1,
             }
         } else {
             // set the rx antenna
             let b = r.receiver[0].band.to_usize();
             match r.receiver[0].band_info[b].antenna {
-                Antenna::ANT1 => filter |= ALEX_ANTENNA_1,
-                Antenna::ANT2 => filter |= ALEX_ANTENNA_2,
-                Antenna::ANT3 => filter |= ALEX_ANTENNA_3,
-                Antenna::EXT1 => filter |= ALEX_RX_ANTENNA_EXT1,
-                Antenna::EXT2 => filter |= ALEX_RX_ANTENNA_EXT2,
-                Antenna::XVTR => filter |= ALEX_RX_ANTENNA_XVTR,
-                _ => filter |= ALEX_ANTENNA_1,
+                Antenna::ANT1 => filter1 |= ALEX_ANTENNA_1,
+                Antenna::ANT2 => filter1 |= ALEX_ANTENNA_2,
+                Antenna::ANT3 => filter1 |= ALEX_ANTENNA_3,
+                Antenna::EXT1 => filter1 |= ALEX_RX_ANTENNA_EXT1,
+                Antenna::EXT2 => filter1 |= ALEX_RX_ANTENNA_EXT2,
+                Antenna::XVTR => filter1 |= ALEX_RX_ANTENNA_XVTR,
             }
         }
 
         // set BPF
         let mut f = r.receiver[0].frequency;
         if f < 1500000.0 {
-            filter |= HPF_BYPASS;
+            filter1 |= HPF_BYPASS;
         } else if f < 2100000.0 {
-            filter |= HPF_1_5MHZ;
+            filter1 |= HPF_1_5MHZ;
         } else if f < 5500000.0 {
-            filter |= HPF_6_5MHZ;
+            filter1 |= HPF_6_5MHZ;
         } else if f < 11000000.0 {
-            filter |= HPF_9_5MHZ;
+            filter1 |= HPF_9_5MHZ;
         } else if f < 22000000.0 {
-            filter |= HPF_13MHZ;
+            filter1 |= HPF_13MHZ;
         } else if f < 35000000.0 {
-            filter |= HPF_20MHZ;
+            filter1 |= HPF_20MHZ;
         } else {
-            filter |= PREAMP_6M;
+            filter1 |= PREAMP_6M;
         }
 
 
         // set LPF
         if f > 32000000.0 {
-            filter |= LPF_BYPASS; // 6M
+            filter1 |= LPF_BYPASS; // 6M
         } else if f > 22000000.0 {
-            filter |= LPF_12_10; // 12M/10M
+            filter1 |= LPF_12_10; // 12M/10M
         } else if f > 15000000.0 {
-            filter |= LPF_17_15; // 17M/15M
+            filter1 |= LPF_17_15; // 17M/15M
         } else if f > 8000000.0 {
-            filter |= LPF_30_20; // 30M/20M
+            filter1 |= LPF_30_20; // 30M/20M
         } else if f > 4500000.0 {
-            filter |= LPF_60_40; // 60M/40M
+            filter1 |= LPF_60_40; // 60M/40M
         } else if f > 2400000.0 {
-            filter |= LPF_80; // 80M
+            filter1 |= LPF_80; // 80M
         } else if f > 1500000.0 {
-            filter |= LPF_160; // 160M
+            filter1 |= LPF_160; // 160M
         } else {
-            filter |= LPF_BYPASS;
+            filter1 |= LPF_BYPASS;
         }
 
         
-        buf[1432]=((filter >> 24) & 0xFF) as u8;
-        buf[1433]=((filter >> 16) & 0xFF) as u8;
-        buf[1434]=((filter >> 8) & 0xFF) as u8;
-        buf[1435]=(filter & 0xFF) as u8;
+        buf[1432]=((filter1 >> 24) & 0xFF) as u8;
+        buf[1433]=((filter1 >> 16) & 0xFF) as u8;
+        buf[1434]=((filter1 >> 8) & 0xFF) as u8;
+        buf[1435]=(filter1 & 0xFF) as u8;
  
-        let mut filter1: u32 = 0x00000000;
+        let mut filter2: u32 = 0x00000000;
         f = r.receiver[1].frequency;
         if self.device.board == Boards::Orion2 {
             if f < 1500000.0 {
-                filter1 |= HPF_BYPASS; // BYPASS
+                filter2 |= HPF_BYPASS; // BYPASS
             } else if f < 2100000.0 {
-                filter1 |= HPF_1_5MHZ;
+                filter2 |= HPF_1_5MHZ;
             } else if f < 5500000.0 {
-                filter1 |= HPF_6_5MHZ;
+                filter2 |= HPF_6_5MHZ;
             } else if f < 11000000.0 {
-                filter1 |= HPF_9_5MHZ;
+                filter2 |= HPF_9_5MHZ;
             } else if f < 22000000.0 {
-                filter1 |= HPF_13MHZ;
+                filter2 |= HPF_13MHZ;
             } else if f < 35000000.0 {
-                filter1 |= HPF_20MHZ;
+                filter2 |= HPF_20MHZ;
             } else {
-                filter1 |= PREAMP_6M;
+                filter2 |= PREAMP_6M;
             }
         } else if f < 1500000.0 {
-            filter1 |= 0x1000;
+            filter2 |= 0x1000;
         } else if f < 2100000.0 {
-            filter1 |= 0x40;
+            filter2 |= 0x40;
         } else if f < 5500000.0 {
-            filter1 |= 0x20;
+            filter2 |= 0x20;
         } else if f < 11000000.0 {
-            filter1 |= 0x10;
+            filter2 |= 0x10;
         } else if f < 22000000.0 {
-            filter1 |= 0x02;
+            filter2 |= 0x02;
         } else if f < 35000000.0 {
-            filter1 |= 0x04;
+            filter2 |= 0x04;
         } else {
-            filter1 |= 0x08;
+            filter2 |= 0x08;
         }
 
-        buf[1430] = ((filter1>>8)&0xFF) as u8;
-        buf[1431] = (filter1&0xFF) as u8;
+        buf[1430] = ((filter2>>8)&0xFF) as u8;
+        buf[1431] = (filter2&0xFF) as u8;
 
         let mut rx = 0;
         if r.receiver[1].active {

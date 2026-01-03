@@ -1,0 +1,1873 @@
+warning: unused import: `std::env`
+  --> build.rs:18:5
+   |
+18 | use std::env;
+   |     ^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::fs`
+  --> build.rs:19:5
+   |
+19 | use std::fs;
+   |     ^^^^^^^
+
+warning: unused import: `std::path::Path`
+  --> build.rs:20:5
+   |
+20 | use std::path::Path;
+   |     ^^^^^^^^^^^^^^^
+
+warning: `rustyHPSDR` (build script) generated 3 warnings
+warning: rustyHPSDR@0.1.0: libspecbleach/src/shared/post_estimation/noise_floor_manager.c: In function 'noise_floor_manager_initialize':
+warning: rustyHPSDR@0.1.0: libspecbleach/src/shared/post_estimation/noise_floor_manager.c:34:66: warning: unused parameter 'sample_rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    34 |                                                   const uint32_t sample_rate,
+warning: rustyHPSDR@0.1.0:       |                                                   ~~~~~~~~~~~~~~~^~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: libspecbleach/src/shared/post_estimation/noise_floor_manager.c:35:66: warning: unused parameter 'hop' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    35 |                                                   const uint32_t hop) {
+warning: rustyHPSDR@0.1.0:       |                                                   ~~~~~~~~~~~~~~~^~~
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c: In function 'readZetaHat':
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c:226:84: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+warning: rustyHPSDR@0.1.0:   226 |                 if (e == 0 && fread(zetaHat,   sizeof(double), nvals, pzetaBinary) != nvals) e = 1;
+warning: rustyHPSDR@0.1.0:       |                                                                                    ^~
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c:227:88: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+warning: rustyHPSDR@0.1.0:   227 |                 if (e == 0 && fread(zetaValid, sizeof(int),        nvals, pzetaBinary) != nvals) e = 1;
+warning: rustyHPSDR@0.1.0:       |                                                                                        ^~
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c: In function 'calc_emnr':
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c:307:16: warning: unused variable 'Hvals' [-Wunused-variable]
+warning: rustyHPSDR@0.1.0:   307 |         double Hvals[18] = { 0.000, 0.150, 0.480, 0.780, 0.980, 1.550, 2.000, 2.300, 2.520,
+warning: rustyHPSDR@0.1.0:       |                ^~~~~
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c:377:17: warning: ignoring return value of 'fread' declared with attribute 'warn_unused_result' [-Wunused-result]
+warning: rustyHPSDR@0.1.0:   377 |                 fread(a->g.GG, sizeof(double), 241 * 241, a->g.fileb);
+warning: rustyHPSDR@0.1.0:       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/emnr.c:378:17: warning: ignoring return value of 'fread' declared with attribute 'warn_unused_result' [-Wunused-result]
+warning: rustyHPSDR@0.1.0:   378 |                 fread(a->g.GGS, sizeof(double), 241 * 241, a->g.fileb);
+warning: rustyHPSDR@0.1.0:       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/siphon.c: In function 'setSamplerate_siphon':
+warning: rustyHPSDR@0.1.0: wdsp/siphon.c:144:42: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   144 | void setSamplerate_siphon (SIPHON a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                      ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/amd.c: In function 'xamd':
+warning: rustyHPSDR@0.1.0: wdsp/amd.c:215:98: warning: 'audio' may be used uninitialized [-Wmaybe-uninitialized]
+warning: rustyHPSDR@0.1.0:   215 |                                                         a->dc = a->mtauR * a->dc + a->onem_mtauR * audio;
+warning: rustyHPSDR@0.1.0:       |                                                                                    ~~~~~~~~~~~~~~^~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/amd.c:118:16: note: 'audio' was declared here
+warning: rustyHPSDR@0.1.0:   118 |         double audio;
+warning: rustyHPSDR@0.1.0:       |                ^~~~~
+warning: rustyHPSDR@0.1.0: wdsp/ammod.c: In function 'flush_ammod':
+warning: rustyHPSDR@0.1.0: wdsp/ammod.c:48:25: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    48 | void flush_ammod (AMMOD a)
+warning: rustyHPSDR@0.1.0:       |                   ~~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/ammod.c: In function 'setSamplerate_ammod':
+warning: rustyHPSDR@0.1.0: wdsp/ammod.c:87:33: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    87 | void setSamplerate_ammod (AMMOD a, int rate)
+warning: rustyHPSDR@0.1.0:       |                           ~~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/ammod.c:87:40: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    87 | void setSamplerate_ammod (AMMOD a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                    ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/channel.c: In function 'start_thread':
+warning: rustyHPSDR@0.1.0: wdsp/channel.c:33:16: warning: unused variable 'handle' [-Wunused-variable]
+warning: rustyHPSDR@0.1.0:    33 |         HANDLE handle = (HANDLE) _beginthread(wdspmain, 0, (void *)(uintptr_t)channel);
+warning: rustyHPSDR@0.1.0:       |                ^~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/iqc.c: In function 'flush_iqc':
+warning: rustyHPSDR@0.1.0: wdsp/iqc.c:108:21: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   108 | void flush_iqc (IQC a)
+warning: rustyHPSDR@0.1.0:       |                 ~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function 'QueueUserWorkItem':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:41:57: warning: unused parameter 'flags' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    41 | void QueueUserWorkItem(void *function,void *context,int flags) {
+warning: rustyHPSDR@0.1.0:       |                                                     ~~~~^~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function 'InitializeCriticalSectionAndSpinCount':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:64:72: warning: unused parameter 'count' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    64 | void InitializeCriticalSectionAndSpinCount(pthread_mutex_t *mutex, int count) {
+warning: rustyHPSDR@0.1.0:       |                                                                    ~~~~^~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function 'LinuxCreateSemaphore':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:96:33: warning: unused parameter 'attributes' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    96 | sem_t *LinuxCreateSemaphore(int attributes,int initial_count,int maximum_count,char *name) {
+warning: rustyHPSDR@0.1.0:       |                             ~~~~^~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:96:66: warning: unused parameter 'maximum_count' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    96 | sem_t *LinuxCreateSemaphore(int attributes,int initial_count,int maximum_count,char *name) {
+warning: rustyHPSDR@0.1.0:       |                                                              ~~~~^~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:96:86: warning: unused parameter 'name' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    96 | sem_t *LinuxCreateSemaphore(int attributes,int initial_count,int maximum_count,char *name) {
+warning: rustyHPSDR@0.1.0:       |                                                                                ~~~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function 'LinuxReleaseSemaphore':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:136:63: warning: unused parameter 'previous_count' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   136 | void LinuxReleaseSemaphore(sem_t* sem,int release_count, int* previous_count) {
+warning: rustyHPSDR@0.1.0:       |                                                          ~~~~~^~~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function 'CreateEvent':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:148:26: warning: unused parameter 'security_attributes' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   148 | sem_t *CreateEvent(void* security_attributes,int bManualReset,int bInitialState,char* name) {
+warning: rustyHPSDR@0.1.0:       |                    ~~~~~~^~~~~~~~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:148:50: warning: unused parameter 'bManualReset' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   148 | sem_t *CreateEvent(void* security_attributes,int bManualReset,int bInitialState,char* name) {
+warning: rustyHPSDR@0.1.0:       |                                              ~~~~^~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:148:67: warning: unused parameter 'bInitialState' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   148 | sem_t *CreateEvent(void* security_attributes,int bManualReset,int bInitialState,char* name) {
+warning: rustyHPSDR@0.1.0:       |                                                               ~~~~^~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:148:87: warning: unused parameter 'name' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   148 | sem_t *CreateEvent(void* security_attributes,int bManualReset,int bInitialState,char* name) {
+warning: rustyHPSDR@0.1.0:       |                                                                                 ~~~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function '_beginthread':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:192:46: warning: cast between incompatible function types from 'void (*)(void *)' to 'void * (*)(void *)' [-Wcast-function-type]
+warning: rustyHPSDR@0.1.0:   192 |         if (pthread_create(&threadid, &attr, (void*(*)(void*))start_address, arglist)) {
+warning: rustyHPSDR@0.1.0:       |                                              ^
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c: In function 'SetThreadPriority':
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:237:31: warning: unused parameter 'thread' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   237 | void SetThreadPriority(HANDLE thread, int priority)      {
+warning: rustyHPSDR@0.1.0: wdsp/linux_port.c:237:43: warning: unused parameter 'priority' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   237 | void SetThreadPriority(HANDLE thread, int priority)      {
+warning: rustyHPSDR@0.1.0:       |                                       ~~~~^~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/analyzer.c: In function 'XCreateAnalyzer':
+warning: rustyHPSDR@0.1.0: wdsp/analyzer.c:1323:55: warning: unused parameter 'app_data_path' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:  1323 |                                                 char *app_data_path
+warning: rustyHPSDR@0.1.0:       |                                                 ~~~~~~^~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/compress.c: In function 'flush_compressor':
+warning: rustyHPSDR@0.1.0: wdsp/compress.c:54:35: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    54 | void flush_compressor (COMPRESSOR a)
+warning: rustyHPSDR@0.1.0:       |                        ~~~~~~~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/compress.c: In function 'setSamplerate_compressor':
+warning: rustyHPSDR@0.1.0: wdsp/compress.c:83:43: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    83 | void setSamplerate_compressor (COMPRESSOR a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                ~~~~~~~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/compress.c:83:50: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    83 | void setSamplerate_compressor (COMPRESSOR a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                              ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/patchpanel.c: In function 'flush_panel':
+warning: rustyHPSDR@0.1.0: wdsp/patchpanel.c:50:25: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    50 | void flush_panel (PANEL a)
+warning: rustyHPSDR@0.1.0:       |                   ~~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/patchpanel.c: In function 'setSamplerate_panel':
+warning: rustyHPSDR@0.1.0: wdsp/patchpanel.c:109:33: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   109 | void setSamplerate_panel (PANEL a, int rate)
+warning: rustyHPSDR@0.1.0:       |                           ~~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/patchpanel.c:109:40: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   109 | void setSamplerate_panel (PANEL a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                    ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/utilities.c: In function 'malloc0':
+warning: rustyHPSDR@0.1.0: wdsp/utilities.c:39:13: warning: unused variable 'alignment' [-Wunused-variable]
+warning: rustyHPSDR@0.1.0:    39 |         int alignment = 16;
+warning: rustyHPSDR@0.1.0:       |             ^~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/anf.c: In function 'setSamplerate_anf':
+warning: rustyHPSDR@0.1.0: wdsp/anf.c:149:36: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   149 | void setSamplerate_anf (ANF a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/varsamp.c: In function 'xvarsamp':
+warning: rustyHPSDR@0.1.0: wdsp/varsamp.c:153:41: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+warning: rustyHPSDR@0.1.0:   153 |                         a->inv_cvar = *((double *)&N);
+warning: rustyHPSDR@0.1.0:       |                                        ~^~~~~~~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/anr.c: In function 'setSamplerate_anr':
+warning: rustyHPSDR@0.1.0: wdsp/anr.c:149:36: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   149 | void setSamplerate_anr (ANR a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/dexp.c: In function 'SendAntiVOXData':
+warning: rustyHPSDR@0.1.0: wdsp/dexp.c:708:35: warning: unused parameter 'nsamples' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   708 | void SendAntiVOXData (int id, int nsamples, double* data)
+warning: rustyHPSDR@0.1.0:       |                               ~~~~^~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/div.c: In function 'flush_div':
+warning: rustyHPSDR@0.1.0: wdsp/div.c:62:22: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    62 | void flush_div (MDIV a)
+warning: rustyHPSDR@0.1.0:       |                 ~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/gain.c: In function 'flush_gain':
+warning: rustyHPSDR@0.1.0: wdsp/gain.c:52:23: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    52 | void flush_gain (GAIN a)
+warning: rustyHPSDR@0.1.0:       |                  ~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/gain.c: In function 'setSamplerate_gain':
+warning: rustyHPSDR@0.1.0: wdsp/gain.c:86:31: warning: unused parameter 'a' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    86 | void setSamplerate_gain (GAIN a, int rate)
+warning: rustyHPSDR@0.1.0:       |                          ~~~~~^
+warning: rustyHPSDR@0.1.0: wdsp/gain.c:86:38: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    86 | void setSamplerate_gain (GAIN a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                  ~~~~^~~~
+warning: rustyHPSDR@0.1.0: wdsp/doublepole.c: In function 'H':
+warning: rustyHPSDR@0.1.0: wdsp/doublepole.c:44:23: warning: unused parameter 'scale' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    44 | static void H (double scale, double fcenter, double bandwidth, double f, double Hres[])
+warning: rustyHPSDR@0.1.0:       |                ~~~~~~~^~~~~
+warning: rustyHPSDR@0.1.0: wdsp/sbnr.c: In function 'xsbnr':
+warning: rustyHPSDR@0.1.0: wdsp/sbnr.c:118:38: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+warning: rustyHPSDR@0.1.0:   118 |                 for (size_t i = 0; i < bs; i++)
+warning: rustyHPSDR@0.1.0:       |                                      ^
+warning: rustyHPSDR@0.1.0: wdsp/sbnr.c:124:38: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+warning: rustyHPSDR@0.1.0:   124 |                 for (size_t i = 0; i < bs; i++)
+warning: rustyHPSDR@0.1.0:       |                                      ^
+warning: rustyHPSDR@0.1.0: wdsp/calcc.c: In function 'psccF':
+warning: rustyHPSDR@0.1.0: wdsp/calcc.c:840:104: warning: unused parameter 'mox' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   840 | void psccF (int channel, int size, float *Itxbuff, float *Qtxbuff, float *Irxbuff, float *Qrxbuff, int mox, int solidmox)
+warning: rustyHPSDR@0.1.0:       |                                                                                                    ~~~~^~~
+warning: rustyHPSDR@0.1.0: wdsp/calcc.c:840:113: warning: unused parameter 'solidmox' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:   840 | void psccF (int channel, int size, float *Itxbuff, float *Qtxbuff, float *Irxbuff, float *Qrxbuff, int mox, int solidmox)
+warning: rustyHPSDR@0.1.0:       |                                                                                                             ~~~~^~~~~~~~
+warning: rustyHPSDR@0.1.0: wdsp/sender.c: In function 'setSamplerate_sender':
+warning: rustyHPSDR@0.1.0: wdsp/sender.c:93:42: warning: unused parameter 'rate' [-Wunused-parameter]
+warning: rustyHPSDR@0.1.0:    93 | void setSamplerate_sender (SENDER a, int rate)
+warning: rustyHPSDR@0.1.0:       |                                      ~~~~^~~~
+warning: unnecessary parentheses around `if` condition
+   --> src/receiver/mod.rs:500:12
+    |
+500 |         if (self.a_fft_size <= 16384) {
+    |            ^                        ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+500 -         if (self.a_fft_size <= 16384) {
+500 +         if self.a_fft_size <= 16384 {
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/receiver/mod.rs:502:19
+    |
+502 |         } else if (self.a_fft_size <= 32768) {
+    |                   ^                        ^
+    |
+help: remove these parentheses
+    |
+502 -         } else if (self.a_fft_size <= 32768) {
+502 +         } else if self.a_fft_size <= 32768 {
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/receiver/mod.rs:504:19
+    |
+504 |         } else if (self.a_fft_size <= 65536) {
+    |                   ^                        ^
+    |
+help: remove these parentheses
+    |
+504 -         } else if (self.a_fft_size <= 65536) {
+504 +         } else if self.a_fft_size <= 65536 {
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/receiver/mod.rs:506:19
+    |
+506 |         } else if (self.a_fft_size <= 131072) {
+    |                   ^                         ^
+    |
+help: remove these parentheses
+    |
+506 -         } else if (self.a_fft_size <= 131072) {
+506 +         } else if self.a_fft_size <= 131072 {
+    |
+
+warning: unused imports: `Deserialize` and `Serialize`
+  --> src/midi/mod.rs:20:13
+   |
+20 | use serde::{Deserialize, Serialize};
+   |             ^^^^^^^^^^^  ^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Ignore` and `MidiInputPort`
+  --> src/midi/mod.rs:22:13
+   |
+22 | use midir::{Ignore, MidiInput, MidiInputPort, MidiIO};
+   |             ^^^^^^             ^^^^^^^^^^^^^
+
+warning: unused import: `MidiIO`
+  --> src/midi/mod.rs:22:47
+   |
+22 | use midir::{Ignore, MidiInput, MidiInputPort, MidiIO};
+   |                                               ^^^^^^
+
+warning: value assigned to `process_rx_audio` is never read
+   --> src/protocol1/mod.rs:571:13
+    |
+571 |             process_rx_audio = false;
+    |             ^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `f` is never read
+   --> src/protocol2/mod.rs:486:17
+    |
+486 |         let mut f = 0.0;
+    |                 ^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `low_R`
+  --> src/waterfall/mod.rs:53:13
+   |
+53 |         let low_R = 0.0; // low is black
+   |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_low_R`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `low_G`
+  --> src/waterfall/mod.rs:54:13
+   |
+54 |         let low_G = 0.0;
+   |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_low_G`
+
+warning: unused variable: `low_B`
+  --> src/waterfall/mod.rs:55:13
+   |
+55 |         let low_B = 0.0;
+   |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_low_B`
+
+warning: unused variable: `mid_R`
+  --> src/waterfall/mod.rs:56:13
+   |
+56 |         let mid_R = 1.0; // mid is red
+   |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_mid_R`
+
+warning: unused variable: `mid_G`
+  --> src/waterfall/mod.rs:57:13
+   |
+57 |         let mid_G = 0.0;
+   |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_mid_G`
+
+warning: unused variable: `mid_B`
+  --> src/waterfall/mod.rs:58:13
+   |
+58 |         let mid_B = 0.0;
+   |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_mid_B`
+
+warning: unused variable: `high_R`
+  --> src/waterfall/mod.rs:59:13
+   |
+59 |         let high_R = 1.0; // high is yellow
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_high_R`
+
+warning: unused variable: `high_G`
+  --> src/waterfall/mod.rs:60:13
+   |
+60 |         let high_G = 1.0;
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_high_G`
+
+warning: unused variable: `high_B`
+  --> src/waterfall/mod.rs:61:13
+   |
+61 |         let high_B = 0.0;
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_high_B`
+
+warning: value assigned to `R` is never read
+  --> src/waterfall/mod.rs:86:21
+   |
+86 |             let mut R = 0.0;
+   |                     ^
+   |
+   = help: maybe it is overwritten before being read?
+
+warning: value assigned to `G` is never read
+  --> src/waterfall/mod.rs:87:21
+   |
+87 |             let mut G = 0.0;
+   |                     ^
+   |
+   = help: maybe it is overwritten before being read?
+
+warning: value assigned to `B` is never read
+  --> src/waterfall/mod.rs:88:21
+   |
+88 |             let mut B = 0.0;
+   |                     ^
+   |
+   = help: maybe it is overwritten before being read?
+
+warning: unused variable: `max_percent`
+  --> src/waterfall/mod.rs:89:21
+   |
+89 |             let mut max_percent = 0.0;
+   |                     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_percent`
+
+warning: variable does not need to be mutable
+  --> src/waterfall/mod.rs:89:17
+   |
+89 |             let mut max_percent = 0.0;
+   |                 ----^^^^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `alc`
+  --> src/meter/mod.rs:91:79
+   |
+91 |     pub fn update_tx(&mut self, forward: u16, reverse: u16, c1: f32, c2: f32, alc: f64 ) {
+   |                                                                               ^^^ help: if this is intentional, prefix it with an underscore: `_alc`
+
+warning: variable does not need to be mutable
+  --> src/cat/mod.rs:70:13
+   |
+70 |         let mut writer_stream = stream.try_clone()?;
+   |             ----^^^^^^^^^^^^^
+   |             |
+   |             help: remove this `mut`
+
+warning: unused variable: `cmd`
+   --> src/cat/mod.rs:105:13
+    |
+105 |         let cmd = input.trim_end_matches(';').to_uppercase(); // cmd does not include the ;
+    |             ^^^ help: if this is intentional, prefix it with an underscore: `_cmd`
+
+warning: unused variable: `i`
+   --> src/cat/mod.rs:114:14
+    |
+114 |         for (i, cmd) in commands.iter().enumerate() {
+    |              ^
+    |
+help: if this is intentional, prefix it with an underscore
+    |
+114 |         for (_i, cmd) in commands.iter().enumerate() {
+    |              +
+help: you might have meant to pattern match on the similarly named constant `IQ_BUFFER_SIZE`
+    |
+114 -         for (i, cmd) in commands.iter().enumerate() {
+114 +         for (protocol2::IQ_BUFFER_SIZE, cmd) in commands.iter().enumerate() {
+    |
+
+warning: unused variable: `cmd`
+   --> src/cat/mod.rs:137:13
+    |
+137 |         let cmd = &command[..4];
+    |             ^^^ help: if this is intentional, prefix it with an underscore: `_cmd`
+
+warning: unused variable: `suffix`
+   --> src/cat/mod.rs:138:13
+    |
+138 |         let suffix = &command[4..];
+    |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_suffix`
+
+warning: unused variable: `radio_mutex`
+   --> src/cat/mod.rs:136:47
+    |
+136 |     fn parse_zz_command(&self, command: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                               ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_radio_mutex`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:136:73
+    |
+136 |     fn parse_zz_command(&self, command: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                                         ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `suffix`
+   --> src/cat/mod.rs:142:22
+    |
+142 |     fn AI_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                      ^^^^^^ help: if this is intentional, prefix it with an underscore: `_suffix`
+
+warning: unused variable: `radio_mutex`
+   --> src/cat/mod.rs:142:36
+    |
+142 |     fn AI_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                    ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_radio_mutex`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:142:62
+    |
+142 |     fn AI_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                              ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `suffix`
+   --> src/cat/mod.rs:197:22
+    |
+197 |     fn ID_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                      ^^^^^^ help: if this is intentional, prefix it with an underscore: `_suffix`
+
+warning: unused variable: `radio_mutex`
+   --> src/cat/mod.rs:197:36
+    |
+197 |     fn ID_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                    ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_radio_mutex`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:197:62
+    |
+197 |     fn ID_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                              ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `suffix`
+   --> src/cat/mod.rs:201:22
+    |
+201 |     fn IF_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                      ^^^^^^ help: if this is intentional, prefix it with an underscore: `_suffix`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:201:62
+    |
+201 |     fn IF_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                              ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:226:62
+    |
+226 |     fn KS_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                              ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:237:62
+    |
+237 |     fn MD_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                              ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: variable does not need to be mutable
+   --> src/cat/mod.rs:238:13
+    |
+238 |         let mut r = radio_mutex.radio.lock().unwrap();
+    |             ----^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `suffix`
+   --> src/cat/mod.rs:248:22
+    |
+248 |     fn RX_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                      ^^^^^^ help: if this is intentional, prefix it with an underscore: `_suffix`
+
+warning: variable does not need to be mutable
+   --> src/cat/mod.rs:250:13
+    |
+250 |         let mut reply = "".to_string();
+    |             ----^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `tx`
+   --> src/cat/mod.rs:258:62
+    |
+258 |     fn VX_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                                                              ^^ help: if this is intentional, prefix it with an underscore: `_tx`
+
+warning: unused variable: `suffix`
+   --> src/cat/mod.rs:269:22
+    |
+269 |     fn TX_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |                      ^^^^^^ help: if this is intentional, prefix it with an underscore: `_suffix`
+
+warning: variable does not need to be mutable
+   --> src/cat/mod.rs:271:13
+    |
+271 |         let mut reply = "".to_string();
+    |             ----^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `radio_mutex`
+  --> src/midi/mod.rs:87:23
+   |
+87 |     pub fn run(&self, radio_mutex: &RadioMutex, tx: &mpsc::Sender<MidiMessage>, stop_flag: Arc<AtomicBool>) -> Result<(), Box<dyn Error>> {
+   |                       ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_radio_mutex`
+
+warning: unused variable: `band_grid`
+   --> src/widgets/mod.rs:153:13
+    |
+153 |         let band_grid: Grid = builder
+    |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_band_grid`
+
+warning: unused variable: `mode_grid`
+   --> src/widgets/mod.rs:157:13
+    |
+157 |         let mode_grid: Grid = builder
+    |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_mode_grid`
+
+warning: unused variable: `filter_grid`
+   --> src/widgets/mod.rs:161:13
+    |
+161 |         let filter_grid: Grid = builder
+    |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_filter_grid`
+
+warning: function `format_u32_with_separators` is never used
+   --> src/radio/mod.rs:678:4
+    |
+678 | fn format_u32_with_separators(value: u32) -> String {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `draw_meter` is never used
+   --> src/radio/mod.rs:694:4
+    |
+694 | fn draw_meter(cr: &Context, dbm: f64) {
+    |    ^^^^^^^^^^
+
+warning: function `draw_waterfall` is never used
+   --> src/radio/mod.rs:737:4
+    |
+737 | fn draw_waterfall(cr: &Context, width: i32, height: i32, pixbuf: &Rc<RefCell<Option<Pixbuf>>>) {
+    |    ^^^^^^^^^^^^^^
+
+warning: constant `SUBRX_BASE_CHANNEL` is never used
+  --> src/receiver/mod.rs:33:7
+   |
+33 | const SUBRX_BASE_CHANNEL: i32 = 16;
+   |       ^^^^^^^^^^^^^^^^^^
+
+warning: fields `receive_sequence`, `wide_sequence`, `n_samples`, `left_sample`, and `right_sample` are never read
+  --> src/protocol1/mod.rs:47:5
+   |
+44 | pub struct Protocol1 {
+   |            --------- fields in this struct
+...
+47 |     receive_sequence: u32,
+   |     ^^^^^^^^^^^^^^^^
+48 |     send_sequence: u32,
+49 |     wide_sequence: u32,
+   |     ^^^^^^^^^^^^^
+...
+53 |     n_samples: i32,
+   |     ^^^^^^^^^
+54 |     left_sample: i32,
+   |     ^^^^^^^^^^^
+55 |     right_sample: i32,
+   |     ^^^^^^^^^^^^
+
+warning: associated function `f64_to_f32` is never used
+   --> src/protocol1/mod.rs:864:8
+    |
+ 65 | impl Protocol1 {
+    | -------------- associated function in this implementation
+...
+864 |     fn f64_to_f32(input: Vec<f64>) -> Vec<f32> {
+    |        ^^^^^^^^^^
+
+warning: constant `RX_YELLOW_LED` is never used
+  --> src/protocol2/mod.rs:38:7
+   |
+38 | const RX_YELLOW_LED: u32 = 0x00000001;
+   |       ^^^^^^^^^^^^^
+
+warning: constant `UNUSED_1` is never used
+  --> src/protocol2/mod.rs:45:7
+   |
+45 | const UNUSED_1: u32 =      0x00000080;
+   |       ^^^^^^^^
+
+warning: constant `XVTR_RX_IN` is never used
+  --> src/protocol2/mod.rs:46:7
+   |
+46 | const XVTR_RX_IN: u32 =    0x00000100;
+   |       ^^^^^^^^^^
+
+warning: constant `RX_2_IN` is never used
+  --> src/protocol2/mod.rs:47:7
+   |
+47 | const RX_2_IN: u32 =       0x00000200;
+   |       ^^^^^^^
+
+warning: constant `RX_1_IN` is never used
+  --> src/protocol2/mod.rs:48:7
+   |
+48 | const RX_1_IN: u32 =       0x00000400;
+   |       ^^^^^^^
+
+warning: constant `RX_1_OUT` is never used
+  --> src/protocol2/mod.rs:49:7
+   |
+49 | const RX_1_OUT: u32 =      0x00000800;
+   |       ^^^^^^^^
+
+warning: constant `ATTEN_20_dB` is never used
+  --> src/protocol2/mod.rs:51:7
+   |
+51 | const ATTEN_20_dB: u32 =   0x00002000;
+   |       ^^^^^^^^^^^
+
+warning: constant `ATTEN_10_dB` is never used
+  --> src/protocol2/mod.rs:52:7
+   |
+52 | const ATTEN_10_dB: u32 =   0x00004000;
+   |       ^^^^^^^^^^^
+
+warning: constant `RX_RED_LED` is never used
+  --> src/protocol2/mod.rs:53:7
+   |
+53 | const RX_RED_LED: u32 =    0x00008000;
+   |       ^^^^^^^^^^
+
+warning: constant `UNUSED_2` is never used
+  --> src/protocol2/mod.rs:54:7
+   |
+54 | const UNUSED_2: u32 =      0x00010000;
+   |       ^^^^^^^^
+
+warning: constant `UNUSED_3` is never used
+  --> src/protocol2/mod.rs:55:7
+   |
+55 | const UNUSED_3: u32 =      0x00020000;
+   |       ^^^^^^^^
+
+warning: constant `TRX_STATUS` is never used
+  --> src/protocol2/mod.rs:56:7
+   |
+56 | const TRX_STATUS: u32 =    0x00040000;
+   |       ^^^^^^^^^^
+
+warning: constant `TX_YELLOW_LED` is never used
+  --> src/protocol2/mod.rs:57:7
+   |
+57 | const TX_YELLOW_LED: u32 = 0x00080000;
+   |       ^^^^^^^^^^^^^
+
+warning: constant `ANT_1` is never used
+  --> src/protocol2/mod.rs:62:7
+   |
+62 | const ANT_1: u32 =         0x01000000;
+   |       ^^^^^
+
+warning: constant `ANT_2` is never used
+  --> src/protocol2/mod.rs:63:7
+   |
+63 | const ANT_2: u32 =         0x02000000;
+   |       ^^^^^
+
+warning: constant `ANT_3` is never used
+  --> src/protocol2/mod.rs:64:7
+   |
+64 | const ANT_3: u32 =         0x04000000;
+   |       ^^^^^
+
+warning: constant `TR_RELAY` is never used
+  --> src/protocol2/mod.rs:65:7
+   |
+65 | const TR_RELAY: u32 =      0x08000000;
+   |       ^^^^^^^^
+
+warning: constant `TX_RED_LED` is never used
+  --> src/protocol2/mod.rs:66:7
+   |
+66 | const TX_RED_LED: u32 =    0x10000000;
+   |       ^^^^^^^^^^
+
+warning: fields `receivers`, `previous_filter1`, and `previous_filter2` are never read
+  --> src/protocol2/mod.rs:75:5
+   |
+72 | pub struct Protocol2 {
+   |            --------- fields in this struct
+...
+75 |     receivers: u8,
+   |     ^^^^^^^^^
+...
+82 |     previous_filter1: u32,
+   |     ^^^^^^^^^^^^^^^^
+83 |     previous_filter2: u32,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: associated function `f64_to_f32` is never used
+   --> src/protocol2/mod.rs:833:8
+    |
+ 88 | impl Protocol2 {
+    | -------------- associated function in this implementation
+...
+833 |     fn f64_to_f32(input: Vec<f64>) -> Vec<f32> {
+    |        ^^^^^^^^^^
+
+warning: variants `MidiVfoA` and `MidiVfoB` are never constructed
+  --> src/midi/mod.rs:29:5
+   |
+27 | enum MidiAction {
+   |      ---------- variants in this enum
+28 |     MidiNone,
+29 |     MidiVfoA,
+   |     ^^^^^^^^
+30 |     MidiVfoB,
+   |     ^^^^^^^^
+   |
+   = note: `MidiAction` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: field `midi_action` is never read
+  --> src/midi/mod.rs:57:5
+   |
+55 | pub struct MidiFunction {
+   |            ------------ field in this struct
+56 |     midi_type: MidiType,
+57 |     midi_action: MidiAction,
+   |     ^^^^^^^^^^^
+   |
+   = note: `MidiFunction` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: crate `rustyHPSDR` should have a snake case name
+  |
+  = help: convert the identifier to snake case: `rusty_hpsdr`
+  = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: unused `Result` that must be used
+   --> src/radio/mod.rs:601:21
+    |
+601 |                     file.read_to_string(&mut s);
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+601 |                     let _ = file.read_to_string(&mut s);
+    |                     +++++++
+
+warning: method `update_Nrvals` should have a snake case name
+   --> src/receiver/mod.rs:444:12
+    |
+444 |     pub fn update_Nrvals(&self) {
+    |            ^^^^^^^^^^^^^ help: convert the identifier to snake case: `update_nrvals`
+
+warning: method `update_Anfvals` should have a snake case name
+   --> src/receiver/mod.rs:450:12
+    |
+450 |     pub fn update_Anfvals(&self) {
+    |            ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `update_anfvals`
+
+warning: method `update_AgcPosition` should have a snake case name
+   --> src/receiver/mod.rs:456:12
+    |
+456 |     pub fn update_AgcPosition(&self) {
+    |            ^^^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `update_agc_position`
+
+warning: associated constant `filterLSB` should have an upper case name
+  --> src/filters/mod.rs:90:15
+   |
+90 |         const filterLSB: [Filter; 12] = [
+   |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_LSB`
+   |
+   = note: `#[warn(non_upper_case_globals)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: associated constant `filterUSB` should have an upper case name
+   --> src/filters/mod.rs:105:15
+    |
+105 |         const filterUSB: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_USB`
+
+warning: associated constant `filterCWL` should have an upper case name
+   --> src/filters/mod.rs:120:15
+    |
+120 |         const filterCWL: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_CWL`
+
+warning: associated constant `filterCWU` should have an upper case name
+   --> src/filters/mod.rs:135:15
+    |
+135 |         const filterCWU: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_CWU`
+
+warning: associated constant `filterDIGL` should have an upper case name
+   --> src/filters/mod.rs:150:15
+    |
+150 |         const filterDIGL: [Filter; 12] = [
+    |               ^^^^^^^^^^ help: convert the identifier to upper case: `FILTER_DIGL`
+
+warning: associated constant `filterDIGU` should have an upper case name
+   --> src/filters/mod.rs:165:15
+    |
+165 |         const filterDIGU: [Filter; 12] = [
+    |               ^^^^^^^^^^ help: convert the identifier to upper case: `FILTER_DIGU`
+
+warning: associated constant `filterAM` should have an upper case name
+   --> src/filters/mod.rs:180:15
+    |
+180 |         const filterAM: [Filter; 12] = [
+    |               ^^^^^^^^ help: convert the identifier to upper case: `FILTER_AM`
+
+warning: associated constant `filterSAM` should have an upper case name
+   --> src/filters/mod.rs:195:15
+    |
+195 |         const filterSAM: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_SAM`
+
+warning: associated constant `filterFMN` should have an upper case name
+   --> src/filters/mod.rs:210:15
+    |
+210 |         const filterFMN: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_FMN`
+
+warning: associated constant `filterDSB` should have an upper case name
+   --> src/filters/mod.rs:225:15
+    |
+225 |         const filterDSB: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_DSB`
+
+warning: associated constant `filterSPEC` should have an upper case name
+   --> src/filters/mod.rs:240:15
+    |
+240 |         const filterSPEC: [Filter; 12] = [
+    |               ^^^^^^^^^^ help: convert the identifier to upper case: `FILTER_SPEC`
+
+warning: associated constant `filterDRM` should have an upper case name
+   --> src/filters/mod.rs:255:15
+    |
+255 |         const filterDRM: [Filter; 12] = [
+    |               ^^^^^^^^^ help: convert the identifier to upper case: `FILTER_DRM`
+
+warning: constant `ATTEN_20_dB` should have an upper case name
+  --> src/protocol2/mod.rs:51:7
+   |
+51 | const ATTEN_20_dB: u32 =   0x00002000;
+   |       ^^^^^^^^^^^ help: convert the identifier to upper case: `ATTEN_20_D_B`
+
+warning: constant `ATTEN_10_dB` should have an upper case name
+  --> src/protocol2/mod.rs:52:7
+   |
+52 | const ATTEN_10_dB: u32 =   0x00004000;
+   |       ^^^^^^^^^^^ help: convert the identifier to upper case: `ATTEN_10_D_B`
+
+warning: constant `rxaMeterType_RXA_S_PK` should have an upper case name
+   --> src/wdsp/mod.rs:217:11
+    |
+217 | pub const rxaMeterType_RXA_S_PK: rxaMeterType = 0;
+    |           ^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_S_PK`
+
+warning: constant `rxaMeterType_RXA_S_AV` should have an upper case name
+   --> src/wdsp/mod.rs:218:11
+    |
+218 | pub const rxaMeterType_RXA_S_AV: rxaMeterType = 1;
+    |           ^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_S_AV`
+
+warning: constant `rxaMeterType_RXA_ADC_PK` should have an upper case name
+   --> src/wdsp/mod.rs:219:11
+    |
+219 | pub const rxaMeterType_RXA_ADC_PK: rxaMeterType = 2;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_ADC_PK`
+
+warning: constant `rxaMeterType_RXA_ADC_AV` should have an upper case name
+   --> src/wdsp/mod.rs:220:11
+    |
+220 | pub const rxaMeterType_RXA_ADC_AV: rxaMeterType = 3;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_ADC_AV`
+
+warning: constant `rxaMeterType_RXA_AGC_GAIN` should have an upper case name
+   --> src/wdsp/mod.rs:221:11
+    |
+221 | pub const rxaMeterType_RXA_AGC_GAIN: rxaMeterType = 4;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_AGC_GAIN`
+
+warning: constant `rxaMeterType_RXA_AGC_PK` should have an upper case name
+   --> src/wdsp/mod.rs:222:11
+    |
+222 | pub const rxaMeterType_RXA_AGC_PK: rxaMeterType = 5;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_AGC_PK`
+
+warning: constant `rxaMeterType_RXA_AGC_AV` should have an upper case name
+   --> src/wdsp/mod.rs:223:11
+    |
+223 | pub const rxaMeterType_RXA_AGC_AV: rxaMeterType = 6;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_AGC_AV`
+
+warning: constant `rxaMeterType_RXA_METERTYPE_LAST` should have an upper case name
+   --> src/wdsp/mod.rs:224:11
+    |
+224 | pub const rxaMeterType_RXA_METERTYPE_LAST: rxaMeterType = 7;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `RXA_METER_TYPE_RXA_METERTYPE_LAST`
+
+warning: constant `txaMeterType_TXA_MIC_PK` should have an upper case name
+   --> src/wdsp/mod.rs:532:11
+    |
+532 | pub const txaMeterType_TXA_MIC_PK: txaMeterType = 0;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_MIC_PK`
+
+warning: constant `txaMeterType_TXA_MIC_AV` should have an upper case name
+   --> src/wdsp/mod.rs:533:11
+    |
+533 | pub const txaMeterType_TXA_MIC_AV: txaMeterType = 1;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_MIC_AV`
+
+warning: constant `txaMeterType_TXA_EQ_PK` should have an upper case name
+   --> src/wdsp/mod.rs:534:11
+    |
+534 | pub const txaMeterType_TXA_EQ_PK: txaMeterType = 2;
+    |           ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_EQ_PK`
+
+warning: constant `txaMeterType_TXA_EQ_AV` should have an upper case name
+   --> src/wdsp/mod.rs:535:11
+    |
+535 | pub const txaMeterType_TXA_EQ_AV: txaMeterType = 3;
+    |           ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_EQ_AV`
+
+warning: constant `txaMeterType_TXA_LVLR_PK` should have an upper case name
+   --> src/wdsp/mod.rs:536:11
+    |
+536 | pub const txaMeterType_TXA_LVLR_PK: txaMeterType = 4;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_LVLR_PK`
+
+warning: constant `txaMeterType_TXA_LVLR_AV` should have an upper case name
+   --> src/wdsp/mod.rs:537:11
+    |
+537 | pub const txaMeterType_TXA_LVLR_AV: txaMeterType = 5;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_LVLR_AV`
+
+warning: constant `txaMeterType_TXA_LVLR_GAIN` should have an upper case name
+   --> src/wdsp/mod.rs:538:11
+    |
+538 | pub const txaMeterType_TXA_LVLR_GAIN: txaMeterType = 6;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_LVLR_GAIN`
+
+warning: constant `txaMeterType_TXA_CFC_PK` should have an upper case name
+   --> src/wdsp/mod.rs:539:11
+    |
+539 | pub const txaMeterType_TXA_CFC_PK: txaMeterType = 7;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_CFC_PK`
+
+warning: constant `txaMeterType_TXA_CFC_AV` should have an upper case name
+   --> src/wdsp/mod.rs:540:11
+    |
+540 | pub const txaMeterType_TXA_CFC_AV: txaMeterType = 8;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_CFC_AV`
+
+warning: constant `txaMeterType_TXA_CFC_GAIN` should have an upper case name
+   --> src/wdsp/mod.rs:541:11
+    |
+541 | pub const txaMeterType_TXA_CFC_GAIN: txaMeterType = 9;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_CFC_GAIN`
+
+warning: constant `txaMeterType_TXA_COMP_PK` should have an upper case name
+   --> src/wdsp/mod.rs:542:11
+    |
+542 | pub const txaMeterType_TXA_COMP_PK: txaMeterType = 10;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_COMP_PK`
+
+warning: constant `txaMeterType_TXA_COMP_AV` should have an upper case name
+   --> src/wdsp/mod.rs:543:11
+    |
+543 | pub const txaMeterType_TXA_COMP_AV: txaMeterType = 11;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_COMP_AV`
+
+warning: constant `txaMeterType_TXA_ALC_PK` should have an upper case name
+   --> src/wdsp/mod.rs:544:11
+    |
+544 | pub const txaMeterType_TXA_ALC_PK: txaMeterType = 12;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_ALC_PK`
+
+warning: constant `txaMeterType_TXA_ALC_AV` should have an upper case name
+   --> src/wdsp/mod.rs:545:11
+    |
+545 | pub const txaMeterType_TXA_ALC_AV: txaMeterType = 13;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_ALC_AV`
+
+warning: constant `txaMeterType_TXA_ALC_GAIN` should have an upper case name
+   --> src/wdsp/mod.rs:546:11
+    |
+546 | pub const txaMeterType_TXA_ALC_GAIN: txaMeterType = 14;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_ALC_GAIN`
+
+warning: constant `txaMeterType_TXA_OUT_PK` should have an upper case name
+   --> src/wdsp/mod.rs:547:11
+    |
+547 | pub const txaMeterType_TXA_OUT_PK: txaMeterType = 15;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_OUT_PK`
+
+warning: constant `txaMeterType_TXA_OUT_AV` should have an upper case name
+   --> src/wdsp/mod.rs:548:11
+    |
+548 | pub const txaMeterType_TXA_OUT_AV: txaMeterType = 16;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_OUT_AV`
+
+warning: constant `txaMeterType_TXA_METERTYPE_LAST` should have an upper case name
+   --> src/wdsp/mod.rs:549:11
+    |
+549 | pub const txaMeterType_TXA_METERTYPE_LAST: txaMeterType = 17;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `TXA_METER_TYPE_TXA_METERTYPE_LAST`
+
+warning: constant `ALEX_ATTENUATION_0dB` should have an upper case name
+  --> src/alex/mod.rs:28:11
+   |
+28 | pub const ALEX_ATTENUATION_0dB: u32 =    0x00000000;
+   |           ^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `ALEX_ATTENUATION_0D_B`
+
+warning: constant `ALEX_ATTENUATION_10dB` should have an upper case name
+  --> src/alex/mod.rs:29:11
+   |
+29 | pub const ALEX_ATTENUATION_10dB: u32 =   0x00004000;
+   |           ^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `ALEX_ATTENUATION_10D_B`
+
+warning: constant `ALEX_ATTENUATION_20dB` should have an upper case name
+  --> src/alex/mod.rs:30:11
+   |
+30 | pub const ALEX_ATTENUATION_20dB: u32 =   0x00002000;
+   |           ^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `ALEX_ATTENUATION_20D_B`
+
+warning: constant `ALEX_ATTENUATION_30dB` should have an upper case name
+  --> src/alex/mod.rs:31:11
+   |
+31 | pub const ALEX_ATTENUATION_30dB: u32 =   0x00006000;
+   |           ^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `ALEX_ATTENUATION_30D_B`
+
+warning: variable `low_R` should have a snake case name
+  --> src/waterfall/mod.rs:53:13
+   |
+53 |         let low_R = 0.0; // low is black
+   |             ^^^^^ help: convert the identifier to snake case: `low_r`
+
+warning: variable `low_G` should have a snake case name
+  --> src/waterfall/mod.rs:54:13
+   |
+54 |         let low_G = 0.0;
+   |             ^^^^^ help: convert the identifier to snake case: `low_g`
+
+warning: variable `low_B` should have a snake case name
+  --> src/waterfall/mod.rs:55:13
+   |
+55 |         let low_B = 0.0;
+   |             ^^^^^ help: convert the identifier to snake case: `low_b`
+
+warning: variable `mid_R` should have a snake case name
+  --> src/waterfall/mod.rs:56:13
+   |
+56 |         let mid_R = 1.0; // mid is red
+   |             ^^^^^ help: convert the identifier to snake case: `mid_r`
+
+warning: variable `mid_G` should have a snake case name
+  --> src/waterfall/mod.rs:57:13
+   |
+57 |         let mid_G = 0.0;
+   |             ^^^^^ help: convert the identifier to snake case: `mid_g`
+
+warning: variable `mid_B` should have a snake case name
+  --> src/waterfall/mod.rs:58:13
+   |
+58 |         let mid_B = 0.0;
+   |             ^^^^^ help: convert the identifier to snake case: `mid_b`
+
+warning: variable `high_R` should have a snake case name
+  --> src/waterfall/mod.rs:59:13
+   |
+59 |         let high_R = 1.0; // high is yellow
+   |             ^^^^^^ help: convert the identifier to snake case: `high_r`
+
+warning: variable `high_G` should have a snake case name
+  --> src/waterfall/mod.rs:60:13
+   |
+60 |         let high_G = 1.0;
+   |             ^^^^^^ help: convert the identifier to snake case: `high_g`
+
+warning: variable `high_B` should have a snake case name
+  --> src/waterfall/mod.rs:61:13
+   |
+61 |         let high_B = 0.0;
+   |             ^^^^^^ help: convert the identifier to snake case: `high_b`
+
+warning: variable `R` should have a snake case name
+  --> src/waterfall/mod.rs:86:21
+   |
+86 |             let mut R = 0.0;
+   |                     ^ help: convert the identifier to snake case: `r`
+
+warning: variable `G` should have a snake case name
+  --> src/waterfall/mod.rs:87:21
+   |
+87 |             let mut G = 0.0;
+   |                     ^ help: convert the identifier to snake case: `g`
+
+warning: variable `B` should have a snake case name
+  --> src/waterfall/mod.rs:88:21
+   |
+88 |             let mut B = 0.0;
+   |                     ^ help: convert the identifier to snake case: `b`
+
+warning: method `AI_cmd` should have a snake case name
+   --> src/cat/mod.rs:142:8
+    |
+142 |     fn AI_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `ai_cmd`
+
+warning: method `FA_cmd` should have a snake case name
+   --> src/cat/mod.rs:147:8
+    |
+147 |     fn FA_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `fa_cmd`
+
+warning: method `FB_cmd` should have a snake case name
+   --> src/cat/mod.rs:172:8
+    |
+172 |     fn FB_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `fb_cmd`
+
+warning: method `ID_cmd` should have a snake case name
+   --> src/cat/mod.rs:197:8
+    |
+197 |     fn ID_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `id_cmd`
+
+warning: method `IF_cmd` should have a snake case name
+   --> src/cat/mod.rs:201:8
+    |
+201 |     fn IF_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case (notice the capitalization): `if_cmd`
+
+warning: method `KS_cmd` should have a snake case name
+   --> src/cat/mod.rs:226:8
+    |
+226 |     fn KS_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case (notice the capitalization): `ks_cmd`
+
+warning: method `MD_cmd` should have a snake case name
+   --> src/cat/mod.rs:237:8
+    |
+237 |     fn MD_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `md_cmd`
+
+warning: method `RX_cmd` should have a snake case name
+   --> src/cat/mod.rs:248:8
+    |
+248 |     fn RX_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `rx_cmd`
+
+warning: method `VX_cmd` should have a snake case name
+   --> src/cat/mod.rs:258:8
+    |
+258 |     fn VX_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case (notice the capitalization): `vx_cmd`
+
+warning: method `TX_cmd` should have a snake case name
+   --> src/cat/mod.rs:269:8
+    |
+269 |     fn TX_cmd(&self, suffix: &str, radio_mutex: &RadioMutex, tx: mpsc::Sender<CatMessage>) -> String {
+    |        ^^^^^^ help: convert the identifier to snake case: `tx_cmd`
+
+warning: `rustyHPSDR` (lib) generated 150 warnings (run `cargo fix --lib -p rustyHPSDR` to apply 14 suggestions)
+warning: unused imports: `Adjustment`, `ApplicationWindow`, `Button`, `DrawingArea`, `DropDown`, `Frame`, `Grid`, `ProgressBar`, and `ToggleButton`
+  --> src/main.rs:27:11
+   |
+27 | ...::{Adjustment, Application, ApplicationWindow, Builder, Button, DrawingArea, DropDown, Frame, Grid, Label, ProgressBar, ToggleButton, W...
+   |       ^^^^^^^^^^               ^^^^^^^^^^^^^^^^^           ^^^^^^  ^^^^^^^^^^^  ^^^^^^^^  ^^^^^  ^^^^         ^^^^^^^^^^^  ^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Receiver` and `Sender`
+  --> src/main.rs:43:29
+   |
+43 | use std::sync::mpsc::{self, Sender, Receiver, TryRecvError};
+   |                             ^^^^^^  ^^^^^^^^
+
+warning: unused import: `rustyHPSDR::filters::*`
+  --> src/main.rs:53:5
+   |
+53 | use rustyHPSDR::filters::*;
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated macro `clone`: Using old-style clone! syntax
+    --> src/main.rs:1587:73
+     |
+1587 |   ...   glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
+     |  ___________________________________________________________^
+1588 | | ...       match rx.try_recv() {
+1589 | | ...           Ok(msg) => {
+...    |
+1652 | | ...   }));
+     | |________^
+     |
+     = note: `#[warn(deprecated)]` on by default
+     = note: this warning originates in the macro `clone` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated macro `clone`: Using old-style clone! syntax
+    --> src/main.rs:1697:73
+     |
+1697 |   ...   glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
+     |  ___________________________________________________________^
+1698 | | ...       match rx.try_recv() {
+1699 | | ...           Ok(msg) => {
+...    |
+1726 | | ...   }));
+     | |________^
+     |
+     = note: this warning originates in the macro `clone` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated struct `gtk4::StyleContext`: Since 4.10
+   --> src/main.rs:157:10
+    |
+157 |     gtk::StyleContext::add_provider_for_display(
+    |          ^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::CssProvider::load_from_data`: Since 4.12
+   --> src/main.rs:156:14
+    |
+156 |     provider.load_from_data(ui_css);
+    |              ^^^^^^^^^^^^^^
+
+warning: use of deprecated associated function `gtk4::style_context::<impl gtk4::StyleContext>::add_provider_for_display`: Use gtk::style_context_add_provider_for_display instead.
+   --> src/main.rs:157:24
+    |
+157 |     gtk::StyleContext::add_provider_for_display(
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:300:71
+    |
+300 |                         let style_context = app_widgets.a_to_b_button.style_context();
+    |                                                                       ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:301:39
+    |
+301 |                         style_context.add_class("basic-button");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:302:71
+    |
+302 |                         let style_context = app_widgets.b_to_a_button.style_context();
+    |                                                                       ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:303:39
+    |
+303 |                         style_context.add_class("basic-button");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:304:73
+    |
+304 |                         let style_context = app_widgets.a_swap_b_button.style_context();
+    |                                                                         ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:305:39
+    |
+305 |                         style_context.add_class("basic-button");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:307:69
+    |
+307 |                         let style_context = app_widgets.ctun_button.style_context();
+    |                                                                     ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:308:39
+    |
+308 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:311:68
+    |
+311 |                         let style_context = app_widgets.cat_button.style_context();
+    |                                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:312:39
+    |
+312 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:315:69
+    |
+315 |                         let style_context = app_widgets.midi_button.style_context();
+    |                                                                     ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:316:39
+    |
+316 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:319:70
+    |
+319 |                         let style_context = app_widgets.split_button.style_context();
+    |                                                                      ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:320:39
+    |
+320 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:323:68
+    |
+323 |                         let style_context = app_widgets.rx2_button.style_context();
+    |                                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:324:39
+    |
+324 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:391:67
+    |
+391 |                         let style_context = app_widgets.nr_button.style_context();
+    |                                                                   ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:392:39
+    |
+392 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:403:67
+    |
+403 |                         let style_context = app_widgets.nb_button.style_context();
+    |                                                                   ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:404:39
+    |
+404 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:415:68
+    |
+415 |                         let style_context = app_widgets.anf_button.style_context();
+    |                                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:416:39
+    |
+416 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:420:68
+    |
+420 |                         let style_context = app_widgets.snb_button.style_context();
+    |                                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:421:39
+    |
+421 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:425:68
+    |
+425 |                         let style_context = app_widgets.mox_button.style_context();
+    |                                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:426:39
+    |
+426 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:428:68
+    |
+428 |                         let style_context = app_widgets.tun_button.style_context();
+    |                                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::StyleContextExt::add_class`: Since 4.10
+   --> src/main.rs:429:39
+    |
+429 |                         style_context.add_class("toggle");
+    |                                       ^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::style_context`: Since 4.10
+   --> src/main.rs:543:52
+    |
+543 |                         let style_context = button.style_context();
+    |                                                    ^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::allocated_width`: Since 4.12
+   --> src/main.rs:635:40
+    |
+635 |                         let width = da.allocated_width();
+    |                                        ^^^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::allocated_width`: Since 4.12
+   --> src/main.rs:668:40
+    |
+668 |                         let width = da.allocated_width();
+    |                                        ^^^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::allocated_width`: Since 4.12
+   --> src/main.rs:872:40
+    |
+872 |                         let width = da.allocated_width();
+    |                                        ^^^^^^^^^^^^^^^
+
+warning: use of deprecated method `gtk4::prelude::WidgetExt::allocated_width`: Since 4.12
+   --> src/main.rs:886:40
+    |
+886 |                         let width = da.allocated_width();
+    |                                        ^^^^^^^^^^^^^^^
+
+warning: unused variable: `builder_clone`
+   --> src/main.rs:202:9
+    |
+202 |     let builder_clone = builder.clone();
+    |         ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_builder_clone`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `middle_button_state`
+   --> src/main.rs:755:25
+    |
+755 |                     let middle_button_state = middle_button_pressed.clone();
+    |                         ^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_middle_button_state`
+
+warning: unused variable: `middle_button_state`
+   --> src/main.rs:802:25
+    |
+802 |                     let middle_button_state = middle_button_pressed.clone();
+    |                         ^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_middle_button_state`
+
+warning: value assigned to `update_interval` is never read
+    --> src/main.rs:1446:29
+     |
+1446 |                     let mut update_interval = 100.0;
+     |                             ^^^^^^^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `rc_meter_tx_clone2`
+    --> src/main.rs:1496:25
+     |
+1496 |                     let rc_meter_tx_clone2 = rc_meter_tx_clone.clone();
+     |                         ^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rc_meter_tx_clone2`
+
+warning: unused variable: `meter_tx_timeout_id`
+    --> src/main.rs:1514:25
+     |
+1514 |                     let meter_tx_timeout_id = timeout_add_local(Duration::from_millis(update_interval as u64), move || {
+     |                         ^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_meter_tx_timeout_id`
+
+warning: unused variable: `keepalive_timeout_id`
+    --> src/main.rs:1530:29
+     |
+1530 |                         let keepalive_timeout_id = timeout_add_local(Duration::from_millis(250), move || {
+     |                             ^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_keepalive_timeout_id`
+
+warning: unused variable: `rc_app_widgets_clone2`
+    --> src/main.rs:1586:25
+     |
+1586 |                     let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
+     |                         ^^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rc_app_widgets_clone2`
+
+warning: unused variable: `controller`
+   --> src/main.rs:453:62
+    |
+453 |                     scroll_controller_a.connect_scroll(move |controller, dx, dy| {
+    |                                                              ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `dx`
+   --> src/main.rs:453:74
+    |
+453 |                     scroll_controller_a.connect_scroll(move |controller, dx, dy| {
+    |                                                                          ^^ help: if this is intentional, prefix it with an underscore: `_dx`
+
+warning: unused variable: `style_context`
+   --> src/main.rs:543:29
+    |
+543 |                         let style_context = button.style_context();
+    |                             ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_style_context`
+
+warning: value assigned to `step` is never read
+   --> src/main.rs:598:33
+    |
+598 |                         let mut step = 1000.0;
+    |                                 ^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `controller`
+   --> src/main.rs:633:81
+    |
+633 |                     spectrum_click_gesture_clone.connect_pressed(move |gesture, controller, x, _y| {
+    |                                                                                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:652:82
+    |
+652 |                     spectrum_click_gesture_clone.connect_released(move |gesture, controller, x, _y| {
+    |                                                                                  ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `x`
+   --> src/main.rs:652:94
+    |
+652 |                     spectrum_click_gesture_clone.connect_released(move |gesture, controller, x, _y| {
+    |                                                                                              ^ help: if this is intentional, prefix it with an underscore: `_x`
+
+warning: unused variable: `controller`
+   --> src/main.rs:666:83
+    |
+666 |                     spectrum_2_click_gesture_clone.connect_pressed(move |gesture, controller, x, _y| {
+    |                                                                                   ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:676:84
+    |
+676 |                     spectrum_2_click_gesture_clone.connect_released(move |gesture, controller, x, _y| {
+    |                                                                                    ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `x`
+   --> src/main.rs:676:96
+    |
+676 |                     spectrum_2_click_gesture_clone.connect_released(move |gesture, controller, x, _y| {
+    |                                                                                                ^ help: if this is intentional, prefix it with an underscore: `_x`
+
+warning: unused variable: `controller`
+   --> src/main.rs:696:75
+    |
+696 |                     motion_event_controller_spectrum.connect_motion(move |controller, x, y| {
+    |                                                                           ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:728:77
+    |
+728 |                     motion_event_controller_spectrum_2.connect_motion(move |controller, x, y| {
+    |                                                                             ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:756:69
+    |
+756 |                     scroll_controller_spectrum.connect_scroll(move |controller, _dx, dy| {
+    |                                                                     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:803:71
+    |
+803 |                     scroll_controller_spectrum_2.connect_scroll(move |controller, _dx, dy| {
+    |                                                                       ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:848:70
+    |
+848 |                     scroll_controller_waterfall.connect_scroll(move |controller, _dx, dy| {
+    |                                                                      ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `controller`
+   --> src/main.rs:859:72
+    |
+859 |                     scroll_controller_waterfall_2.connect_scroll(move |controller, _dx, dy| {
+    |                                                                        ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_controller`
+
+warning: unused variable: `active`
+    --> src/main.rs:1078:29
+     |
+1078 |                         let active = button.is_active();
+     |                             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_active`
+
+warning: unused variable: `active`
+    --> src/main.rs:1104:29
+     |
+1104 |                         let active = button.is_active();
+     |                             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_active`
+
+warning: unused variable: `mutex`
+    --> src/main.rs:1279:43
+     |
+1279 |                         if let Ok(ref mut mutex) = lock {
+     |                                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_mutex`
+
+warning: unused variable: `mutex`
+    --> src/main.rs:1297:43
+     |
+1297 |                         if let Ok(ref mut mutex) = lock {
+     |                                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_mutex`
+
+warning: unused variable: `width`
+    --> src/main.rs:1404:78
+     |
+1404 |                     app_widgets.meter_1_display.set_draw_func(move |_da, cr, width, height| {
+     |                                                                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `height`
+    --> src/main.rs:1404:85
+     |
+1404 |                     app_widgets.meter_1_display.set_draw_func(move |_da, cr, width, height| {
+     |                                                                                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+    --> src/main.rs:1410:78
+     |
+1410 |                     app_widgets.meter_2_display.set_draw_func(move |_da, cr, width, height| {
+     |                                                                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `height`
+    --> src/main.rs:1410:85
+     |
+1410 |                     app_widgets.meter_2_display.set_draw_func(move |_da, cr, width, height| {
+     |                                                                                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: value assigned to `rx2` is never read
+    --> src/main.rs:1457:33
+     |
+1457 |                         let mut rx2 = false;
+     |                                 ^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: value assigned to `is_transmitting` is never read
+    --> src/main.rs:1458:33
+     |
+1458 |                         let mut is_transmitting = false;
+     |                                 ^^^^^^^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: value assigned to `rx2` is never read
+    --> src/main.rs:1479:33
+     |
+1479 |                         let mut rx2 = false;
+     |                                 ^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: value assigned to `is_transmitting` is never read
+    --> src/main.rs:1480:33
+     |
+1480 |                         let mut is_transmitting = false;
+     |                                 ^^^^^^^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: unreachable pattern
+    --> src/main.rs:1706:37
+     |
+1702 | ...                   MidiMessage::StepFrequencyA(increment) => {
+     |                       -------------------------------------- matches all the relevant values
+...
+1706 | ...                   MidiMessage::StepFrequencyA(increment) => {
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no value can reach this
+     |
+     = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+   --> src/main.rs:137:9
+    |
+137 |         unsafe {
+    |         ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/main.rs:956:29
+    |
+956 |                         let mut b = r.receiver[rx].band.to_usize();
+    |                             ----^
+    |                             |
+    |                             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/main.rs:1616:45
+     |
+1616 | ...                   let mut r = radio_mutex_clone.radio.lock().unwrap();
+     |                           ----^
+     |                           |
+     |                           help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/main.rs:1683:33
+     |
+1683 | ...                   let mut midi_clone_clone = midi_clone.clone();
+     |                           ----^^^^^^^^^^^^^^^^
+     |                           |
+     |                           help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/main.rs:1547:25
+     |
+1547 |                     let mut cat = CAT::new("127.0.0.1:19001".to_string());
+     |                         ----^^^
+     |                         |
+     |                         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/main.rs:1657:25
+     |
+1657 |                     let mut midi = MIDI::new("Studio 2A:Studio 2A MIDI 1 28:0".to_string());
+     |                         ----^^^^
+     |                         |
+     |                         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/main.rs:1665:29
+     |
+1665 |                         let mut midi_clone_clone = midi_clone.clone();
+     |                             ----^^^^^^^^^^^^^^^^
+     |                             |
+     |                             help: remove this `mut`
+
+warning: unused variable: `rc_meter`
+    --> src/main.rs:1831:89
+     |
+1831 | fn meter_tx_update(radio_mutex: &RadioMutex,  rc_app_widgets: &Rc<RefCell<AppWidgets>>, rc_meter: &Rc<RefCell<Meter>>) {
+     |                                                                                         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rc_meter`
+
+warning: unused variable: `display_frequency_high`
+    --> src/main.rs:1897:9
+     |
+1897 |     let display_frequency_high = frequency_high + display_frequency_offset;
+     |         ^^^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_display_frequency_high`
+
+warning: unused variable: `button`
+    --> src/main.rs:1874:130
+     |
+1874 | ...: usize, x: f64, width: i32, button: u32) -> bool {
+     |                                 ^^^^^^ help: if this is intentional, prefix it with an underscore: `_button`
+
+warning: unused variable: `frequency_low`
+    --> src/main.rs:1922:9
+     |
+1922 |     let frequency_low = r.receiver[rx].frequency - (r.receiver[rx].sample_rate/2) as f64;
+     |         ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_frequency_low`
+
+warning: unused variable: `frequency_high`
+    --> src/main.rs:1923:9
+     |
+1923 |     let frequency_high = r.receiver[rx].frequency + (r.receiver[rx].sample_rate/2) as f64;
+     |         ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_frequency_high`
+
+warning: unused variable: `band`
+    --> src/main.rs:1944:9
+     |
+1944 |     let band = r.receiver[rx].band;
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_band`
+
+warning: value assigned to `attenuation` is never read
+    --> src/main.rs:1962:13
+     |
+1962 |     let mut attenuation = r.receiver[rx].band_info[b].attenuation;
+     |             ^^^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: unused `Result` that must be used
+    --> src/main.rs:1558:29
+     |
+1558 | ...                   cat_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: this `Result` may be an `Err` variant, which should be handled
+     = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+     |
+1558 |                             let _ = cat_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
+     |                             +++++++
+
+warning: unused `Result` that must be used
+    --> src/main.rs:1577:33
+     |
+1577 | ...                   cat_clone_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+     |
+1577 |                                 let _ = cat_clone_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+     |                                 +++++++
+
+warning: unused `Result` that must be used
+    --> src/main.rs:1668:29
+     |
+1668 | ...                   midi_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+     |
+1668 |                             let _ = midi_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
+     |                             +++++++
+
+warning: unused `Result` that must be used
+    --> src/main.rs:1687:33
+     |
+1687 | ...                   midi_clone_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+     |
+1687 |                                 let _ = midi_clone_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+     |                                 +++++++
+
+warning: `rustyHPSDR` (bin "rustyHPSDR") generated 96 warnings (run `cargo fix --bin "rustyHPSDR"` to apply 9 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.11s

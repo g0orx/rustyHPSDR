@@ -16,10 +16,10 @@
 */
 
 pub const ALEX_RX_ANTENNA_NONE: u32 =    0x00000000;
-pub const ALEX_RX_ANTENNA_XVTR: u32 =    0x00000900;
-pub const ALEX_RX_ANTENNA_EXT1: u32 =    0x00000A00;
-pub const ALEX_RX_ANTENNA_EXT2: u32 =    0x00000C00;
-pub const ALEX_RX_ANTENNA_BYPASS: u32 =  0x00000800;
+pub const ALEX_RX_ANTENNA_XVTR: u32 =    0x00000100;
+pub const ALEX_RX_ANTENNA_EXT1: u32 =    0x00000200;
+pub const ALEX_RX_ANTENNA_EXT2: u32 =    0x00000400;
+pub const ALEX_RX_ANTENNA_OUT1: u32 =    0x00000800;
 
 pub const ALEX_ANTENNA_1: u32 =          0x01000000;
 pub const ALEX_ANTENNA_2: u32 =          0x02000000;

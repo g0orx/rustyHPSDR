@@ -37,19 +37,23 @@ impl Default for CatMessage {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CAT {
     pub address: String,
 }
 
 impl CAT {
  
-    pub fn new() -> Self {
+    pub fn new(network_address: String) -> Self {
 if DEBUG_CAT {eprintln!("CAT::new");}
-        let address = "127.0.0.1:19001".to_string(); // default
+        let address = network_address;
         CAT {
             address,
         }
+    }
+
+    pub fn set_address(&mut self, network_address: String) {
+        self.address = network_address;
     }
 
     pub fn run(&mut self, radio_mutex: &RadioMutex, tx: &mpsc::Sender<CatMessage>, stop_flag: Arc<AtomicBool>) -> io::Result<()> {

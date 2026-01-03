@@ -97,7 +97,7 @@ impl Spectrum {
 
             // draw the cursor
             cr.set_source_rgb (1.0, 0.0, 0.0);
-            cr.set_line_width(1.0);
+            cr.set_line_width(2.0);
             cr.move_to((width/2).into(), 0.0);
             cr.line_to((width/2).into(), spectrum_height.into());
             cr.stroke().unwrap();
@@ -120,34 +120,33 @@ impl Spectrum {
             let display_frequency_high = frequency_high + display_frequency_offset;
             let display_hz_per_pixel = display_frequency_range / width as f64;
 
-            let mut step = 25000.0;
-            match r.receiver[self.rx].sample_rate {
-                 48000 => step = 50000.0,
-                 96000 => step = 10000.0,
-                192000 => step = 20000.0,
-                384000 => match r.receiver[self.rx].zoom {
-                              1 => step = 25000.0,
-                              2 => step = 25000.0,
-                              3 => step = 10000.0,
-                              4 => step = 10000.0,
-                              5 => step = 10000.0,
-                              6 => step = 5000.0,
-                              7 => step = 5000.0,
-                              8 => step = 5000.0,
-                              9 => step = 5000.0,
-                              10 => step = 5000.0,
-                              11 => step = 2000.0,
-                              12 => step = 2000.0,
-                              13 => step = 2000.0,
-                              14 => step = 2000.0,
-                              15 => step = 2000.0,
-                              16 => step = 2000.0,
-                              _ => step = 25000.0,
-                          },
-                768000 => step = 50000.0,
-               1536000 => step = 100000.0,
-                     _ => step = 25000.0,
-            }
+            let step = match r.receiver[self.rx].sample_rate {
+                           48000 => 50000.0,
+                           96000 => 10000.0,
+                          192000 => 20000.0,
+                          384000 => match r.receiver[self.rx].zoom {
+                                        1 => 25000.0,
+                                        2 => 25000.0,
+                                        3 => 10000.0,
+                                        4 => 10000.0,
+                                        5 => 10000.0,
+                                        6 => 5000.0,
+                                        7 => 5000.0,
+                                        8 => 5000.0,
+                                        9 => 5000.0,
+                                        10 => 5000.0,
+                                        11 => 2000.0,
+                                        12 => 2000.0,
+                                        13 => 2000.0,
+                                        14 => 2000.0,
+                                        15 => 2000.0,
+                                        16 => 2000.0,
+                                        _ => 25000.0,
+                                    },
+                          768000 => 50000.0,
+                         1536000 => 100000.0,
+                               _ => 25000.0,
+                      };
 
             // draw the band limits
             cr.set_source_rgb(1.0, 0.0, 0.0);
@@ -196,17 +195,9 @@ impl Spectrum {
                 frequency -= r.receiver[self.rx].cw_pitch;
             }
 */
-            // see if cursor and filter visible
-            if display_frequency_low < frequency && display_frequency_high > frequency {
-                // draw the center line frequency marker
-                let x = (frequency - display_frequency_low) / display_hz_per_pixel;
-                    cr.set_source_rgb(1.0, 0.0, 0.0);
-                cr.set_line_width(1.0);
-                cr.move_to(x.into(), 0.0);
-                cr.line_to(x.into(), spectrum_height.into());
-                cr.stroke().unwrap();
 
-                // draw the filter
+            // draw the filter
+            if display_frequency_low < frequency && display_frequency_high > frequency {
                 cr.set_source_rgba (0.4, 0.4, 0.4, 0.80);
                 let filter_left = ((frequency + r.receiver[self.rx].filter_low) - display_frequency_low) / display_hz_per_pixel;
                 let filter_right = ((frequency + r.receiver[self.rx].filter_high) - display_frequency_low) / display_hz_per_pixel;
@@ -218,7 +209,8 @@ impl Spectrum {
             let spectrum_high = r.receiver[self.rx].band_info[b].spectrum_high;
             let spectrum_width = r.receiver[self.rx].spectrum_width;
             let pan = ((pixels.len() as f32 - spectrum_width as f32) / 100.0) * r.receiver[self.rx].pan as f32;
-                cr.set_source_rgb(1.0, 1.0, 0.0);
+            cr.set_source_rgb(1.0, 1.0, 0.0);
+            cr.set_line_width(1.0);
             cr.move_to(0.0, spectrum_height as f64);
             for i in 0..spectrum_width {
                 let pixel = pixels[i as usize + pan as usize];
@@ -246,6 +238,7 @@ impl Spectrum {
             cr.stroke().unwrap();
 
             // draw the frequency markers
+            cr.set_line_width(1.0);
             let mut f: f64 = (((display_frequency_low as i32 + step as i32) / step as i32) * step as i32) as f64;
             while f < display_frequency_high {
                 let x = (f - display_frequency_low) / display_hz_per_pixel;
@@ -273,6 +266,17 @@ impl Spectrum {
                     cr.line_to( x, spectrum_height.into());
                     cr.stroke().unwrap();
                 }
+            }
+
+            // craw the cursor
+            if display_frequency_low < frequency && display_frequency_high > frequency {
+                // draw the center line frequency marker
+                let x = (frequency - display_frequency_low) / display_hz_per_pixel;
+                    cr.set_source_rgb(1.0, 0.0, 0.0);
+                cr.set_line_width(2.0);
+                cr.move_to(x.into(), 0.0);
+                cr.line_to(x.into(), spectrum_height.into());
+                cr.stroke().unwrap();
             }
 
         }

@@ -70,6 +70,25 @@ impl Audio {
     pub fn open_input(&mut self, device_name: &String) -> Result<(), Box<dyn std::error::Error>> {
         let host = cpal::default_host();
 
+        // Find the output device
+        let device = if device_name == "default" {
+            host.default_input_device()
+        } else {
+            host.input_devices()?
+                .find(|d| d.name().map(|n| n == *device_name).unwrap_or(false))
+        }
+        .ok_or("No input device found")?;
+
+        let config = Self::find_best_config(&device, false, 2, Some(TARGET_BUFFER_SIZE))?;
+
+        // Create a custom config for stereo 48kHz output
+        let mut stream_config: StreamConfig = config.clone().into();
+        stream_config.channels = 2;
+        stream_config.sample_rate = SampleRate(48000);
+        let (mut prod, cons) = HeapRb::new(4800).split();
+
+
+/*
         // Find the input device
         let device = if device_name == "default" {
             host.default_input_device()
@@ -82,8 +101,9 @@ impl Audio {
         let config = Self::find_best_config(&device, true, 1, Some(TARGET_BUFFER_SIZE))?;
 
         let (mut prod, cons) = HeapRb::new(TARGET_BUFFER_SIZE as usize).split();
-        self.input_buffer = Some(cons);
+*/
 
+        self.input_buffer = Some(cons);
         let stream = device.build_input_stream(
             &config,
             move |data: &[f32], _: &InputCallbackInfo| {
@@ -130,8 +150,8 @@ impl Audio {
         let mut stream_config: StreamConfig = config.clone().into();
         stream_config.channels = 2;
         stream_config.sample_rate = SampleRate(48000);
-        //let (prod, mut cons) = HeapRb::new(4800).split();
-        let (prod, mut cons) = HeapRb::new(9600).split();
+        let (prod, mut cons) = HeapRb::new(4800).split();
+        //let (prod, mut cons) = HeapRb::new(9600).split();
         self.output_buffer = Some(prod);
 
         let stream = device.build_output_stream(
@@ -206,7 +226,7 @@ impl Audio {
             Box::new(device.supported_output_configs()?.into_iter())
         };
 
-        let mut config_range = supported_configs
+        let config_range = supported_configs
             .filter(|c| c.max_sample_rate().0 >= TARGET_SAMPLE_RATE)
             .filter(|c| c.channels() == requested_channels)
             .find(|c| c.sample_format().is_float())

@@ -196,39 +196,37 @@ impl Protocol1 {
             if r.transmitter.local_input && !r.transmitter.local_input_changed && !r.tune {
                 //r.transmitter.microphone_samples = 0;
                 let (mic_buffer, count) = self.tx_audio.read_input();
-                if count != 0 {
-                    for i in 0..mic_buffer.len() {
-                        if r.transmitter.add_mic_sample(mic_buffer[i]) && r.is_transmitting() {
-                            for j in 0..r.transmitter.output_samples {
-                                // Dummy RX Audio samples
-                                self.ozy_buffer[self.ozy_buffer_offset] = 0;
-                                self.ozy_buffer_offset += 1;
-                                self.ozy_buffer[self.ozy_buffer_offset] = 0;
-                                self.ozy_buffer_offset += 1;
-                                self.ozy_buffer[self.ozy_buffer_offset] = 0;
-                                self.ozy_buffer_offset += 1;
-                                self.ozy_buffer[self.ozy_buffer_offset] = 0;
-                                self.ozy_buffer_offset += 1; 
+                for i in 0..count {
+                    if r.transmitter.add_mic_sample(mic_buffer[i]) && r.is_transmitting() {
+                        for j in 0..r.transmitter.output_samples {
+                            // Dummy RX Audio samples
+                            self.ozy_buffer[self.ozy_buffer_offset] = 0;
+                            self.ozy_buffer_offset += 1;
+                            self.ozy_buffer[self.ozy_buffer_offset] = 0;
+                            self.ozy_buffer_offset += 1;
+                            self.ozy_buffer[self.ozy_buffer_offset] = 0;
+                            self.ozy_buffer_offset += 1;
+                            self.ozy_buffer[self.ozy_buffer_offset] = 0;
+                            self.ozy_buffer_offset += 1; 
 
-                                // TX IQ samples
-                                let ix = j * 2;
-                                let i_sample: i16 = (r.transmitter.iq_buffer[ix as usize] * 32767.0) as i16;
-                                let q_sample: i16 = (r.transmitter.iq_buffer[(ix+1) as usize]* 32767.0)  as i16;
-                                self.ozy_buffer[self.ozy_buffer_offset] = ((i_sample >> 8) & 0xFF) as u8;
-                                self.ozy_buffer_offset += 1;
-                                self.ozy_buffer[self.ozy_buffer_offset] = (i_sample & 0xFF) as u8;
-                                self.ozy_buffer_offset += 1;
-                                self.ozy_buffer[self.ozy_buffer_offset] = ((q_sample >> 8) & 0xFF) as u8;
-                                self.ozy_buffer_offset += 1;
-                                self.ozy_buffer[self.ozy_buffer_offset] = (q_sample & 0xFF) as u8;
-                                self.ozy_buffer_offset += 1;
-    
-                                if self.ozy_buffer_offset == OZY_BUFFER_SIZE {
-                                    drop(r);
-                                    self.send_ozy_buffer(radio_mutex, 0);
-                                    self.ozy_buffer_offset = 8;
-                                    r = radio_mutex.radio.lock().unwrap();
-                                }
+                            // TX IQ samples
+                            let ix = j * 2;
+                            let i_sample: i16 = (r.transmitter.iq_buffer[ix as usize] * 32767.0) as i16;
+                            let q_sample: i16 = (r.transmitter.iq_buffer[(ix+1) as usize]* 32767.0)  as i16;
+                            self.ozy_buffer[self.ozy_buffer_offset] = ((i_sample >> 8) & 0xFF) as u8;
+                            self.ozy_buffer_offset += 1;
+                            self.ozy_buffer[self.ozy_buffer_offset] = (i_sample & 0xFF) as u8;
+                            self.ozy_buffer_offset += 1;
+                            self.ozy_buffer[self.ozy_buffer_offset] = ((q_sample >> 8) & 0xFF) as u8;
+                            self.ozy_buffer_offset += 1;
+                            self.ozy_buffer[self.ozy_buffer_offset] = (q_sample & 0xFF) as u8;
+                            self.ozy_buffer_offset += 1;
+   
+                            if self.ozy_buffer_offset == OZY_BUFFER_SIZE {
+                                drop(r);
+                                self.send_ozy_buffer(radio_mutex, 0);
+                                self.ozy_buffer_offset = 8;
+                                r = radio_mutex.radio.lock().unwrap();
                             }
                         }
                     }
@@ -251,7 +249,7 @@ impl Protocol1 {
             let rx2_local_output_device_changed = r.receiver[1].local_output_device_changed;
             let rx2_local_output = r.receiver[1].local_output;
             let rx2_output_device = r.receiver[1].output_device.clone();
-            let rx2_local_output = r.receiver[1].local_output;
+            //let rx2_local_output = r.receiver[1].local_output;
             r.receiver[1].local_output_device_changed = false;
 
             let local_input = r.transmitter.local_input;
@@ -320,26 +318,14 @@ impl Protocol1 {
         let mut r = radio_mutex.radio.lock().unwrap();
         let mic_sample_divisor = r.sample_rate / 48000;
 
-        /*
-        let mut c0: u8 = 0;
-        let mut c1: u8 = 0;
-        let mut c2: u8 = 0;
-        let mut c3: u8 = 0;
-        let mut c4: u8 = 0;
-        */
-        let mut i_sample = 0;
-        let mut q_sample = 0;
         let mut mic_samples = 0;
-        let mut mic_sample:f32 = 0.0;
         let mut b = offset;
 
         let mut process_rx_audio: bool = false;
-        let mut process_tx_iq: bool = false;
 
         if buffer[b]==SYNC && buffer[b+1]==SYNC && buffer[b+2]==SYNC {
             b += 3;
         } else {
-            eprintln!("SYNC error");
             drop(r);
             self.metis_stop();
             loop {
@@ -404,17 +390,17 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
             // IQ samples for each receiver
             for rx in 0..r.receivers {
                 let ddc = rx as usize;
-                if buffer[b] & 0x80 != 0 {
-                    i_sample = u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                } else {
-                    i_sample = u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                }
+                let i_sample = if buffer[b] & 0x80 != 0 {
+                                   u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                               } else {
+                                   u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                               };
                 b += 3;
-                if buffer[b] & 0x80 != 0 {
-                    q_sample = u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                } else {
-                    q_sample = u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32;
-                }
+                let q_sample = if buffer[b] & 0x80 != 0 {
+                                   u32::from_be_bytes([0xFF, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                               } else {
+                                   u32::from_be_bytes([0, buffer[b], buffer[b+1], buffer[b+2]]) as i32
+                               };
                 b += 3;
 
                 let i = r.receiver[ddc].samples*2;
@@ -427,9 +413,11 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                     process_rx_audio = true;
                 }
             }
-            // MIC Audio samples - always collect them and sync with local audio input if enabled
-            mic_sample = (i16::from_be_bytes([buffer[b], buffer[b+1]])) as f32/ 32767.0;
+
+            let mic_sample = (i16::from_be_bytes([buffer[b], buffer[b+1]])) as f32/ 32767.0;
             b += 2;
+
+            if !r.transmitter.local_input || r.tune {
 
             // discard replicated samples
             if mic_samples == 0 {
@@ -470,6 +458,13 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                         }
                     }
                 }
+                mic_samples = mic_samples + 1;
+            } else {
+                mic_samples = mic_samples + 1;
+                if mic_samples >= mic_sample_divisor {
+                    mic_samples = 0;
+                }
+            }
             }
         }
 
@@ -618,7 +613,6 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                 Antenna::EXT1 => 0x00, // EXT 1
                 Antenna::EXT2 => 0x00, // EXT 2
                 Antenna::XVTR => 0x00, // XVTR
-                _ => 0x00, // None
             };
             b = if r.split {
                     r.receiver[1].band.to_usize()

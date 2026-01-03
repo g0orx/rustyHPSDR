@@ -187,6 +187,10 @@ pub struct Radio {
 
     pub alex: u32,
     pub mk2bpf: bool,
+    pub bypassontx: bool,
+    pub ext2ontx: bool,
+    pub ext1ontx: bool,
+    pub disablehfpa: bool,
 
 #[serde(skip_serializing, skip_deserializing)]
     pub updated: bool,
@@ -227,6 +231,7 @@ pub struct Radio {
     pub notches: Vec<Notch>,
 
     pub cat_enabled: bool,
+    pub midi_enabled: bool,
 
 }
 
@@ -339,6 +344,10 @@ impl Radio {
             Boards::Saturn => true,
             _ => false,
         };
+        let bypassontx = false;
+        let ext2ontx = false;
+        let ext1ontx = false;
+        let disablehfpa = false;
 
         let updated = false;
         let keepalive = false;
@@ -368,6 +377,7 @@ impl Radio {
         let notches = vec![];
 
         let cat_enabled = false;
+        let midi_enabled = false;
 
         Radio {
             name,
@@ -411,6 +421,10 @@ impl Radio {
             adc,
             alex,
             mk2bpf,
+            bypassontx,
+            ext2ontx,
+            ext1ontx,
+            disablehfpa,
 
             updated,
             keepalive,
@@ -438,6 +452,7 @@ impl Radio {
             notches,
 
             cat_enabled,
+            midi_enabled,
         }
     }
 
@@ -548,7 +563,6 @@ impl Radio {
     }
 
     pub fn set_state(&self) {
-eprintln!("set_state: {}", self.is_transmitting());
         if self.is_transmitting() {
             unsafe {
                 if self.rx2_enabled {

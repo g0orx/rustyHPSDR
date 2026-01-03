@@ -170,6 +170,15 @@
                       </layout>
                     </object>
                   </child>
+                  <child>
+                    <object class="GtkToggleButton" id="midi_button">
+                      <property name="label">MIDI</property>
+                      <layout>
+                        <property name="column">1</property>
+                        <property name="row">2</property>
+                      </layout>
+                    </object>
+                  </child>
                 </object>
               </child>
               <child>

@@ -134,8 +134,8 @@ unsafe extern "C" {
         pi: f64,
         ovrlp: ::std::os::raw::c_int,
         clp: ::std::os::raw::c_int,
-        fscLin: ::std::os::raw::c_int,
-        fscHin: ::std::os::raw::c_int,
+        fscLin: f64,
+        fscHin: f64,
         n_pix: ::std::os::raw::c_int,
         n_stch: ::std::os::raw::c_int,
         calset: ::std::os::raw::c_int,
@@ -196,6 +196,19 @@ unsafe extern "C" {
         disp: ::std::os::raw::c_int,
         pixout: ::std::os::raw::c_int,
         mult: f64,
+    );
+}
+unsafe extern "C" {
+    pub fn SetDisplayNormOneHz(
+        disp: ::std::os::raw::c_int,
+        pixout: ::std::os::raw::c_int,
+        norm: ::std::os::raw::c_int,
+    );
+}
+unsafe extern "C" {
+    pub fn SetDisplaySampleRate(
+        disp: ::std::os::raw::c_int,
+        rate: ::std::os::raw::c_int,
     );
 }
 unsafe extern "C" {

@@ -92,6 +92,7 @@ pub struct Receiver {
     pub anf_leak: f32,
     pub snb: bool,
 
+    pub a_fft_size: i32,
     pub agc_position: i32,
 
     pub spectrum_fps: f32,
@@ -197,6 +198,7 @@ impl Receiver {
         let anf_gain: f32 = 100.0;
         let anf_leak: f32 = 100.0;
         let snb: bool = false;
+        let a_fft_size = 16384;
         let agc_position: i32 = 0;
         let spectrum_fps = 80.0;
         let spectrum_width: i32 = pixels;
@@ -286,6 +288,7 @@ impl Receiver {
                             anf_gain,
                             anf_leak,
                             snb,
+                            a_fft_size,
                             agc_position,
                             spectrum_fps,
                             spectrum_width,
@@ -492,35 +495,65 @@ impl Receiver {
         self.spectrum_width = width;
         let mut flp = [0];
         let keep_time: f32 = 0.1;
-        let fft_size = 8192; 
-        let overlap = 2048; 
-        let max_w = fft_size + min((keep_time * self.spectrum_fps) as i32, (keep_time * fft_size as f32  * self.spectrum_fps) as i32);
+        self.a_fft_size = self.spectrum_width * self.zoom;
+        if (self.a_fft_size <= 16384) {
+            self.a_fft_size = 16384;
+        } else if (self.a_fft_size <= 32768) {
+            self.a_fft_size = 32768;
+        } else if (self.a_fft_size <= 65536) {
+            self.a_fft_size = 65536;
+        } else if (self.a_fft_size <= 131072) {
+            self.a_fft_size = 131072;
+        } else {
+            self.a_fft_size = 262144;
+        }
+
+        let n_pixout = 2; // spectrum and waterfall
+        let n_fft = 1; // not using spur elimination
+        let typ = 1; // Complex samples
+        let n_stch = 1;
+        let win_type = 5; // Kaiser
+        let pi = 14.0;
+        let clp = 0;
+        let fscLin = 0.0;
+        let fscHin = 0.0;
+        let calset = 0;
+        let fmin = 0.0;
+        let fmax = 0.0;
+        
+        
+        let max_w = self.a_fft_size + min((keep_time * self.spectrum_fps) as i32, (keep_time * self.a_fft_size as f32  * self.spectrum_fps) as i32);
+        let overlap = max(0, (self.a_fft_size as f32 - self.sample_rate as f32 / self.spectrum_fps).ceil() as i32);
         let buffer_size: i32 = self.buffer_size as i32;
         let pixels = self.spectrum_width * self.zoom;
+
         unsafe {
             SetAnalyzer(display,
-                2,
-                1,
-                1,
+                n_pixout,
+                n_fft,
+                typ,
                 flp.as_mut_ptr(),
-                fft_size,
+                self.a_fft_size,
                 buffer_size,
-                4,
-                14.0,
+                win_type,
+                pi,
                 overlap,
-                0,
-                0,
-                0,
+                clp,
+                fscLin,
+                fscHin,
                 pixels,
-                1,
-                0,
-                0.0,
-                0.0,
+                n_stch,
+                calset,
+                fmin,
+                fmax,
                 max_w);
             SetDisplayDetectorMode(display, 0, DETECTOR_MODE_AVERAGE.try_into().expect("SetDisplayDetectorMode failed!"));
             SetDisplayAverageMode(display, 0,  AVERAGE_MODE_LOG_RECURSIVE.try_into().expect("SetDisplayAverageMode failed!"));
             SetDisplayDetectorMode(display, 1, DETECTOR_MODE_AVERAGE.try_into().expect("SetDisplayDetectorMode failed!"));
             SetDisplayAverageMode(display, 1,  AVERAGE_MODE_LOG_RECURSIVE.try_into().expect("SetDisplayAverageMode failed!"));
+            SetDisplayNormOneHz(display, 0, 1);
+            SetDisplaySampleRate(display, pixels);
+
         }
         self.update_spectrum_average(display);
         self.update_waterfall_average(display);

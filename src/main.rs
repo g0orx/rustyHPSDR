@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/*
+    A Rust implemnetation of a Software Defined Radio to work with radios that use
+    the OpenHPSDR protocols over Ethernet.
+*/
+
 use glib::{self, clone};
 use glib::ControlFlow::Continue;
 use glib::timeout_add_local;
@@ -43,6 +48,7 @@ use std::time::Duration;
 use rustyHPSDR::agc::*;
 use rustyHPSDR::bands::*;
 use rustyHPSDR::cat::{CatMessage, CAT};
+use rustyHPSDR::midi::{MidiMessage, MIDI};
 use rustyHPSDR::modes::*;
 use rustyHPSDR::filters::*;
 use rustyHPSDR::discovery::create_discovery_dialog;
@@ -305,6 +311,10 @@ fn build_ui(app: &Application) {
                         let style_context = app_widgets.cat_button.style_context();
                         style_context.add_class("toggle");
                         app_widgets.cat_button.set_active(r.cat_enabled);
+
+                        let style_context = app_widgets.midi_button.style_context();
+                        style_context.add_class("toggle");
+                        app_widgets.midi_button.set_active(r.midi_enabled);
 
                         let style_context = app_widgets.split_button.style_context();
                         style_context.add_class("toggle");
@@ -1529,30 +1539,30 @@ fn build_ui(app: &Application) {
                         });
                     }
 
-                    let mut cat = CAT::new();
-                    let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
 
-                    let mut r = radio_mutex.radio.lock().unwrap();
+                    let r = radio_mutex.radio.lock().unwrap();
                     let cat_enabled = r.cat_enabled;
                     drop(r);
 
+                    let mut cat = CAT::new("127.0.0.1:19001".to_string());
+                    let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
                     let stop_cat_flag = Arc::new(AtomicBool::new(false));
-
                     let tx_clone = tx.clone();
                     let stop_flag = Arc::clone(&stop_cat_flag);
+                    let cat_clone = cat.clone();
                     if cat_enabled {
                         let radio_mutex_clone = radio_mutex.clone();
-                        let mut cat_clone = cat.clone();
+                        let mut cat_clone_clone = cat_clone.clone();
                         let stop_flag_clone = stop_flag.clone();
                         thread::spawn(move || {
-                            cat_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
+                            cat_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
                         });
                     }
 
                     // handle CAT button
                     let radio_mutex_clone = radio_mutex.clone();
                     let tx_clone = tx.clone();
-                    let mut cat_clone = cat.clone();
+                    let cat_clone = cat.clone();
                     app_widgets.cat_button.connect_clicked(move |button| {
                         if button.is_active() {
                             let mut r = radio_mutex_clone.radio.lock().unwrap();
@@ -1560,11 +1570,11 @@ fn build_ui(app: &Application) {
                             drop(r);
                             stop_flag.store(false, Ordering::SeqCst);
                             let radio_mutex_clone_clone = radio_mutex_clone.clone();
-                            let mut cat_clone = cat.clone();
+                            let mut cat_clone_clone = cat_clone.clone();
                             let tx_clone_clone = tx_clone.clone();
                             let stop_flag_clone = stop_flag.clone();
                             thread::spawn(move || {
-                                cat_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+                                cat_clone_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
                             });
                         } else {
                             stop_flag.store(true, Ordering::SeqCst);
@@ -1614,7 +1624,7 @@ fn build_ui(app: &Application) {
                                         }    
                                     },
                                     CatMessage::UpdateFrequencyB() => {
-                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let r = radio_mutex_clone.radio.lock().unwrap();
                                         let app_widgets = rc_app_widgets_clone.borrow();
                                         if r.receiver[1].ctun {
                                             let formatted_value = format_u32_with_separators(r.receiver[1].ctun_frequency as u32);
@@ -1629,6 +1639,80 @@ fn build_ui(app: &Application) {
                                 glib::ControlFlow::Continue
                             }
                             Err(TryRecvError::Empty) => {
+                                // No message yet, keep polling
+                                glib::ControlFlow::Continue
+                            }
+                            Err(TryRecvError::Disconnected) => {
+                                // The Sender (tx) has been dropped, meaning the thread finished.
+                                eprintln!("Thread disconnected!");
+                                // Stop the polling timeout (return Break)
+                                glib::ControlFlow::Break
+                            }
+                        }
+                    }));
+
+                    let r = radio_mutex.radio.lock().unwrap();
+                    let midi_enabled = r.midi_enabled;
+                    drop(r);
+                    let mut midi = MIDI::new("Studio 2A:Studio 2A MIDI 1 28:0".to_string());
+                    let (tx, rx): (mpsc::Sender<MidiMessage>, mpsc::Receiver<MidiMessage>) = mpsc::channel();
+                    let stop_midi_flag = Arc::new(AtomicBool::new(false));
+                    let tx_clone = tx.clone();
+                    let stop_flag = Arc::clone(&stop_midi_flag);
+                    let midi_clone = midi.clone();
+                    if midi_enabled {
+                        let radio_mutex_clone = radio_mutex.clone();
+                        let mut midi_clone_clone = midi_clone.clone();
+                        let stop_flag_clone = stop_flag.clone();
+                        thread::spawn(move || {
+                            midi_clone_clone.run(&radio_mutex_clone, &tx_clone, stop_flag_clone);
+                        });
+                    }
+
+                    // handle MIDI button
+                    let radio_mutex_clone = radio_mutex.clone();
+                    let tx_clone = tx.clone();
+                    let midi_clone = midi.clone();
+                    app_widgets.midi_button.connect_clicked(move |button| {
+                        if button.is_active() {
+                            let mut r = radio_mutex_clone.radio.lock().unwrap();
+                            r.midi_enabled = true;
+                            drop(r);
+                            stop_flag.store(false, Ordering::SeqCst);
+                            let radio_mutex_clone_clone = radio_mutex_clone.clone();
+                            let mut midi_clone_clone = midi_clone.clone();
+                            let tx_clone_clone = tx_clone.clone();
+                            let stop_flag_clone = stop_flag.clone();
+                            thread::spawn(move || {
+                                midi_clone_clone.run(&radio_mutex_clone_clone, &tx_clone_clone, stop_flag_clone);
+                            });
+                        } else {
+                            stop_flag.store(true, Ordering::SeqCst);
+                        }
+                    });
+
+                    // handle CAT messages
+                    let radio_mutex_clone = radio_mutex.clone();
+                    let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
+                    glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
+                        match rx.try_recv() {
+                            Ok(msg) => {
+                                // Message received, update the UI
+                                match msg {
+                                    MidiMessage::StepFrequencyA(increment) => {
+                                        eprintln!("MidiMessage::StepFrequencyA {}", increment);
+                                        spectrum_waterfall_scroll(&radio_mutex_clone, &rc_app_widgets_clone2, 0, -increment as f64);
+                                    },
+                                    MidiMessage::StepFrequencyA(increment) => {
+                                        eprintln!("MidiMessage::StepFrequencyB {}", increment);
+                                    },
+                                    _ => {
+                                    }
+                                }
+                                // Continue the polling timeout (return Continue(true))
+                                glib::ControlFlow::Continue
+                            }
+                            Err(TryRecvError::Empty) => { 
                                 // No message yet, keep polling
                                 glib::ControlFlow::Continue
                             }

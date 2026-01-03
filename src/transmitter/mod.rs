@@ -86,23 +86,21 @@ impl Transmitter {
         let protocol: u8 = proto;
         let board: Boards = board;
         let channel: i32 = chan as i32;
-        let sample_rate = 48000; // protocol 1 & 2 input audio
+        let sample_rate: i32 = 48000; // protocol 1 & 2 input audio
         let mut dsp_rate = 48000;    // protocol 1
         let mut output_rate = 48000; // protocol 1
+        let microphone_buffer_size = 512_usize;
+        let microphone_buffer = vec![0.0f64; microphone_buffer_size * 2];
+        let microphone_samples = 0;
         if protocol == 2 {
             dsp_rate = 96000;
             output_rate = 192000;
         }
-        let mut output_samples=1024;
+        let mut output_samples: i32 = microphone_buffer_size as i32;
         if protocol == 2 {
-            output_samples = 1024*(output_rate/sample_rate);
+            output_samples = microphone_buffer_size as i32*(output_rate/sample_rate);
         }
         let packet_counter = 0;
-
-        let microphone_buffer_size = 1024_usize;
-        let microphone_buffer = vec![0.0f64; microphone_buffer_size * 2];
-        let microphone_samples = 0;
-
 
         let fft_size = 2048;
 
@@ -224,6 +222,7 @@ impl Transmitter {
     pub fn init_analyzer(&mut self, width: i32) {
         self.spectrum_width = width;
         let mut flp = [0];
+        let overlap = 2048;
         let keep_time: f32 = 0.1;
         let max_w = self.fft_size + min((keep_time * self.fps) as i32, (keep_time * self.fft_size as f32  * self.fps) as i32);
         //let buffer_size: i32 = self.output_samples * 4;
@@ -238,14 +237,14 @@ impl Transmitter {
                 1,
                 1,
                 flp.as_mut_ptr(),
-                8192, // self.fft_size,
+                self.fft_size,
                 self.output_samples,
                 4,
                 14.0,
-                2048, //4096,
+                overlap,
                 0,
-                0,
-                0,
+                0.0,
+                0.0,
                 pixels,
                 1,
                 0,
@@ -374,7 +373,7 @@ impl Transmitter {
     pub fn add_mic_sample(&mut self, sample: f32) -> bool {
         let mut processed = false;
         let x = self.microphone_samples * 2;
-        self.microphone_buffer[x] = sample as f64 /* / 32767.0*/;
+        self.microphone_buffer[x] = sample as f64;
         self.microphone_buffer[x+1] = 0.0;
         self.microphone_samples += 1;
         if sample < 0.0 {
