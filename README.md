@@ -8,7 +8,7 @@ The current code only implements a Receiver. It does work with Protocol 1 and Pr
 
 Transmit is still in progress. It is working for protocol 2 but needs more work for protocol 1.
 
-I am using WDSP as an extern C library so you need to install my port of WDSP on [github](https://github.com/g0orx/wdsp.git). I have not currently implemented a Rust wrappper so all the calls to it have to be wrapped with "unsafe { ... }".
+WDSP is now included in the source tree and is built as a static library, so there is no need to dowenload and install WDSP any more.
 
 You will need to install Rust and Cargo. See [Rust install](https://www.rust-lang.org/tools/install) for information on installing Rust and Cargo.
 
@@ -53,15 +53,6 @@ I have now added the first attempt at Zoom and Pan
 # Build pre-requisises
 <pre>
 sudo apt install -y build-essential curl git libfftw3-dev libgtk-4-dev libasound2-dev
-</pre>
-
-# Download and compile WDSP
-<pre>
-git clone https://github.com/g0orx/wdsp.git
-cd wdsp
-make clean
-make
-sudo make install
 </pre>
 
 # install Rust
