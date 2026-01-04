@@ -293,6 +293,9 @@ unsafe extern "C" {
     pub fn SetRXASBNRpostFilterThreshold(channel: ::std::os::raw::c_int, nr4_post_filter_threshold: f32);
 }
 unsafe extern "C" {
+    pub fn SetRXASBNRnoiseRescale (channel: ::std::os::raw::c_int, nr4_noise_rescale: f32);
+}
+unsafe extern "C" {
     pub fn SetRXASBNRnoiseScalingType(channel: ::std::os::raw::c_int, noise_scaling_type: ::std::os::raw::c_int);
 }
 unsafe extern "C" {

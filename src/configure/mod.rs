@@ -2042,7 +2042,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         r.updated = true;
     });
 
-    // Noise
+    // Noise - NR
     let r = radio_mutex.radio.lock().unwrap();
         let taps = r.receiver[0].nr_taps;
         let delay = r.receiver[0].nr_delay;
@@ -2174,6 +2174,132 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         if button.is_active() {
             let rx = r.active_receiver;
             r.receiver[rx].agc_position = 1;
+        }
+    });
+
+    // Noise - NR4
+    let r = radio_mutex.radio.lock().unwrap();
+        let position = r.receiver[0].nr4_position;
+        let reduction_amount = r.receiver[0].nr4_reduction_amount;
+        let smoothing_factor = r.receiver[0].nr4_smoothing_factor;
+        let whitening_factor = r.receiver[0].nr4_whitening_factor;
+        let rescale_factor = r.receiver[0].nr4_noise_rescale;
+        let post_filter_threshold = r.receiver[0].nr4_post_filter_threshold;
+        let noise_scaling_type = r.receiver[0].nr4_noise_scaling_type;
+    drop(r);
+
+    let nr4_pre_agc_check_button: CheckButton = builder
+            .object("nr4_pre_agc_check_button")
+            .expect("Could not get object `nr4_pre_agc_check_button` from builder.");
+    nr4_pre_agc_check_button.set_active(position == 0);
+    let radio_mutex_clone = radio_mutex.clone();
+    pre_agc_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].update_nr4_agc_position(0);
+        }
+    });
+
+    let nr4_post_agc_check_button: CheckButton = builder
+            .object("nr4_post_agc_check_button")
+            .expect("Could not get object `nr4_post_agc_check_button` from builder.");
+    nr4_post_agc_check_button.set_active(position == 1);
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_post_agc_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].update_nr4_agc_position(1);
+        }
+    });
+
+    let nr4_reduction_adjustment: Adjustment = builder
+            .object("nr4_reduction_adjustment")
+            .expect("Could not get object `nr4_reduction_adjustment` from builder.");
+    nr4_reduction_adjustment.set_value(reduction_amount.into());
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_reduction_adjustment.connect_value_changed(move |adjustment| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].update_nr4_reduction_amount(adjustment.value() as f32);
+    });
+
+    let nr4_smoothing_adjustment: Adjustment = builder
+            .object("nr4_smoothing_adjustment")
+            .expect("Could not get object `nr4_smoothing_adjustment` from builder.");
+    nr4_smoothing_adjustment.set_value(smoothing_factor.into());
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_smoothing_adjustment.connect_value_changed(move |adjustment| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].update_nr4_smoothing_factor(adjustment.value() as f32);
+    });
+
+    let nr4_whitening_adjustment: Adjustment = builder
+            .object("nr4_whitening_adjustment")
+            .expect("Could not get object `nr4_whitening_adjustment` from builder.");
+    nr4_whitening_adjustment.set_value(whitening_factor.into());
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_whitening_adjustment.connect_value_changed(move |adjustment| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].update_nr4_whitening_factor(adjustment.value() as f32);
+    });
+
+    let nr4_rescale_adjustment: Adjustment = builder
+            .object("nr4_rescale_adjustment")
+            .expect("Could not get object `nr4_rescale_adjustment` from builder.");
+    nr4_rescale_adjustment.set_value(rescale_factor.into());
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_rescale_adjustment.connect_value_changed(move |adjustment| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].update_nr4_noise_rescale(adjustment.value() as f32);
+    });
+
+    let nr4_threshold_adjustment: Adjustment = builder
+            .object("nr4_threshold_adjustment")
+            .expect("Could not get object `nr4_threshold_adjustment` from builder.");
+    nr4_threshold_adjustment.set_value(post_filter_threshold.into());
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_threshold_adjustment.connect_value_changed(move |adjustment| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].update_nr4_post_filter_threshold(adjustment.value() as f32);
+    });
+
+    let nr4_0_check_button: CheckButton = builder
+            .object("nr4_0_check_button")
+            .expect("Could not get object `nr4_0_check_button` from builder.");
+    nr4_0_check_button.set_active(noise_scaling_type == 0);
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_0_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].update_nr4_noise_scaling_type(0);
+        }
+    });
+
+    let nr4_1_check_button: CheckButton = builder
+            .object("nr4_1_check_button")
+            .expect("Could not get object `nr4_1_check_button` from builder.");
+    nr4_1_check_button.set_active(noise_scaling_type == 1);
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_1_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].update_nr4_noise_scaling_type(1);
+        }
+    });
+
+    let nr4_2_check_button: CheckButton = builder
+            .object("nr4_2_check_button")
+            .expect("Could not get object `nr4_2_check_button` from builder.");
+    nr4_2_check_button.set_active(noise_scaling_type == 2);
+    let radio_mutex_clone = radio_mutex.clone();
+    nr4_1_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].update_nr4_noise_scaling_type(2);
         }
     });
 

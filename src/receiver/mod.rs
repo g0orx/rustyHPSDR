@@ -205,8 +205,8 @@ impl Receiver {
         let nr4_reduction_amount = 10.0;
         let nr4_smoothing_factor = 0.0;
         let nr4_whitening_factor = 0.0;
-        let nr4_noise_rescale = 2.0;
-        let nr4_post_filter_threshold = 0.0;
+        let nr4_noise_rescale = 9.0;
+        let nr4_post_filter_threshold = 6.0;
         let nr4_noise_scaling_type = 0;
         let nb: bool = false;
         let nb2: bool = false;
@@ -465,6 +465,7 @@ impl Receiver {
             SetRXASBNRsmoothingFactor(channel, self.nr4_smoothing_factor);
             SetRXASBNRwhiteningFactor(channel, self.nr4_whitening_factor);
             SetRXASBNRpostFilterThreshold(channel, self.nr4_post_filter_threshold);
+            SetRXASBNRnoiseRescale(channel, self.nr4_noise_rescale);
             SetRXASBNRnoiseScalingType(channel, self.nr4_noise_scaling_type);
                
             SetRXAANFPosition(channel, self.agc_position);
@@ -809,6 +810,55 @@ impl Receiver {
             SetChannelState(self.channel, 1, 0);
         }
         self.sample_rate_changed = false;
+    }
+
+    pub fn update_nr4_agc_position(&mut self, position: i32) {
+        self.nr4_position = position;
+        unsafe {
+            SetRXASBNRPosition(self.channel, position);
+        }
+    }
+
+    pub fn update_nr4_reduction_amount(&mut self, amount: f32) {
+        self.nr4_reduction_amount = amount;
+        unsafe {
+            SetRXASBNRreductionAmount(self.channel, amount);
+        }
+    }
+
+    pub fn update_nr4_smoothing_factor(&mut self, factor: f32) {
+        self.nr4_smoothing_factor = factor;
+        unsafe {
+            SetRXASBNRsmoothingFactor(self.channel, factor);
+        }
+    }
+
+    pub fn update_nr4_whitening_factor(&mut self, factor: f32) {
+        self.nr4_whitening_factor = factor;
+        unsafe {
+            SetRXASBNRwhiteningFactor(self.channel, factor);
+        }
+    }
+
+    pub fn update_nr4_post_filter_threshold(&mut self, threshold: f32) {
+        self.nr4_post_filter_threshold = threshold;
+        unsafe {
+            SetRXASBNRpostFilterThreshold(self.channel, threshold);
+        }
+    }
+
+    pub fn update_nr4_noise_rescale(&mut self, rescale: f32) {
+        self.nr4_noise_rescale = rescale;
+        unsafe {
+            SetRXASBNRnoiseRescale(self.channel, rescale);
+        }
+    }
+
+    pub fn update_nr4_noise_scaling_type(&mut self, typ: i32) {
+        self.nr4_noise_scaling_type = typ;
+        unsafe {
+            SetRXASBNRnoiseScalingType(self.channel, typ);
+        }
     }
 
 }

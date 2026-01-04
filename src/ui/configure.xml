@@ -1735,6 +1735,160 @@
                     </child>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkFrame">
+                    <property name="label">NR4</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkCheckButton" id="nr4_pre_agc_check_button">
+                            <property name="label">Pre-AGC</property>
+                          </object>>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="nr4_post_agc_check_button">
+                            <property name="label">Post-AGC</property>
+                            <property name="group">nr4_pre_agc_check_button</property>
+                          </object>>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Reduction (db):</property>
+                              </object>>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="nr4_reduction_spinbutton">
+                                <property name="digits">2</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="nr4_reduction_adjustment">
+                                    <property name="lower">0.0</property>
+                                    <property name="upper">20.0</property>
+                                    <property name="step-increment">1.0</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Smoothing (%):</property>
+                              </object>>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="nr4_smoothing_spinbutton">
+                                <property name="digits">2</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="nr4_smoothing_adjustment">
+                                    <property name="lower">0.0</property>
+                                    <property name="upper">100.0</property>
+                                    <property name="step-increment">1.0</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Whitening (%):</property>
+                              </object>>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="nr4_whitening_spinbutton">
+                                <property name="digits">2</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="nr4_whitening_adjustment">
+                                    <property name="lower">0.0</property>
+                                    <property name="upper">100.0</property>
+                                    <property name="step-increment">1.0</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Rescale (db):</property>
+                              </object>>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="nr4_rescale_spinbutton">
+                                <property name="digits">2</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="nr4_rescale_adjustment">
+                                    <property name="lower">0.0</property>
+                                    <property name="upper">12.0</property>
+                                    <property name="step-increment">1.0</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Threshold (db):</property>
+                              </object>>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="nr4_threshold_spinbutton">
+                                <property name="digits">2</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="nr4_threshold_adjustment">
+                                    <property name="lower">-10.0</property>
+                                    <property name="upper">10.0</property>
+                                    <property name="step-increment">1.0</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="nr4_0_check_button">
+                            <property name="label">Complete Spectrum</property>
+                          </object>>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="nr4_1_check_button">
+                            <property name="label">Critical Bank</property>
+                            <property name="group">nr4_0_check_button</property>
+                          </object>>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="nr4_2_check_button">
+                            <property name="label">Masking Threshold</property>
+                            <property name="group">nr4_0_check_button</property>
+                          </object>>
+                        </child>
+
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
