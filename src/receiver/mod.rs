@@ -83,6 +83,15 @@ pub struct Receiver {
     pub nr_gain: f32,
     pub nr_leak: f32,
     pub nr2: bool,
+    pub nr3: bool,
+    pub nr4: bool,
+    pub nr4_position: i32,
+    pub nr4_reduction_amount: f32,
+    pub nr4_smoothing_factor: f32,
+    pub nr4_whitening_factor: f32,
+    pub nr4_noise_rescale: f32,
+    pub nr4_post_filter_threshold: f32,
+    pub nr4_noise_scaling_type: i32,
     pub nb: bool,
     pub nb2: bool,
     pub anf: bool,
@@ -190,6 +199,15 @@ impl Receiver {
         let nr_gain: f32 = 100.0;
         let nr_leak: f32 = 100.0;
         let nr2: bool = false;
+        let nr3: bool = false;
+        let nr4: bool = false;
+        let nr4_position = 1;
+        let nr4_reduction_amount = 10.0;
+        let nr4_smoothing_factor = 0.0;
+        let nr4_whitening_factor = 0.0;
+        let nr4_noise_rescale = 2.0;
+        let nr4_post_filter_threshold = 0.0;
+        let nr4_noise_scaling_type = 0;
         let nb: bool = false;
         let nb2: bool = false;
         let anf: bool = false;
@@ -280,6 +298,15 @@ impl Receiver {
                             nr_gain,
                             nr_leak,
                             nr2,
+                            nr3,
+                            nr4,
+                            nr4_position,
+                            nr4_reduction_amount,
+                            nr4_smoothing_factor,
+                            nr4_whitening_factor,
+                            nr4_noise_rescale,
+                            nr4_post_filter_threshold,
+                            nr4_noise_scaling_type,
                             nb,
                             nb2,
                             anf,
@@ -376,6 +403,12 @@ impl Receiver {
         if self.nr2 {
             self.set_nr2();
         }
+        if self.nr3 {
+            self.set_nr3();
+        }
+        if self.nr4 {
+            self.set_nr4();
+        }
         if self.snb {
             self.set_snb();
         }
@@ -422,6 +455,18 @@ impl Receiver {
             SetRXAANRVals(channel, self.nr_taps, self.nr_delay, 1e-6 * self.nr_gain as f64, 1e-3 * self.nr_leak as f64);
             SetRXAANRRun(channel, 0); //self.nr);
 
+            SetRXARNNRPosition(channel, self.agc_position);
+            SetRXARNNRRun(channel, 0); // self.nr3
+
+            
+            SetRXASBNRRun(channel, 0); // self.nr4
+            SetRXASBNRPosition(channel, self.nr4_position);
+            SetRXASBNRreductionAmount(channel, self.nr4_reduction_amount);
+            SetRXASBNRsmoothingFactor(channel, self.nr4_smoothing_factor);
+            SetRXASBNRwhiteningFactor(channel, self.nr4_whitening_factor);
+            SetRXASBNRpostFilterThreshold(channel, self.nr4_post_filter_threshold);
+            SetRXASBNRnoiseScalingType(channel, self.nr4_noise_scaling_type);
+               
             SetRXAANFPosition(channel, self.agc_position);
             SetRXAANFVals(channel, self.anf_taps, self.anf_delay, 1e-6 * self.anf_gain as f64, 1e-3 * self.anf_leak as f64);
             SetRXAANFRun(channel, self.anf.into()); //self.anf);
@@ -496,13 +541,13 @@ impl Receiver {
         let mut flp = [0];
         let keep_time: f32 = 0.1;
         self.a_fft_size = self.spectrum_width * self.zoom;
-        if (self.a_fft_size <= 16384) {
+        if self.a_fft_size <= 16384 {
             self.a_fft_size = 16384;
-        } else if (self.a_fft_size <= 32768) {
+        } else if self.a_fft_size <= 32768 {
             self.a_fft_size = 32768;
-        } else if (self.a_fft_size <= 65536) {
+        } else if self.a_fft_size <= 65536 {
             self.a_fft_size = 65536;
-        } else if (self.a_fft_size <= 131072) {
+        } else if self.a_fft_size <= 131072 {
             self.a_fft_size = 131072;
         } else {
             self.a_fft_size = 262144;
@@ -667,6 +712,18 @@ impl Receiver {
     pub fn set_nr2(&self) {
         unsafe {
             SetRXAEMNRRun(self.channel, self.nr2 as i32);
+        }  
+    }
+
+    pub fn set_nr3(&self) {
+        unsafe {
+            SetRXARNNRRun(self.channel, self.nr3 as i32);
+        }  
+    }
+
+    pub fn set_nr4(&self) {
+        unsafe {
+            SetRXASBNRRun(self.channel, self.nr4 as i32);
         }  
     }
 

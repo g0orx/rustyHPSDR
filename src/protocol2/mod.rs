@@ -483,10 +483,9 @@ impl Protocol2 {
         }
     
         // receiver frequency
-        let mut f = 0.0;
         for i in 0..r.receivers {
             // convert frequency to phase
-            f = r.receiver[i as usize].frequency;
+            let mut f = r.receiver[i as usize].frequency;
             let b = r.receiver[i as usize].band.to_usize();
             f = f - r.receiver[i as usize].band_info[b].lo;
             f = f - r.receiver[i as usize].band_info[b].lo_error;
@@ -496,27 +495,28 @@ impl Protocol2 {
             buf[(10+(i*4)) as usize] = ((phase>>16) & 0xFF) as u8;
             buf[(11+(i*4)) as usize] = ((phase>>8) & 0xFF) as u8;
             buf[(12+(i*4)) as usize] = (phase & 0xFF) as u8;
-
         }
 
         // transmit frequency
-        if r.split {
-            f = r.receiver[1].frequency;
-            if r.receiver[1].ctun {
-                f = r.receiver[1].ctun_frequency;
-            }
-            let b = r.receiver[1].band.to_usize();
-            f = f - r.receiver[1].band_info[b].lo;
-            f = f - r.receiver[1].band_info[b].lo_error;
-        } else {
-            f = r.receiver[0].frequency;
-            if r.receiver[0].ctun {
-                f = r.receiver[0].ctun_frequency;
-            }
-            let b = r.receiver[0].band.to_usize();
-            f = f - r.receiver[0].band_info[b].lo;
-            f = f - r.receiver[0].band_info[b].lo_error;
-        }
+        let f = if r.split {
+                    let mut f = r.receiver[1].frequency;
+                    if r.receiver[1].ctun {
+                        f = r.receiver[1].ctun_frequency;
+                    }
+                    let b = r.receiver[1].band.to_usize();
+                    f = f - r.receiver[1].band_info[b].lo;
+                    f = f - r.receiver[1].band_info[b].lo_error;
+                    f
+                } else {
+                    let mut f = r.receiver[0].frequency;
+                    if r.receiver[0].ctun {
+                        f = r.receiver[0].ctun_frequency;
+                    }
+                    let b = r.receiver[0].band.to_usize();
+                    f = f - r.receiver[0].band_info[b].lo;
+                    f = f - r.receiver[0].band_info[b].lo_error;
+                    f
+                };
         let phase = ((4294967296.0*f)/122880000.0) as u32;
         buf[329] = ((phase>>24) & 0xFF) as u8;
         buf[330] = ((phase>>16) & 0xFF) as u8;
@@ -524,13 +524,15 @@ impl Protocol2 {
         buf[332] = (phase & 0xFF) as u8;
 
         // transmit power
-        let mut power = 0.0;
-        if r.is_transmitting() {
-            power = r.transmitter.drive * 255.0 / 100.0;
-            if power > 255.0 {
-                power = 255.0;
-            }
-        }
+        let power = if r.is_transmitting() {
+                            let mut p = r.transmitter.drive * 255.0 / 100.0;
+                            if p > 255.0 {
+                                p = 255.0;
+                            }
+                            p
+                        } else {
+                            0.0
+                        };
         buf[345] = power as u8;
 
         let mut filter1: u32 = 0x00000000;

@@ -398,6 +398,14 @@ fn build_ui(app: &Application) {
                             r.receiver[rx].set_nr2();
                             app_widgets.nr_button.set_label("NR2");
                         }
+                        if r.receiver[rx].nr3 {
+                            r.receiver[rx].set_nr3();
+                            app_widgets.nr_button.set_label("NR3");
+                        }
+                        if r.receiver[rx].nr4 {
+                            r.receiver[rx].set_nr4();
+                            app_widgets.nr_button.set_label("NR4");
+                        }
                         
                         let style_context = app_widgets.nb_button.style_context();
                         style_context.add_class("toggle");
@@ -1089,9 +1097,27 @@ fn build_ui(app: &Application) {
                             r.receiver[rx].set_nr2(); // turn on
                             button.set_label("NR2");
                             button.set_active(true);
-                        } else {
+                        } else if r.receiver[rx].nr2 {
+                            // NR2 was active
                             r.receiver[rx].nr2 = false;
                             r.receiver[rx].set_nr2(); // turn off
+                            // enable NR3
+                            r.receiver[rx].nr3 = true;
+                            r.receiver[rx].set_nr3(); // turn on
+                            button.set_label("NR3");
+                            button.set_active(true);
+                        } else if r.receiver[rx].nr3 {
+                            // NR2 was active
+                            r.receiver[rx].nr3 = false;
+                            r.receiver[rx].set_nr3(); // turn off
+                            // enable NR4
+                            r.receiver[rx].nr4 = true;
+                            r.receiver[rx].set_nr4(); // turn on
+                            button.set_label("NR4");
+                            button.set_active(true);
+                        } else {
+                            r.receiver[rx].nr4 = false;
+                            r.receiver[rx].set_nr4(); // turn off
                             button.set_label("NR");
                         }
                     });

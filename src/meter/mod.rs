@@ -87,50 +87,6 @@ impl Meter {
 
     }
 
-
-    pub fn update_tx(&mut self, forward: u16, reverse: u16, c1: f32, c2: f32, alc: f64 ) {
-        eprintln!("Meter::update_tx fwd {} rev{}", forward, reverse);
-        let cr = Context::new(self.surface.clone()).expect("Couldn't create cairo context from surface");
-
-        cr.set_source_rgb (1.0, 1.0, 1.0);
-        cr.paint().unwrap();
-
-        // calculate the SWR
-        let fwd_power = forward as f32;
-        let rev_power = reverse as f32;
-
-        let v_fwd = (fwd_power / 4095.0) * c1;
-        let fwd = (v_fwd * v_fwd) / c2;
-
-        let v_rev = (rev_power / 4095.0) * c1;
-        let rev = (v_rev * v_rev) / c2;
-
-        eprintln!("Meter::update_tx {} {} v_fwd {} fwd {} v_rev {} rev {}", forward, reverse, v_fwd, fwd, v_rev, rev );
-        let mut swr = (1.0 + (rev / fwd).sqrt())  / (1.0 - (rev / fwd).sqrt());
-        if swr < 0.0 {
-            swr = 1.0;
-        } 
-
-        eprintln!("Meter::update_tx {} {} v_fwd {} fwd {} v_rev {} rev {} swr {}", forward, reverse, v_fwd, fwd, v_rev, rev, swr );
-
-        //let alpha = 0.7;
-        //self.swr = (alpha * swr) + ((1.0 - alpha) * self.swr);
-     
-        let fwd_text = format!("FWD: {:.1}", fwd);
-        let rev_text = format!("REV: {:.1}", rev);
-        let swr_text = format!("SWR: {:.1}:1", self.swr);
-
-        cr.set_source_rgb (0.0, 0.0, 0.0);
-        cr.move_to(5.0,10.0);
-        let _ = cr.show_text(&fwd_text);
-        cr.move_to(5.0,20.0); 
-        let _ = cr.show_text(&rev_text);
-        cr.move_to(5.0,30.0);
-        if !self.swr.is_nan() {
-            let _ = cr.show_text(&swr_text);
-        }
-    }
-
     pub fn draw(&self, cr: &Context) {
         cr.set_source_surface(&self.surface, 0.0, 0.0).expect("failed to set source surface"); 
         cr.paint().expect("Failed to pant surface");

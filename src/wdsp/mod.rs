@@ -251,6 +251,9 @@ unsafe extern "C" {
     pub fn SetRXAEMNRRun(channel: ::std::os::raw::c_int, run: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
+    pub fn SetRXARNNRRun(channel: ::std::os::raw::c_int, run: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
     pub fn SetRXAEMNRgainMethod(channel: ::std::os::raw::c_int, method: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
@@ -263,10 +266,34 @@ unsafe extern "C" {
     pub fn SetRXAANRPosition(channel: ::std::os::raw::c_int, position: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
+    pub fn SetRXARNNRPosition(channel: ::std::os::raw::c_int, position: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
     pub fn SetRXAANFPosition(channel: ::std::os::raw::c_int, position: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
     pub fn SetRXAANFRun(channel: ::std::os::raw::c_int, run: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRRun(channel: ::std::os::raw::c_int, run: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRPosition(channel: ::std::os::raw::c_int, position: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRreductionAmount(channel: ::std::os::raw::c_int, nr4_reduction_amount: f32);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRsmoothingFactor(channel: ::std::os::raw::c_int, nr4_smooting_factor: f32);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRwhiteningFactor(channel: ::std::os::raw::c_int, nr4_whitening_factor: f32);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRpostFilterThreshold(channel: ::std::os::raw::c_int, nr4_post_filter_threshold: f32);
+}
+unsafe extern "C" {
+    pub fn SetRXASBNRnoiseScalingType(channel: ::std::os::raw::c_int, noise_scaling_type: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
     pub fn GetRXAMeter(channel: ::std::os::raw::c_int, mt: ::std::os::raw::c_int) -> f64;
