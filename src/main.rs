@@ -1366,8 +1366,12 @@ fn build_ui(app: &Application) {
                         app_widgets.vfo_b_frequency.set_label(&formatted_value);
 
 
-                        app_widgets.nr_button.set_active(r.receiver[rx].nr | r.receiver[rx].nr2);
-                        if r.receiver[rx].nr2 {
+                        app_widgets.nr_button.set_active(r.receiver[rx].nr | r.receiver[rx].nr2 | r.receiver[rx].nr3 | r.receiver[rx].nr4 );
+                        if r.receiver[rx].nr4 {
+                            app_widgets.nr_button.set_label("NR4");
+                        } else if r.receiver[rx].nr3 {
+                            app_widgets.nr_button.set_label("NR3");
+                        } else if r.receiver[rx].nr2 {
                             app_widgets.nr_button.set_label("NR2");
                         } else {
                             app_widgets.nr_button.set_label("NR");
@@ -1971,6 +1975,8 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     let filter = r.receiver[rx].filter;
     let nr = r.receiver[rx].nr;
     let nr2 = r.receiver[rx].nr2;
+    let nr3 = r.receiver[rx].nr3;
+    let nr4 = r.receiver[rx].nr4;
     let nb = r.receiver[rx].nb;
     let nb2 = r.receiver[rx].nb2;
     let anf = r.receiver[rx].anf;
@@ -2021,8 +2027,12 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     app_widgets.filter_grid.set_active_index(filter);
 
     // update NR/NR2
-    app_widgets.nr_button.set_active(nr | nr2);
-    if nr2 {
+    app_widgets.nr_button.set_active(nr | nr2 | nr3 | nr4);
+    if nr4 {
+        app_widgets.nr_button.set_label("NR4");
+    } else if nr3 {
+        app_widgets.nr_button.set_label("NR3");
+    } else if nr2 {
         app_widgets.nr_button.set_label("NR2");
     } else {
         app_widgets.nr_button.set_label("NR");

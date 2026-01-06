@@ -19,15 +19,13 @@ use gtk::prelude::*;
 use gtk::{ApplicationWindow, Builder, Button, Label, ListBox, ListBoxRow, Orientation, Window};
 use network_interface::NetworkInterface;
 use network_interface::NetworkInterfaceConfig;
-use nix::sys::socket::setsockopt;
-use nix::sys::socket::sockopt::ReuseAddr;
-use nix::sys::socket::sockopt::ReusePort;
 use serde::{Deserialize, Serialize};
 use std::net::UdpSocket;
 use std::net::SocketAddr;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Duration;
+use socket2::{Socket, Domain, Type, Protocol};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Boards {
@@ -67,14 +65,19 @@ fn add_device(devices: Rc<RefCell<Vec<Device>>>, address: SocketAddr, my_address
 
 pub fn protocol1_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: SocketAddr) {
     eprintln!("protocol1_discovery: address={:?}", socket_addr);
-    let socket = UdpSocket::bind(socket_addr).expect("bind failed");
-    socket.set_broadcast(true).expect("set_broadcast call failed");
-    socket.set_read_timeout(Some(Duration::from_millis(250))).expect("set_read_timeout call failed");
-    socket.set_write_timeout(Some(Duration::from_millis(250))).expect("set_write_timeout call failed");
+    let setup_socket = Socket::new(Domain::for_address(socket_addr), Type::DGRAM, Some(Protocol::UDP)).expect("Socket::new failed");
+    setup_socket.set_broadcast(true).expect("set_braodcast failed");
+    setup_socket.set_read_timeout(Some(Duration::from_millis(250))).expect("set_read_timeout call failed");
+    setup_socket.set_write_timeout(Some(Duration::from_millis(250))).expect("set_write_timeout call failed");
+    setup_socket.set_reuse_address(true).expect("set_reuse_address failed");
+    #[cfg(unix)]
+    {
+        setup_socket.set_reuse_port(true).expect("set_reuse_port failed");
+    }
+    setup_socket.bind(&socket_addr.into()).expect("bind failed");
+    let socket: UdpSocket = setup_socket.into();
 
-    let _res = setsockopt(&socket, ReusePort, &true);
-    let _res = setsockopt(&socket, ReuseAddr, &true);
-
+    
     let mut buf = [0u8; 63];
     buf[0] = 0xEF;
     buf[1] = 0xFE;
@@ -171,13 +174,17 @@ eprintln!("Protocol 1 discovery received: amt={} src={:?} local={:?}", amt, src,
 
 pub fn protocol2_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: SocketAddr) {
     eprintln!("protocol2_discovery: address={:?}", socket_addr);
-    let socket = UdpSocket::bind(socket_addr).expect("bind failed");
-    socket.set_broadcast(true).expect("set_broadcast call failed");
-    socket.set_read_timeout(Some(Duration::from_millis(250))).expect("set_read_timeout call failed");
-    socket.set_write_timeout(Some(Duration::from_millis(250))).expect("set_write_timeout call failed");
-    let _res = setsockopt(&socket, ReusePort, &true);
-    let _res = setsockopt(&socket, ReuseAddr, &true);
-
+    let setup_socket = Socket::new(Domain::for_address(socket_addr), Type::DGRAM, Some(Protocol::UDP)).expect("Socket::new failed");
+    setup_socket.set_broadcast(true).expect("set_braodcast failed");
+    setup_socket.set_read_timeout(Some(Duration::from_millis(250))).expect("set_read_timeout call failed");
+    setup_socket.set_write_timeout(Some(Duration::from_millis(250))).expect("set_write_timeout call failed");
+    setup_socket.set_reuse_address(true).expect("set_reuse_address failed");
+    #[cfg(unix)]
+    {
+        setup_socket.set_reuse_port(true).expect("set_reuse_port failed");
+    }
+    setup_socket.bind(&socket_addr.into()).expect("bind failed");
+    let socket: UdpSocket = setup_socket.into();
 
     let mut buf = [0u8; 60];
     buf[4] = 0x02;
@@ -297,13 +304,18 @@ pub fn discover(devices: Rc<RefCell<Vec<Device>>>) {
 }
 
 pub fn manual_discovery(devices: Rc<RefCell<Vec<Device>>>, target_ip: std::net::IpAddr) -> bool {
-    let socket = UdpSocket::bind("0.0.0.0:0").expect("bind failed");
-    socket.set_broadcast(false).expect("set_broadcast call failed");
-    socket.set_read_timeout(Some(Duration::from_millis(1000))).expect("set_read_timeout call failed");
-    socket.set_write_timeout(Some(Duration::from_millis(250))).expect("set_write_timeout call failed");
-
-    let _res = setsockopt(&socket, ReusePort, &true);
-    let _res = setsockopt(&socket, ReuseAddr, &true);
+    let socket_addr: SocketAddr = "0.0.0.0:0".parse().expect("Invalid Address");
+    let setup_socket = Socket::new(Domain::for_address(socket_addr), Type::DGRAM, Some(Protocol::UDP)).expect("Socket::new failed");
+    setup_socket.set_broadcast(false).expect("set_braodcast failed");
+    setup_socket.set_read_timeout(Some(Duration::from_millis(250))).expect("set_read_timeout call failed");
+    setup_socket.set_write_timeout(Some(Duration::from_millis(250))).expect("set_write_timeout call failed");
+    setup_socket.set_reuse_address(true).expect("set_reuse_address failed");
+    #[cfg(unix)]
+    {
+        setup_socket.set_reuse_port(true).expect("set_reuse_port failed");
+    }
+    setup_socket.bind(&socket_addr.into()).expect("bind failed");
+    let socket: UdpSocket = setup_socket.into();
 
     let target_addr = SocketAddr::new(target_ip, 1024);
 

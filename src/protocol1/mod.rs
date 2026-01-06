@@ -26,9 +26,8 @@
     samples are ignored.
 */
 
-use nix::sys::socket::setsockopt;
-use nix::sys::socket::sockopt::{ReuseAddr, ReusePort};
-use std::net::{UdpSocket};
+use socket2::{Socket, Domain, Type, Protocol};
+use std::net::{UdpSocket, SocketAddr};
 
 use crate::antenna::Antenna;
 use crate::audio::Audio;
@@ -65,9 +64,16 @@ pub struct Protocol1 {
 impl Protocol1 {
 
     pub fn new(device: Device) -> Protocol1 {
-        let socket = UdpSocket::bind("0.0.0.0:0").expect("bind failed");
-        setsockopt(&socket, ReusePort, &true).unwrap();
-        setsockopt(&socket, ReuseAddr, &true).unwrap();
+        let socket_addr: SocketAddr = "0.0.0.0:0".parse().expect("Invalid Address");
+        let setup_socket = Socket::new(Domain::for_address(socket_addr), Type::DGRAM, Some(Protocol::UDP)).expect("Socket::new failed");
+        setup_socket.set_reuse_address(true).expect("set_reuse_address failed");
+        #[cfg(unix)]
+        {
+            setup_socket.set_reuse_port(true).expect("set_reuse_port failed");
+        }
+        setup_socket.bind(&socket_addr.into()).expect("bind failed");
+        let socket: UdpSocket = setup_socket.into();
+
 
         let receive_sequence: u32 = 0;
         let send_sequence: u32 = 0;

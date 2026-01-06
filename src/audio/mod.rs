@@ -87,22 +87,6 @@ impl Audio {
         stream_config.sample_rate = SampleRate(48000);
         let (mut prod, cons) = HeapRb::new(4800).split();
 
-
-/*
-        // Find the input device
-        let device = if device_name == "default" {
-            host.default_input_device()
-        } else {
-            host.input_devices()?
-                .find(|d| d.name().map(|n| n == *device_name).unwrap_or(false))
-        }
-        .ok_or("No input device found")?;
-
-        let config = Self::find_best_config(&device, true, 1, Some(TARGET_BUFFER_SIZE))?;
-
-        let (mut prod, cons) = HeapRb::new(TARGET_BUFFER_SIZE as usize).split();
-*/
-
         self.input_buffer = Some(cons);
         let stream = device.build_input_stream(
             &config,

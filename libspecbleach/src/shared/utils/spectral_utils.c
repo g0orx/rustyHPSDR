@@ -257,7 +257,8 @@ bool get_rolling_median_spectrum(float* median_spectrum,
     return false;
   }
 
-  float tmp_buffer[number_of_blocks];
+  // float tmp_buffer[number_of_blocks];  // G0ORX - fixed for latest C compiler
+  float* tmp_buffer =(float*)malloc(number_of_blocks * sizeof(float));
 
   for (uint32_t i = 0U; i < spectrum_size; i++) {
     for (uint32_t j = 0U; j < number_of_blocks; j++) {

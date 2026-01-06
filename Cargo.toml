@@ -25,6 +25,7 @@ anyhow = "1.0"
 cpal = "0.16"
 ringbuf = "0.4.8"
 midir = "0.10.3"
+socket2 = "0.5"
 
 [build-dependencies]
 cc = "1.0"
