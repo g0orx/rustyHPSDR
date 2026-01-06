@@ -30,6 +30,10 @@ _Static_assert(sizeof(float) >= 4, "float must be at least 32 bits");
 _Static_assert(sizeof(double) >= 8, "double must be at least 64 bits");
 */
 
+#if !defined(linux)
+define __attibute__(x) 
+#endif
+
 __attribute__((warn_unused_result)) float sanitize_denormal(float value);
 __attribute__((warn_unused_result)) float from_db_to_coefficient(
     float value_db);
