@@ -188,13 +188,6 @@ impl Spectrum {
             if r.receiver[self.rx].ctun {
                 frequency = r.receiver[self.rx].ctun_frequency;
             }
-/*
-            if r.receiver[self.rx].mode == Modes::CWL.to_usize() {
-                frequency += r.receiver[self.rx].cw_pitch;
-            } else if r.receiver[self.rx].mode == Modes::CWU.to_usize() {
-                frequency -= r.receiver[self.rx].cw_pitch;
-            }
-*/
 
             // draw the filter
             if display_frequency_low < frequency && display_frequency_high > frequency {

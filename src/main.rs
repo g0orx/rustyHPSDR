@@ -692,8 +692,8 @@ fn build_ui(app: &Application) {
                     let last_spectrum_y = Rc::new(Cell::new(0.0));
 
                     let cursor_nsresize = Cursor::from_name("ns-resize", None);
-                    let cursor_uparrow = Cursor::from_name("up-arrow", None);
-                    let cursor_downarrow = Cursor::from_name("down-arrow", None);
+                    let cursor_nrsize = Cursor::from_name("n-resize", None);
+                    let cursor_sresize = Cursor::from_name("s-resize", None);
 
                     let motion_event_controller_spectrum = EventControllerMotion::new();
                     app_widgets.spectrum_display.add_controller(motion_event_controller_spectrum.clone());
@@ -709,9 +709,9 @@ fn build_ui(app: &Application) {
                             let top = height / 4;
                             let bottom = height - top;
                             if y < top.into() {
-                                app_widgets.spectrum_display.set_cursor(cursor_uparrow.as_ref());
+                                app_widgets.spectrum_display.set_cursor(cursor_nrsize.as_ref());
                             } else if y > bottom.into() {
-                                app_widgets.spectrum_display.set_cursor(cursor_downarrow.as_ref());
+                                app_widgets.spectrum_display.set_cursor(cursor_sresize.as_ref());
                             } else {
                                 app_widgets.spectrum_display.set_cursor(cursor_nsresize.as_ref());
                             }
@@ -724,8 +724,8 @@ fn build_ui(app: &Application) {
                     //let last_spectrum_y = Rc::new(Cell::new(0.0));
 
                     let cursor_nsresize = Cursor::from_name("ns-resize", None);
-                    let cursor_uparrow = Cursor::from_name("up-arrow", None);
-                    let cursor_downarrow = Cursor::from_name("down-arrow", None);
+                    let cursor_nrsize = Cursor::from_name("n-resize", None);
+                    let cursor_sresize = Cursor::from_name("s-resize", None);
 
                     let motion_event_controller_spectrum_2 = EventControllerMotion::new();
                     app_widgets.spectrum_2_display.add_controller(motion_event_controller_spectrum_2.clone());
@@ -741,9 +741,9 @@ fn build_ui(app: &Application) {
                             let top = height / 4;
                             let bottom = height - top;
                             if y < top.into() {
-                                app_widgets.spectrum_2_display.set_cursor(cursor_uparrow.as_ref());
+                                app_widgets.spectrum_2_display.set_cursor(cursor_nrsize.as_ref());
                             } else if y > bottom.into() {
-                                app_widgets.spectrum_2_display.set_cursor(cursor_downarrow.as_ref());
+                                app_widgets.spectrum_2_display.set_cursor(cursor_sresize.as_ref());
                             } else {
                                 app_widgets.spectrum_2_display.set_cursor(cursor_nsresize.as_ref());
                             }
