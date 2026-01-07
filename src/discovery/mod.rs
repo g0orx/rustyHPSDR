@@ -17,8 +17,7 @@
 
 use gtk::prelude::*;
 use gtk::{ApplicationWindow, Builder, Button, Label, ListBox, ListBoxRow, Orientation, Window};
-use network_interface::NetworkInterface;
-use network_interface::NetworkInterfaceConfig;
+use network_interface::{NetworkInterface, NetworkInterfaceConfig, Addr};
 use serde::{Deserialize, Serialize};
 use std::net::UdpSocket;
 use std::net::SocketAddr;
@@ -293,12 +292,23 @@ eprintln!("Protocol 2 discovery received: amt={} src={:?} local={:?}", amt, src,
 pub fn discover(devices: Rc<RefCell<Vec<Device>>>) {
     devices.borrow_mut().clear();
     let network_interfaces = NetworkInterface::show().unwrap();
-    for itf in network_interfaces.iter() {
-        if !itf.addr.is_empty() {
-            let std::net::IpAddr::V4(ip_addr) = itf.addr[0].ip() else { todo!() };
-            let socket_address = SocketAddr::new(std::net::IpAddr::V4(ip_addr),50000/*1024*/);
-            protocol1_discovery(Rc::clone(&devices), socket_address);
-            protocol2_discovery(Rc::clone(&devices), socket_address);
+    for itf in network_interfaces {
+        for addr in &itf.addr {
+            match addr {
+                Addr::V4(v4_info) => {
+                    let ip = v4_info.ip;
+                    eprintln!("IPv4 Address {}",ip);
+                    if let Ok(socket) = std::net::UdpSocket::bind((ip,5000)) {
+                        eprintln!("Interface {} is active and bindable on {}", itf.name, ip);
+                        let socket_address = SocketAddr::new(std::net::IpAddr::V4(ip), 50000);
+                        protocol1_discovery(Rc::clone(&devices), socket_address);
+                        protocol2_discovery(Rc::clone(&devices), socket_address);
+                    } else {
+                        eprintln!("Interface {} is NOT active", itf.name);
+                    }
+                    },
+                _ => {}, // ignore all others
+            }
         }
     }
 }
