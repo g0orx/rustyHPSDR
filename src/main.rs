@@ -963,12 +963,13 @@ fn build_ui(app: &Application) {
                         let b = r.receiver[rx].band.to_usize();
                         if b != index { // band has changed
                             r.receiver[rx].band_info[b].current = r.receiver[rx].frequency;
+                            r.receiver[rx].band_info[b].ctun = r.receiver[rx].ctun_frequency;
 
                             // get new band info
                             r.receiver[rx].band = Bands::from_usize(index).expect("invalid band index");
                             r.receiver[rx].frequency = r.receiver[rx].band_info[index].current;
+                            r.receiver[rx].ctun_frequency = r.receiver[rx].band_info[index].ctun;
                             if r.receiver[rx].ctun {
-                                r.receiver[rx].ctun_frequency = r.receiver[rx].frequency;
                                 r.receiver[rx].set_ctun_frequency();
                             }
 

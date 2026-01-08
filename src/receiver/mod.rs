@@ -83,6 +83,9 @@ pub struct Receiver {
     pub nr_gain: f32,
     pub nr_leak: f32,
     pub nr2: bool,
+    pub nr2_gain_method: i32,
+    pub nr2_npe_method: i32,
+    pub nr2_ae_filter: bool,
     pub nr3: bool,
     pub nr4: bool,
     pub nr4_position: i32,
@@ -199,6 +202,9 @@ impl Receiver {
         let nr_gain: f32 = 100.0;
         let nr_leak: f32 = 100.0;
         let nr2: bool = false;
+        let nr2_gain_method: i32 = 2;
+        let nr2_npe_method: i32 = 0;
+        let nr2_ae_filter: bool = false;
         let nr3: bool = false;
         let nr4: bool = false;
         let nr4_position = 1;
@@ -298,6 +304,9 @@ impl Receiver {
                             nr_gain,
                             nr_leak,
                             nr2,
+                            nr2_gain_method,
+                            nr2_npe_method,
+                            nr2_ae_filter,
                             nr3,
                             nr4,
                             nr4_position,
@@ -442,24 +451,24 @@ impl Receiver {
 
             SetEXTANBSamplerate (channel, self.sample_rate);
             SetEXTNOBSamplerate (channel, self.sample_rate);
-            SetEXTANBRun(channel, 0); //self.nb);
-            SetEXTNOBRun(channel, self.nb.into()); //self.nb2);
+            SetEXTANBRun(channel, self.nb.into());
+            SetEXTNOBRun(channel, self.nb2.into());
 
             SetRXAEMNRPosition(channel, self.agc_position);
-            SetRXAEMNRgainMethod(channel, 2); //self.nr2_gain_method);
-            SetRXAEMNRnpeMethod(channel, 0); //self.nr2_npe_method);
-            SetRXAEMNRRun(channel, self.nr.into()); //self.nr2);
-            SetRXAEMNRaeRun(channel, 1); //self.nr2_ae);
+            SetRXAEMNRgainMethod(channel, self.nr2_gain_method);
+            SetRXAEMNRnpeMethod(channel, self.nr2_npe_method);
+            SetRXAEMNRRun(channel, self.nr2.into());
+            SetRXAEMNRaeRun(channel, self.nr2_ae_filter.into());
 
             SetRXAANRPosition(channel, self.agc_position);
             SetRXAANRVals(channel, self.nr_taps, self.nr_delay, 1e-6 * self.nr_gain as f64, 1e-3 * self.nr_leak as f64);
-            SetRXAANRRun(channel, 0); //self.nr);
+            SetRXAANRRun(channel, self.nr.into());
 
             SetRXARNNRPosition(channel, self.agc_position);
-            SetRXARNNRRun(channel, 0); // self.nr3
+            SetRXARNNRRun(channel, self.nr3.into());
 
             
-            SetRXASBNRRun(channel, 0); // self.nr4
+            SetRXASBNRRun(channel, self.nr4.into());
             SetRXASBNRPosition(channel, self.nr4_position);
             SetRXASBNRreductionAmount(channel, self.nr4_reduction_amount);
             SetRXASBNRsmoothingFactor(channel, self.nr4_smoothing_factor);
@@ -470,8 +479,8 @@ impl Receiver {
                
             SetRXAANFPosition(channel, self.agc_position);
             SetRXAANFVals(channel, self.anf_taps, self.anf_delay, 1e-6 * self.anf_gain as f64, 1e-3 * self.anf_leak as f64);
-            SetRXAANFRun(channel, self.anf.into()); //self.anf);
-            SetRXASNBARun(channel, self.snb.into()); //self.snb);
+            SetRXAANFRun(channel, self.anf.into());
+            SetRXASNBARun(channel, self.snb.into());
 
             SetRXAMode(channel, self.mode as i32);
             RXASetPassband(channel,self.filter_low,self.filter_high);
@@ -504,6 +513,18 @@ impl Receiver {
             SetRXAEMNRPosition(self.channel, self.agc_position);
             SetRXAANRPosition(self.channel, self.agc_position);
             SetRXAANFPosition(self.channel, self.agc_position);
+        }
+    }
+
+    pub fn update_nr2_gain_method(&self) {
+        unsafe {
+            SetRXAEMNRgainMethod(self.channel, self.nr2_gain_method);
+        }
+    }
+
+    pub fn update_nr2_npe_method(&self) {
+        unsafe {
+            SetRXAEMNRnpeMethod(self.channel, self.nr2_npe_method);
         }
     }
 

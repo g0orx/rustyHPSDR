@@ -1284,7 +1284,7 @@
             <property name="orientation">horizontal</property>
             <child>
                 <object class="GtkLabel" id="cat_address">
-                  <property name="label">Currently the address is set to 127.0.0.1:19001.</property>
+                  <property name="label">Kenwood TS-2000 and currently the address is set to 127.0.0.1:19001.</property>
                 </object>
             </child>
           </object>
@@ -1657,76 +1657,54 @@
                 </child>
                 <child>
                   <object class="GtkFrame">
-                    <property name="label">NR2 Gain Method</property>
+                    <property name="label">NR2</property>
                     <child>
                       <object class="GtkBox">
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkCheckButton" id="linear_check_button">
-                            <property name="label">Linear</property>
-                          </object>>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="log_check_button">
-                            <property name="label">Log</property>
-                            <property name="group">linear_check_button</property>
-                          </object>>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="gamma_check_button">
-                            <property name="label">Gamma</property>
-                            <property name="group">linear_check_button</property>
-                          </object>>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="trained_check_button">
-                            <property name="label">Trained</property>
-                            <property name="group">linear_check_button</property>
-                          </object>>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label">Threshold:</property>
-                          </object>>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">horizontal</property>
+                          <object class="GtkFrame">
+                            <property name="label">NR2 Gain Method</property>
                             <child>
-                              <object class="GtkLabel">
-                                <property name="label">T1:</property>
-                              </object>>
-                            </child>
-                            <child>
-                              <object class="GtkSpinButton" id="t1_spinbutton">
-                                <property name="adjustment">
-                                  <object class="GtkAdjustment" id="t1_adjustment">
-                                    <property name="lower">-5.0</property>
-                                    <property name="upper">5.0</property>
-                                    <property name="step-increment">0.1</property>
-                                  </object>
-                                </property>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="linear_check_button">
+                                    <property name="label">Linear</property>
+                                  </object>>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="log_check_button">
+                                    <property name="label">Log</property>
+                                    <property name="group">linear_check_button</property>
+                                  </object>>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="gamma_check_button">
+                                    <property name="label">Gamma</property>
+                                    <property name="group">linear_check_button</property>
+                                  </object>>
+                                </child>
                               </object>
                             </child>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkBox">
-                            <property name="orientation">horizontal</property>
+                          <object class="GtkFrame">
+                            <property name="label">NPE Method</property>
                             <child>
-                              <object class="GtkLabel">
-                                <property name="label">T2:</property>
-                              </object>>
-                            </child>
-                            <child>
-                              <object class="GtkSpinButton" id="t2_spinbutton">
-                                <property name="adjustment">
-                                  <object class="GtkAdjustment" id="t2_adjustment">
-                                    <property name="lower">0.02</property>
-                                    <property name="upper">0.20</property>
-                                    <property name="step-increment">0.01</property>
-                                  </object>
-                                </property>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="osms_check_button">
+                                    <property name="label">OSMS</property>
+                                  </object>>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="mmse_check_button">
+                                    <property name="label">MMSE</property>
+                                    <property name="group">osms_check_button</property>
+                                  </object>>
+                                </child>
                               </object>
                             </child>
                           </object>

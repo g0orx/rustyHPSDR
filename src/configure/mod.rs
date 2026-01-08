@@ -2145,6 +2145,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         r.receiver[0].update_Anfvals();
     });
 
+    // NR/NR2/ANF Position
     let r = radio_mutex.radio.lock().unwrap();
         let position = r.receiver[0].agc_position;
     drop(r);
@@ -2158,6 +2159,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         if button.is_active() {
             let rx = r.active_receiver;
             r.receiver[rx].agc_position = 0;
+            r.receiver[rx].update_AgcPosition();
         }
     });
 
@@ -2174,10 +2176,91 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         if button.is_active() {
             let rx = r.active_receiver;
             r.receiver[rx].agc_position = 1;
+            r.receiver[rx].update_AgcPosition();
         }
     });
 
-    // Noise - NR4
+    // NR2
+    let r = radio_mutex.radio.lock().unwrap();
+        let nr2_gain_method = r.receiver[0].nr2_gain_method;
+    drop(r);
+    let linear_check_button: CheckButton = builder
+            .object("linear_check_button")
+            .expect("Could not get object `linear_check_button` from builder.");
+    linear_check_button.set_active(nr2_gain_method == 0);
+    let radio_mutex_clone = radio_mutex.clone();
+    linear_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].nr2_gain_method = 0;
+            r.receiver[rx].update_nr2_gain_method();
+        }
+    });
+
+    let log_check_button: CheckButton = builder
+            .object("log_check_button")
+            .expect("Could not get object `log_check_button` from builder.");
+    log_check_button.set_active(nr2_gain_method == 1);
+    let radio_mutex_clone = radio_mutex.clone();
+    linear_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].nr2_gain_method = 1;
+            r.receiver[rx].update_nr2_gain_method();
+        }
+    });
+
+    let gamma_check_button: CheckButton = builder
+            .object("gamma_check_button")
+            .expect("Could not get object `gamma_check_button` from builder.");
+    gamma_check_button.set_active(nr2_gain_method == 2);
+    let radio_mutex_clone = radio_mutex.clone();
+    linear_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].nr2_gain_method = 2;
+            r.receiver[rx].update_nr2_gain_method();
+        }
+    });
+
+    let r = radio_mutex.radio.lock().unwrap();
+        let nr2_npe_method = r.receiver[0].nr2_npe_method;
+    drop(r);
+    let osms_check_button: CheckButton = builder
+            .object("osms_check_button")
+            .expect("Could not get object `osms_check_button` from builder.");
+    osms_check_button.set_active(nr2_npe_method == 0);
+    let radio_mutex_clone = radio_mutex.clone();
+    osms_check_button.connect_toggled(move |button| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].nr2_npe_method = 0;
+            r.receiver[rx].update_nr2_npe_method();
+        }
+    });
+
+    let mmse_check_button: CheckButton = builder
+            .object("mmse_check_button")
+            .expect("Could not get object `mmse_check_button` from builder.");
+    mmse_check_button.set_active(nr2_npe_method == 1);
+    let radio_mutex_clone = radio_mutex.clone();
+    mmse_check_button.connect_toggled(move |button| { 
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        if button.is_active() {
+            let rx = r.active_receiver;
+            r.receiver[rx].nr2_npe_method = 1;
+            r.receiver[rx].update_nr2_npe_method();
+        }
+    });
+
+
+
+
+    // NR4
     let r = radio_mutex.radio.lock().unwrap();
         let position = r.receiver[0].nr4_position;
         let reduction_amount = r.receiver[0].nr4_reduction_amount;
