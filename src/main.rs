@@ -968,6 +968,7 @@ fn build_ui(app: &Application) {
                         let rx = if r.receiver[0].active { 0 } else { 1 };
                         let b = r.receiver[rx].band.to_usize();
                         if b != index { // band has changed
+                            // save current band info
                             r.receiver[rx].band_info[b].current = r.receiver[rx].frequency;
                             r.receiver[rx].band_info[b].ctun = r.receiver[rx].ctun_frequency;
 
@@ -1008,7 +1009,12 @@ fn build_ui(app: &Application) {
                             r.transmitter.set_mode();
                             r.transmitter.set_filter();
 
-                            let formatted_value = format_u32_with_separators(r.receiver[rx].frequency as u32);
+                            let formatted_value = format_u32_with_separators(
+                                                      if r.receiver[rx].ctun {
+                                                          r.receiver[rx].ctun_frequency as u32
+                                                      } else {
+                                                           r.receiver[rx].frequency as u32
+                                                      });
                             if rx == 0 {
                                 app_widgets.vfo_a_frequency.set_label(&formatted_value);
                             } else {
