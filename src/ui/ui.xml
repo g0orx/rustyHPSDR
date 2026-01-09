@@ -726,28 +726,10 @@
                     <property name="column-spacing">5</property>
                     <property name="column-homogeneous">true</property>
                     <child>
-                      <object class="GtkButton" id="Band2200_button">
-                        <property name="label">2200</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="Band630_button">
-                        <property name="label">630</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkButton" id="Band160_button">
                         <property name="label">160</property>
                         <layout>
-                          <property name="column">2</property>
+                          <property name="column">0</property>
                           <property name="row">0</property>
                         </layout>
                       </object>
@@ -756,8 +738,8 @@
                       <object class="GtkButton" id="Band80_button">
                         <property name="label">80</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
                         </layout>
                       </object>
                     </child>
@@ -765,8 +747,8 @@
                       <object class="GtkButton" id="Band60_button">
                         <property name="label">60</property>
                         <layout>
-                          <property name="column">1</property>
-                          <property name="row">1</property>
+                          <property name="column">2</property>
+                          <property name="row">0</property>
                         </layout>
                       </object>
                     </child>
@@ -774,7 +756,7 @@
                       <object class="GtkButton" id="Band40_button">
                         <property name="label">40</property>
                         <layout>
-                          <property name="column">2</property>
+                          <property name="column">0</property>
                           <property name="row">1</property>
                         </layout>
                       </object>
@@ -783,8 +765,8 @@
                       <object class="GtkButton" id="Band30_button">
                         <property name="label">30</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="row">2</property>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
                         </layout>
                       </object>
                     </child>
@@ -792,8 +774,8 @@
                       <object class="GtkButton" id="Band20_button">
                         <property name="label">20</property>
                         <layout>
-                          <property name="column">1</property>
-                          <property name="row">2</property>
+                          <property name="column">2</property>
+                          <property name="row">1</property>
                         </layout>
                       </object>
                     </child>
@@ -801,7 +783,7 @@
                       <object class="GtkButton" id="Band17_button">
                         <property name="label">17</property>
                         <layout>
-                          <property name="column">2</property>
+                          <property name="column">0</property>
                           <property name="row">2</property>
                         </layout>
                       </object>
@@ -810,8 +792,8 @@
                       <object class="GtkButton" id="Band15_button">
                         <property name="label">15</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="row">3</property>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
                         </layout>
                       </object>
                     </child>
@@ -819,8 +801,8 @@
                       <object class="GtkButton" id="Band12_button">
                         <property name="label">12</property>
                         <layout>
-                          <property name="column">1</property>
-                          <property name="row">3</property>
+                          <property name="column">2</property>
+                          <property name="row">2</property>
                         </layout>
                       </object>
                     </child>
@@ -828,7 +810,7 @@
                       <object class="GtkButton" id="Band10_button">
                         <property name="label">10</property>
                         <layout>
-                          <property name="column">2</property>
+                          <property name="column">0</property>
                           <property name="row">3</property>
                         </layout>
                       </object>
@@ -837,17 +819,8 @@
                       <object class="GtkButton" id="Band6_button">
                         <property name="label">6</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="row">4</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="BandGEN_button">
-                        <property name="label">Gen</property>
-                        <layout>
                           <property name="column">1</property>
-                          <property name="row">4</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -856,7 +829,7 @@
                         <property name="label">WWV</property>
                         <layout>
                           <property name="column">2</property>
-                          <property name="row">4</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -865,7 +838,7 @@
                         <property name="label">XVTR1</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">5</property>
+                          <property name="row">4</property>
                         </layout>
                       </object>
                     </child>
@@ -874,7 +847,7 @@
                         <property name="label">XVTR2</property>
                         <layout>
                           <property name="column">1</property>
-                          <property name="row">5</property>
+                          <property name="row">4</property>
                         </layout>
                       </object>
                     </child>
@@ -883,7 +856,7 @@
                         <property name="label">XVTR3</property>
                         <layout>
                           <property name="column">2</property>
-                          <property name="row">5</property>
+                          <property name="row">4</property>
                         </layout>
                       </object>
                     </child>

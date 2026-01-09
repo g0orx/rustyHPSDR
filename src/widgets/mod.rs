@@ -69,6 +69,7 @@ pub struct AppWidgets {
     pub tx_swr: Label,
     pub tx_alc: Label,
     pub input_level: ProgressBar,
+    pub band_6_button: Button,
 }
 
 impl AppWidgets {
@@ -267,6 +268,10 @@ impl AppWidgets {
             .object("input_level")
             .expect("Could not get input_level from builder");
 
+        let band_6_button: Button = builder
+            .object("Band6_button")
+            .expect("Could not get Band6_button from builder");
+
         AppWidgets {
             main_window,
             configure_button,
@@ -315,6 +320,7 @@ impl AppWidgets {
             tx_swr,
             tx_alc,
             input_level,
+            band_6_button,
         }
     }
 }

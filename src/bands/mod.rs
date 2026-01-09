@@ -30,9 +30,7 @@ use crate::filters::Filters;
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Bands {
-   Band2200=0,
-   Band630,
-   Band160,
+   Band160=0,
    Band80,
    Band60,
    Band40,
@@ -43,7 +41,6 @@ pub enum Bands {
    Band12,
    Band10,
    Band6,
-   BandGEN,
    BandWWV,
    XVTR1,
    XVTR2,
@@ -53,24 +50,21 @@ pub enum Bands {
 impl Bands {
     pub fn from_usize(value: usize) -> Option<Self> {
         match value {
-            0 => Some(Bands::Band2200),
-            1 => Some(Bands::Band630),
-            2 => Some(Bands::Band160),
-            3 => Some(Bands::Band80),
-            4 => Some(Bands::Band60),
-            5 => Some(Bands::Band40),
-            6 => Some(Bands::Band30),
-            7 => Some(Bands::Band20),
-            8 => Some(Bands::Band17),
-            9 => Some(Bands::Band15),
-            10 => Some(Bands::Band12),
-            11 => Some(Bands::Band10),
-            12 => Some(Bands::Band6),
-            13 => Some(Bands::BandGEN),
-            14 => Some(Bands::BandWWV),
-            15 => Some(Bands::XVTR1),
-            16 => Some(Bands::XVTR2),
-            17 => Some(Bands::XVTR3),
+            0 => Some(Bands::Band160),
+            1 => Some(Bands::Band80),
+            2 => Some(Bands::Band60),
+            3 => Some(Bands::Band40),
+            4 => Some(Bands::Band30),
+            5 => Some(Bands::Band20),
+            6 => Some(Bands::Band17),
+            7 => Some(Bands::Band15),
+            8 => Some(Bands::Band12),
+            9 => Some(Bands::Band10),
+            10 => Some(Bands::Band6),
+            11 => Some(Bands::BandWWV),
+            12 => Some(Bands::XVTR1),
+            13 => Some(Bands::XVTR2),
+            14 => Some(Bands::XVTR3),
             _ => None,
         }
     }
@@ -110,8 +104,6 @@ pub struct BandInfo {
 impl BandInfo {
     pub fn new() -> Vec<BandInfo> {
         let data = vec![
-            BandInfo{ band: Bands::Band2200, label: String::from("2200"), low: 135700.0, high: 137800.0, current: 135750.0, ctun: 135750.0, filters: 0x00001000, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
-            BandInfo{ band: Bands::Band630, label: String::from("630"), low: 472000.0, high: 479000.0, current: 472500.0, ctun: 472500.0, filters: 0x00001000, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band160, label: String::from("160"), low: 1800000.0, high: 2000000.0, current: 1900000.0, ctun: 1900000.0, filters: 0x01800040, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band80, label: String::from("80"), low: 3500000.0, high: 3800000.0, current: 3750000.0, ctun: 3750000.0, filters: 0x01400020, spectrum_low: -100.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band60, label: String::from("60"), low: 5330500.0, high: 5403500.0, current: 5365500.0, ctun: 5365500.0, filters: 0x01200020, spectrum_low: -110.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
@@ -123,7 +115,6 @@ impl BandInfo {
             BandInfo{ band: Bands::Band12, label: String::from("12"), low: 24890000.0, high: 24990000.0, current: 24940000.0, ctun: 24940000.0, filters: 0x41000004, spectrum_low: -130.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::USB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band10, label: String::from("10"), low: 28000000.0, high: 29700000.0, current: 28300000.0, ctun: 28300000.0, filters: 0x41000004, spectrum_low: -130.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::USB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band6, label: String::from("6"), low: 50000000.0, high: 54000000.0, current: 52000000.0, ctun: 52999999.0, filters: 0x21000008, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::USB, filter: Filters::F5, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
-            BandInfo{ band: Bands::BandGEN, label: String::from("GEN"), low: 100000.0, high: 62000000.0, current: 11700000.0, ctun: 11700000.0, filters: 0x20001000, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::AM, filter: Filters::F3, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::BandWWV, label: String::from("WWV"), low: 10000000.0, high: 10000000.0, current: 10000000.0, ctun: 10000000.0, filters: 0x20001000, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::SAM, filter: Filters::F3, antenna: Antenna::ANT1, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::XVTR1, label: String::from("144"), low: 144000000.0, high: 148000000.0, current: 145000000.0, ctun: 145000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, antenna: Antenna::XVTR, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 116000000.0, lo_error: 0.0},
             BandInfo{ band: Bands::XVTR2, label: String::from("432"), low: 432000000.0, high: 436000000.0, current: 435000000.0, ctun: 435000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, antenna: Antenna::XVTR, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 404000000.0, lo_error: 0.0},

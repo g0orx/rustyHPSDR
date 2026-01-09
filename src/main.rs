@@ -52,6 +52,7 @@ use rustyHPSDR::midi::{MidiMessage, MIDI};
 use rustyHPSDR::modes::*;
 use rustyHPSDR::discovery::create_discovery_dialog;
 use rustyHPSDR::discovery::device_name;
+use rustyHPSDR::discovery::Boards;
 use rustyHPSDR::radio::Radio;
 use rustyHPSDR::radio::RadioMutex;
 use rustyHPSDR::configure::*;
@@ -223,6 +224,11 @@ fn build_ui(app: &Application) {
                     let title = format!("rustyHPSDR: {:?} ({}) {:?} Protocol {}", r.model, device_name(device), device.address.ip(), device.protocol);
                     app_widgets.main_window.set_title(Some(&title));
                     }
+
+                    if device.board == Boards::HermesLite || device.board == Boards::HermesLite2 {
+                        app_widgets.band_6_button.set_label("");
+                        app_widgets.band_6_button.set_sensitive(false);
+                    } 
 
                     let rc_spectrum_clone2 = rc_spectrum_clone.clone();
                     let radio_mutex_clone = radio_mutex.clone();
