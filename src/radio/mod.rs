@@ -138,6 +138,7 @@ impl Keyer {
 pub struct Radio {
     pub name: String,
     pub dev: u8,
+    pub board: Boards,
     pub model: RadioModels,
     pub protocol: u8,
     pub supported_receivers: u8,
@@ -191,6 +192,7 @@ pub struct Radio {
     pub ext2ontx: bool,
     pub ext1ontx: bool,
     pub disablehfpa: bool,
+    pub new_pa_board: bool,
 
 #[serde(skip_serializing, skip_deserializing)]
     pub updated: bool,
@@ -278,6 +280,7 @@ impl Radio {
     pub fn new(device: Device, spectrum_width: i32) -> Radio {
         let name = "HPSDR".to_string();
         let dev = device.device;
+        let board = device.board;
         // take a guess on the model based on the device
         let model = match device.board {
             Boards::Hermes => RadioModels::Anan100,
@@ -348,6 +351,7 @@ impl Radio {
         let ext2ontx = false;
         let ext1ontx = false;
         let disablehfpa = false;
+        let new_pa_board = false;
 
         let updated = false;
         let keepalive = false;
@@ -382,6 +386,7 @@ impl Radio {
         Radio {
             name,
             dev,
+            board,
             model,
             protocol,
             supported_receivers,
@@ -425,6 +430,7 @@ impl Radio {
             ext2ontx,
             ext1ontx,
             disablehfpa,
+            new_pa_board,
 
             updated,
             keepalive,

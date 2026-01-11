@@ -612,25 +612,34 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                 _ => {00}, 
             };
             c2 = 0x00; // TODO Class E and OC
-            c3 = match r.receiver[0].band_info[b].antenna {
-                Antenna::ANT1 => 0x00, // ANT 1
-                Antenna::ANT2 => 0x01, // ANT 2
-                Antenna::ANT3 => 0x02, // ANT 3
-                Antenna::EXT1 => 0x00, // EXT 1
-                Antenna::EXT2 => 0x00, // EXT 2
-                Antenna::XVTR => 0x00, // XVTR
+            c3 = 0x00;
+            c3 |= r.receiver[0].band_info[b].attenuation as u8;
+            c3 |= match r.receiver[0].band_info[b].ext_antenna {
+                Antenna::EXT1 => 0xA0, // EXT 1
+                Antenna::EXT2 => 0xC0, // EXT 2
+                _ => {0x00},
             };
+            c3 |= match r.receiver[0].band_info[b].xvtr_antenna {
+                Antenna::XVTR => 0xE0, // XVTR
+                _ => {0x00},
+            };
+            c4 = 0x00;
             b = if r.split {
                     r.receiver[1].band.to_usize()
                 } else {
                     r.receiver[0].band.to_usize()
                 };
-            let tx_antenna = if r.split {
-                                 r.receiver[1].band_info[b].tx_antenna
+            let tx_antenna = if r.is_transmitting() {
+                                 if r.split {
+                                     r.receiver[1].band_info[b].tx_antenna
+                                 } else {
+                                     r.receiver[0].band_info[b].tx_antenna
+                                 }
                              } else {
-                                 r.receiver[0].band_info[b].tx_antenna
+                                 r.receiver[0].band_info[b].antenna
                              };
-            c4 = match tx_antenna {
+            c4 |= 0x04; // Duplex
+            c4 |= match tx_antenna {
                 Antenna::ANT1 => 0x00, // ANT 1
                 Antenna::ANT2 => 0x01, // ANT 2
                 Antenna::ANT3 => 0x02, // ANT 3
@@ -757,6 +766,8 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                 6 => {
                     c0 = 0x1C; // C0
                     c1 = 0x00; // C1
+                    c1 |= r.receiver[0].adc as u8;
+                    c1 |= (r.receiver[1].adc as u8) << 2;
                     c2 = 0x00; // C2
                     c3 = 0x00; // C3
                     c4 = 0x00; // C4

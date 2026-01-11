@@ -23,6 +23,7 @@ use std::rc::Rc;
 
 use crate::antenna::Antenna;
 use crate::bands::Bands;
+use crate::discovery::Boards;
 use crate::radio::{Keyer, RadioModels, RadioMutex};
 use crate::receiver::{AudioOutput};
 use crate::audio::*;
@@ -50,16 +51,38 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     // Antenna RX
     let r = radio_mutex.radio.lock().unwrap();
       let ant_160 = r.receiver[0].band_info[Bands::Band160.to_usize()].antenna;
+      let ant_160_ext = r.receiver[0].band_info[Bands::Band160.to_usize()].ext_antenna;
+      let ant_160_xvtr = r.receiver[0].band_info[Bands::Band160.to_usize()].xvtr_antenna;
       let ant_80 = r.receiver[0].band_info[Bands::Band80.to_usize()].antenna;
+      let ant_80_ext = r.receiver[0].band_info[Bands::Band80.to_usize()].ext_antenna;
+      let ant_80_xvtr = r.receiver[0].band_info[Bands::Band80.to_usize()].xvtr_antenna;
       let ant_60 = r.receiver[0].band_info[Bands::Band60.to_usize()].antenna;
+      let ant_60_ext = r.receiver[0].band_info[Bands::Band60.to_usize()].ext_antenna;
+      let ant_60_xvtr = r.receiver[0].band_info[Bands::Band60.to_usize()].xvtr_antenna;
       let ant_40 = r.receiver[0].band_info[Bands::Band80.to_usize()].antenna;
+      let ant_40_ext = r.receiver[0].band_info[Bands::Band80.to_usize()].ext_antenna;
+      let ant_40_xvtr = r.receiver[0].band_info[Bands::Band80.to_usize()].xvtr_antenna;
       let ant_30 = r.receiver[0].band_info[Bands::Band30.to_usize()].antenna;
+      let ant_30_ext = r.receiver[0].band_info[Bands::Band30.to_usize()].ext_antenna;
+      let ant_30_xvtr = r.receiver[0].band_info[Bands::Band30.to_usize()].xvtr_antenna;
       let ant_20 = r.receiver[0].band_info[Bands::Band20.to_usize()].antenna;
+      let ant_20_ext = r.receiver[0].band_info[Bands::Band20.to_usize()].ext_antenna;
+      let ant_20_xvtr = r.receiver[0].band_info[Bands::Band20.to_usize()].xvtr_antenna;
       let ant_17 = r.receiver[0].band_info[Bands::Band17.to_usize()].antenna;
+      let ant_17_ext = r.receiver[0].band_info[Bands::Band17.to_usize()].ext_antenna;
+      let ant_17_xvtr = r.receiver[0].band_info[Bands::Band17.to_usize()].xvtr_antenna;
       let ant_15 = r.receiver[0].band_info[Bands::Band15.to_usize()].antenna;
+      let ant_15_ext = r.receiver[0].band_info[Bands::Band15.to_usize()].ext_antenna;
+      let ant_15_xvtr = r.receiver[0].band_info[Bands::Band15.to_usize()].xvtr_antenna;
       let ant_12 = r.receiver[0].band_info[Bands::Band12.to_usize()].antenna;
+      let ant_12_ext = r.receiver[0].band_info[Bands::Band12.to_usize()].ext_antenna;
+      let ant_12_xvtr = r.receiver[0].band_info[Bands::Band12.to_usize()].xvtr_antenna;
       let ant_10 = r.receiver[0].band_info[Bands::Band10.to_usize()].antenna;
+      let ant_10_ext = r.receiver[0].band_info[Bands::Band10.to_usize()].ext_antenna;
+      let ant_10_xvtr = r.receiver[0].band_info[Bands::Band10.to_usize()].xvtr_antenna;
       let ant_6 = r.receiver[0].band_info[Bands::Band6.to_usize()].antenna;
+      let ant_6_ext = r.receiver[0].band_info[Bands::Band6.to_usize()].ext_antenna;
+      let ant_6_xvtr = r.receiver[0].band_info[Bands::Band6.to_usize()].xvtr_antenna;
     drop(r);
 
     let ant_1_160: CheckButton = builder
@@ -101,37 +124,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_160: CheckButton = builder
             .object("ant_ext2_160")
             .expect("Could not get object `ant_ext2_160` from builder.");
-    ant_ext1_160.set_active(ant_160 == Antenna::EXT1);
+    ant_ext1_160.set_active(ant_160_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_160.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band160.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_160.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_160: CheckButton = builder
             .object("ant_ext2_160")
             .expect("Could not get object `ant_ext2_160` from builder.");
-    ant_ext2_160.set_active(ant_160 == Antenna::EXT2);
+    ant_ext2_160.set_active(ant_160_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_160.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band160.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_160.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_160: CheckButton = builder
             .object("ant_xvtr_160")
             .expect("Could not get object `ant_xvtr_160` from builder.");
-    ant_xvtr_160.set_active(ant_160 == Antenna::XVTR);
+    ant_xvtr_160.set_active(ant_160_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_160.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band160.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band160.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band160.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -176,37 +207,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_80: CheckButton = builder
             .object("ant_ext2_80")
             .expect("Could not get object `ant_ext2_80` from builder.");
-    ant_ext1_80.set_active(ant_80 == Antenna::EXT1);
+    ant_ext1_80.set_active(ant_80_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_80.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band80.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_80.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_80: CheckButton = builder
             .object("ant_ext2_80")
             .expect("Could not get object `ant_ext2_80` from builder.");
-    ant_ext2_80.set_active(ant_80 == Antenna::EXT2);
+    ant_ext2_80.set_active(ant_80_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_80.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band80.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_80.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_80: CheckButton = builder
             .object("ant_xvtr_80")
             .expect("Could not get object `ant_xvtr_80` from builder.");
-    ant_xvtr_80.set_active(ant_80 == Antenna::XVTR);
+    ant_xvtr_80.set_active(ant_80_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_80.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band80.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band80.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band80.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -250,37 +289,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_60: CheckButton = builder
             .object("ant_ext2_60")
             .expect("Could not get object `ant_ext2_60` from builder.");
-    ant_ext1_60.set_active(ant_60 == Antenna::EXT1);
+    ant_ext1_60.set_active(ant_60_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_60.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band60.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_60.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_60: CheckButton = builder
             .object("ant_ext2_60")
             .expect("Could not get object `ant_ext2_60` from builder.");
-    ant_ext2_60.set_active(ant_60 == Antenna::EXT2);
+    ant_ext2_60.set_active(ant_60_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_60.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band60.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_60.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_60: CheckButton = builder
             .object("ant_xvtr_60")
             .expect("Could not get object `ant_xvtr_60` from builder.");
-    ant_xvtr_60.set_active(ant_60 == Antenna::XVTR);
+    ant_xvtr_60.set_active(ant_60_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_60.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band60.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band60.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band60.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -324,37 +371,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_40: CheckButton = builder
             .object("ant_ext2_40")
             .expect("Could not get object `ant_ext2_40` from builder.");
-    ant_ext1_40.set_active(ant_40 == Antenna::EXT1);
+    ant_ext1_40.set_active(ant_40_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_40.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band40.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_40.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_40: CheckButton = builder
             .object("ant_ext2_40")
             .expect("Could not get object `ant_ext2_40` from builder.");
-    ant_ext2_40.set_active(ant_40 == Antenna::EXT2);
+    ant_ext2_40.set_active(ant_40_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_40.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band40.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_40.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_40: CheckButton = builder
             .object("ant_xvtr_40")
             .expect("Could not get object `ant_xvtr_40` from builder.");
-    ant_xvtr_40.set_active(ant_40 == Antenna::XVTR);
+    ant_xvtr_40.set_active(ant_40_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_40.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band40.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band40.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band40.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -398,32 +453,37 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_30: CheckButton = builder
             .object("ant_ext2_30")
             .expect("Could not get object `ant_ext2_30` from builder.");
-    ant_ext1_30.set_active(ant_30 == Antenna::EXT1);
+    ant_ext1_30.set_active(ant_30_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_30.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band30.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_30.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_30: CheckButton = builder
             .object("ant_ext2_30")
             .expect("Could not get object `ant_ext2_30` from builder.");
-    ant_ext2_30.set_active(ant_30 == Antenna::EXT2);
+    ant_ext2_30.set_active(ant_30_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_30.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band30.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_30.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band30.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_30: CheckButton = builder
             .object("ant_xvtr_30")
             .expect("Could not get object `ant_xvtr_30` from builder.");
-    ant_xvtr_30.set_active(ant_30 == Antenna::XVTR);
+    ant_xvtr_30.set_active(ant_30_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_30.connect_toggled(move |button| {
         if button.is_active() {
@@ -472,37 +532,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_20: CheckButton = builder
             .object("ant_ext2_20")
             .expect("Could not get object `ant_ext2_20` from builder.");
-    ant_ext1_20.set_active(ant_20 == Antenna::EXT1);
+    ant_ext1_20.set_active(ant_20_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_20.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band20.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_20.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_20: CheckButton = builder
             .object("ant_ext2_20")
             .expect("Could not get object `ant_ext2_20` from builder.");
-    ant_ext2_20.set_active(ant_20 == Antenna::EXT2);
+    ant_ext2_20.set_active(ant_20_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_20.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band20.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_20.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_20: CheckButton = builder
             .object("ant_xvtr_20")
             .expect("Could not get object `ant_xvtr_20` from builder.");
-    ant_xvtr_20.set_active(ant_20 == Antenna::XVTR);
+    ant_xvtr_20.set_active(ant_20_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_20.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band20.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band20.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band20.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -545,37 +613,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_17: CheckButton = builder
             .object("ant_ext2_17")
             .expect("Could not get object `ant_ext2_17` from builder.");
-    ant_ext1_17.set_active(ant_17 == Antenna::EXT1);
+    ant_ext1_17.set_active(ant_17_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_17.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band17.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_17.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_17: CheckButton = builder
             .object("ant_ext2_17")
             .expect("Could not get object `ant_ext2_17` from builder.");
-    ant_ext2_17.set_active(ant_17 == Antenna::EXT2);
+    ant_ext2_17.set_active(ant_17_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_17.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band17.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_17.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_17: CheckButton = builder
             .object("ant_xvtr_17")
             .expect("Could not get object `ant_xvtr_17` from builder.");
-    ant_xvtr_17.set_active(ant_17 == Antenna::XVTR);
+    ant_xvtr_17.set_active(ant_17_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_17.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band17.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band17.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band17.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -619,37 +695,42 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_15: CheckButton = builder
             .object("ant_ext2_15")
             .expect("Could not get object `ant_ext2_15` from builder.");
-    ant_ext1_15.set_active(ant_15 == Antenna::EXT1);
+    ant_ext1_15.set_active(ant_15_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_15.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band15.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_15.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_15: CheckButton = builder
             .object("ant_ext2_15")
             .expect("Could not get object `ant_ext2_15` from builder.");
-    ant_ext2_15.set_active(ant_15 == Antenna::EXT2);
+    ant_ext2_15.set_active(ant_15_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_15.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band15.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_15.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band15.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_15: CheckButton = builder
             .object("ant_xvtr_15")
             .expect("Could not get object `ant_xvtr_15` from builder.");
-    ant_xvtr_15.set_active(ant_15 == Antenna::XVTR);
+    ant_xvtr_15.set_active(ant_15_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_15.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band15.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band15.to_usize()].xvtr_antenna = Antenna::XVTR;
         }
     });
 
@@ -693,37 +774,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_12: CheckButton = builder
             .object("ant_ext2_12")
             .expect("Could not get object `ant_ext2_12` from builder.");
-    ant_ext1_12.set_active(ant_12 == Antenna::EXT1);
+    ant_ext1_12.set_active(ant_12_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_12.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band12.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_12.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_12: CheckButton = builder
             .object("ant_ext2_12")
             .expect("Could not get object `ant_ext2_12` from builder.");
-    ant_ext2_12.set_active(ant_12 == Antenna::EXT2);
+    ant_ext2_12.set_active(ant_12_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_12.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band12.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_12.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_12: CheckButton = builder
             .object("ant_xvtr_12")
             .expect("Could not get object `ant_xvtr_12` from builder.");
-    ant_xvtr_12.set_active(ant_12 == Antenna::XVTR);
+    ant_xvtr_12.set_active(ant_12_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_12.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band12.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band12.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band12.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -767,37 +856,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_10: CheckButton = builder
             .object("ant_ext2_10")
             .expect("Could not get object `ant_ext2_10` from builder.");
-    ant_ext1_10.set_active(ant_10 == Antenna::EXT1);
+    ant_ext1_10.set_active(ant_10_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_10.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band10.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_10.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_10: CheckButton = builder
             .object("ant_ext2_10")
             .expect("Could not get object `ant_ext2_10` from builder.");
-    ant_ext2_10.set_active(ant_10 == Antenna::EXT2);
+    ant_ext2_10.set_active(ant_10_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_10.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band10.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_10.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_10: CheckButton = builder
             .object("ant_xvtr_10")
             .expect("Could not get object `ant_xvtr_10` from builder.");
-    ant_xvtr_10.set_active(ant_10 == Antenna::XVTR);
+    ant_xvtr_10.set_active(ant_10_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_10.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band10.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band10.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band10.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -841,37 +938,45 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let ant_ext2_6: CheckButton = builder
             .object("ant_ext2_6")
             .expect("Could not get object `ant_ext2_6` from builder.");
-    ant_ext1_6.set_active(ant_6 == Antenna::EXT1);
+    ant_ext1_6.set_active(ant_6_ext == Antenna::EXT1);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext1_6.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band6.to_usize()].antenna = Antenna::EXT1;
-            // disable ext2
             ant_ext2_6.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].ext_antenna = Antenna::EXT1;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_ext2_6: CheckButton = builder
             .object("ant_ext2_6")
             .expect("Could not get object `ant_ext2_6` from builder.");
-    ant_ext2_6.set_active(ant_6 == Antenna::EXT2);
+    ant_ext2_6.set_active(ant_6_ext == Antenna::EXT2);
     let radio_mutex_clone = radio_mutex.clone();
     ant_ext2_6.connect_toggled(move |button| {
         if button.is_active() {
-            let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band6.to_usize()].antenna = Antenna::EXT2;
             ant_ext1_6.set_active(false);
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].ext_antenna = Antenna::EXT2;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].ext_antenna = Antenna::NONE;
         }
     });
     let ant_xvtr_6: CheckButton = builder
             .object("ant_xvtr_6")
             .expect("Could not get object `ant_xvtr_6` from builder.");
-    ant_xvtr_6.set_active(ant_6 == Antenna::XVTR);
+    ant_xvtr_6.set_active(ant_6_xvtr == Antenna::XVTR);
     let radio_mutex_clone = radio_mutex.clone();
     ant_xvtr_6.connect_toggled(move |button| {
         if button.is_active() {
             let mut r = radio_mutex_clone.radio.lock().unwrap();
-            r.receiver[0].band_info[Bands::Band6.to_usize()].antenna = Antenna::XVTR;
+            r.receiver[0].band_info[Bands::Band6.to_usize()].xvtr_antenna = Antenna::XVTR;
+        } else {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.receiver[0].band_info[Bands::Band6.to_usize()].xvtr_antenna = Antenna::NONE;
         }
     });
 
@@ -1415,6 +1520,26 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
             .object("ant_ext2_6")
             .expect("Could not get object `ext2_label` from builder.");
         ant_ext2_6.set_visible(false);
+    }
+
+    // ANAN 100 and ANAN 200 maqy have new (Rev 24) PA Board
+    let r = radio_mutex.radio.lock().unwrap();
+    let board = r.board;
+    let new_pa = r.new_pa_board;
+    drop(r);
+
+    let new_pa_board: CheckButton = builder
+        .object("new_pa_board")
+        .expect("Could not get object `new_pa_board` from builder.");
+    if board == Boards::Hermes || board == Boards::Angelia || board == Boards::Orion {
+        new_pa_board.set_active(new_pa);
+        let radio_mutex_clone = radio_mutex.clone();
+        new_pa_board.connect_toggled(move |button| {
+            let mut r = radio_mutex_clone.radio.lock().unwrap();
+            r.new_pa_board = button.is_active();
+        });
+ } else {
+        new_pa_board.set_visible(false);
     }
 
 

@@ -570,6 +570,7 @@ impl Protocol2 {
                 Antenna::EXT1 => filter1 |= ALEX_RX_ANTENNA_EXT1,
                 Antenna::EXT2 => filter1 |= ALEX_RX_ANTENNA_EXT2,
                 Antenna::XVTR => filter1 |= ALEX_RX_ANTENNA_XVTR,
+                _ => {},
             }
         }
 

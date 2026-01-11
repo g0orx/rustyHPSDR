@@ -25,7 +25,8 @@ pub enum Antenna {
     ANT3,
     EXT1,
     EXT2,
-    XVTR
+    XVTR,
+    NONE,
 }
 
 impl Antenna {
@@ -38,6 +39,7 @@ impl Antenna {
             3 => Some(Antenna::EXT1),
             4 => Some(Antenna::EXT2),
             5 => Some(Antenna::XVTR),
+            5 => Some(Antenna::NONE),
             _ => None,
         }
     }

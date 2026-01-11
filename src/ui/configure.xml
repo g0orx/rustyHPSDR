@@ -1268,6 +1268,11 @@
                 <property name="label">Disable HF PA</property>
               </object>
             </child>
+            <child>
+              <object class="GtkCheckButton" id="new_pa_board">
+                <property name="label">ANAN 100/200 New PA Board</property>
+              </object>
+            </child>
           </object>
         </child>
           </object>
