@@ -70,7 +70,7 @@ impl Audio {
     pub fn open_input(&mut self, device_name: &String) -> Result<(), Box<dyn std::error::Error>> {
         let host = cpal::default_host();
 
-        // Find the output device
+        // Find the input device
         let device = if device_name == "default" {
             host.default_input_device()
         } else {
@@ -79,17 +79,17 @@ impl Audio {
         }
         .ok_or("No input device found")?;
 
-        let config = Self::find_best_config(&device, false, 2, Some(TARGET_BUFFER_SIZE))?;
+        let config = Self::find_best_config(&device, false, 1, Some(TARGET_BUFFER_SIZE))?;
 
         // Create a custom config for stereo 48kHz output
         let mut stream_config: StreamConfig = config.clone().into();
-        stream_config.channels = 2;
+        stream_config.channels = 1;
         stream_config.sample_rate = SampleRate(48000);
         let (mut prod, cons) = HeapRb::new(4800).split();
 
         self.input_buffer = Some(cons);
         let stream = device.build_input_stream(
-            &config,
+            &stream_config,
             move |data: &[f32], _: &InputCallbackInfo| {
                 let _pushed = prod.push_slice(data);
             },
@@ -104,8 +104,10 @@ impl Audio {
     }
 
     pub fn read_input(&mut self) -> (Vec<f32>, usize) {
-        let mut read_buffer = vec![0.0_f32; 256];
-        let samples_read = self.input_buffer.as_mut().expect("input buffer failed").pop_slice(&mut read_buffer);
+        let rb = self.input_buffer.as_mut().expect("input buffer failed");
+        let available = rb.occupied_len(); // See how much is waiting
+        let mut read_buffer = vec![0.0_f32; available];
+        let samples_read = rb.pop_slice(&mut read_buffer);
         (read_buffer, samples_read)
     }
 
@@ -135,7 +137,6 @@ impl Audio {
         stream_config.channels = 2;
         stream_config.sample_rate = SampleRate(48000);
         let (prod, mut cons) = HeapRb::new(4800).split();
-        //let (prod, mut cons) = HeapRb::new(9600).split();
         self.output_buffer = Some(prod);
 
         let stream = device.build_output_stream(
