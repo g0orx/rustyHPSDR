@@ -199,8 +199,7 @@ impl Protocol1 {
 
             // check for local microphone
             let mut r = radio_mutex.radio.lock().unwrap();
-            if r.transmitter.local_input && !r.transmitter.local_input_changed && !r.tune {
-                //r.transmitter.microphone_samples = 0;
+            if r.transmitter.local_input && !r.transmitter.local_input_changed {
                 let (mic_buffer, count) = self.tx_audio.read_input();
                 for i in 0..count {
                     if r.transmitter.add_mic_sample(mic_buffer[i]) && r.is_transmitting() {
@@ -423,14 +422,10 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
             let mic_sample = (i16::from_be_bytes([buffer[b], buffer[b+1]])) as f32/ 32767.0;
             b += 2;
 
-            if !r.transmitter.local_input || r.tune {
-
-            // discard replicated samples
-            if mic_samples == 0 {
-                if r.transmitter.add_mic_sample(mic_sample) && r.is_transmitting() {
-                    if !r.transmitter.local_input || r.tune {
-
-
+            if !r.transmitter.local_input {
+                // discard replicated samples
+                if mic_samples == 0 {
+                    if r.transmitter.add_mic_sample(mic_sample) && r.is_transmitting() {
                         for j in 0..r.transmitter.output_samples {
                             // Dummy RX Audio samples
                             self.ozy_buffer[self.ozy_buffer_offset] = 0;
@@ -454,23 +449,20 @@ eprintln!("ptt {} dot {} dash {}", r.ptt, r.dot, r.dash);
                             self.ozy_buffer_offset += 1;
                             self.ozy_buffer[self.ozy_buffer_offset] = (q_sample & 0xFF) as u8;
                             self.ozy_buffer_offset += 1;
-
+   
                             if self.ozy_buffer_offset == OZY_BUFFER_SIZE {
                                 drop(r);
                                 self.send_ozy_buffer(radio_mutex, 0);
-                                self.ozy_buffer_offset = 8;
                                 r = radio_mutex.radio.lock().unwrap();
+                                self.ozy_buffer_offset = 8;
                             }
                         }
                     }
                 }
                 mic_samples = mic_samples + 1;
-            } else {
-                mic_samples = mic_samples + 1;
                 if mic_samples >= mic_sample_divisor {
                     mic_samples = 0;
                 }
-            }
             }
         }
 
