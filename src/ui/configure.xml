@@ -1335,11 +1335,29 @@
                 </child>
                 <child>
                   <object class="GtkSpinButton" id="waterfall_average_spinbutton">
+                    <property name="margin-end">10</property>
                     <property name="adjustment">
                       <object class="GtkAdjustment" id="waterfall_average_adjustment">
                         <property name="lower">10</property>
                         <property name="upper">500</property>
                         <property name="step-increment">10</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Waterfall Level:</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="waterfall_level_spinbutton">
+                    <property name="margin-end">10</property>
+                    <property name="adjustment">
+                      <object class="GtkAdjustment" id="waterfall_level_adjustment">
+                        <property name="lower">-10</property>
+                        <property name="upper">10</property>
+                        <property name="step-increment">1</property>
                       </object>
                     </property>
                   </object>

@@ -85,7 +85,7 @@ impl Waterfall {
                     average += value;
                 }
 
-                if value >= (r.receiver[self.rx].band_info[b].waterfall_low + 6.0) {
+                if value >= (r.receiver[self.rx].band_info[b].waterfall_low + r.receiver[self.rx].waterfall_level) {
                     R = 255.0;
                     G = 255.0;
                     B = 0.0;

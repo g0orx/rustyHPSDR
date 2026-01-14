@@ -1885,6 +1885,18 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         r.receiver[0].waterfall_average_time = adjustment.value() as f32;
         r.receiver[0].update_waterfall_average(r.receiver[0].channel);
     }); 
+    let r = radio_mutex.radio.lock().unwrap();
+    let waterfall_level = r.receiver[0].waterfall_level;
+    drop(r);
+    let waterfall_level_adjustment: Adjustment = builder
+            .object("waterfall_level_adjustment")
+            .expect("Could not get object `waterfall_level_adjustment` from builder.");
+    waterfall_level_adjustment.set_value(waterfall_level.into());
+    let radio_mutex_clone = radio_mutex.clone();
+    waterfall_level_adjustment.connect_value_changed(move |adjustment| {
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].waterfall_level = adjustment.value() as f32;
+    }); 
 
 
     // PA Calibration

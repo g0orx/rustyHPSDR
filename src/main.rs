@@ -134,17 +134,15 @@ fn build_ui(app: &Application) {
             .expect("Could not get object `wisdom_label` from builder.");
 
     while !wisdom_completed.load(Ordering::Relaxed) {
-        unsafe {
-            let c_ptr: *mut c_char = unsafe {
-                wisdom_get_status()
+        let c_ptr: *mut c_char = unsafe {
+            wisdom_get_status()
+        };
+        if !c_ptr.is_null() {
+            let c_str: &CStr = unsafe {
+                CStr::from_ptr(c_ptr)
             };
-            if !c_ptr.is_null() {
-                let c_str: &CStr = unsafe {
-                    CStr::from_ptr(c_ptr)
-                };
-                let rust_string: String = c_str.to_string_lossy().into_owned();
-                wisdom_label.set_text(&rust_string);
-            }
+            let rust_string: String = c_str.to_string_lossy().into_owned();
+            wisdom_label.set_text(&rust_string);
         }
         thread::sleep(Duration::from_millis(250));
     }
@@ -1632,7 +1630,6 @@ fn build_ui(app: &Application) {
                                 // Message received, update the UI
                                 match msg {
                                     CatMessage::UpdateMox(state) => {
-                                        eprintln!("Received UpdateMox({})", state);
                                         let mut r = radio_mutex_clone.radio.lock().unwrap();
                                         let app_widgets = rc_app_widgets_clone.borrow();
                                         r.mox = state;
@@ -1654,27 +1651,35 @@ fn build_ui(app: &Application) {
                                             app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
                                         }
                                     },
-                                    CatMessage::UpdateFrequencyA() => {
-                                        let r = radio_mutex_clone.radio.lock().unwrap();
+                                    CatMessage::UpdateFrequencyA(f) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
                                         let app_widgets = rc_app_widgets_clone.borrow();
-                                        if r.receiver[0].ctun {
-                                            let formatted_value = format_u32_with_separators(r.receiver[0].ctun_frequency as u32);
-                                            app_widgets.vfo_a_frequency.set_label(&formatted_value);
-                                        } else {
+                                        if let Some(band_info) = r.receiver[0].find_band_from_frequency(f) {
+                                            // turn off CTUN
+                                            r.receiver[0].ctun = false;
+                                            app_widgets.ctun_button.set_active(r.receiver[0].ctun);
+                                            r.receiver[0].band = band_info.band;
+                                            r.receiver[0].frequency = f;
                                             let formatted_value = format_u32_with_separators(r.receiver[0].frequency as u32);
                                             app_widgets.vfo_a_frequency.set_label(&formatted_value);
-                                        }    
-                                    },
-                                    CatMessage::UpdateFrequencyB() => {
-                                        let r = radio_mutex_clone.radio.lock().unwrap();
-                                        let app_widgets = rc_app_widgets_clone.borrow();
-                                        if r.receiver[1].ctun {
-                                            let formatted_value = format_u32_with_separators(r.receiver[1].ctun_frequency as u32);
-                                            app_widgets.vfo_b_frequency.set_label(&formatted_value);
                                         } else {
+                                            // ignore it as not a valid address for bands
+                                        }
+                                    },
+                                    CatMessage::UpdateFrequencyB(f) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let app_widgets = rc_app_widgets_clone.borrow();
+                                        if let Some(band_info) = r.receiver[0].find_band_from_frequency(f) {
+                                            // turn off CTUN
+                                            r.receiver[1].ctun = false;
+                                            app_widgets.ctun_button.set_active(r.receiver[1].ctun);
+                                            r.receiver[1].band = band_info.band;
+                                            r.receiver[1].frequency = f;
                                             let formatted_value = format_u32_with_separators(r.receiver[1].frequency as u32);
                                             app_widgets.vfo_b_frequency.set_label(&formatted_value);
-                                        }    
+                                        } else {
+                                            // ignore it as not a valid address for bands
+                                        }
                                     },
                                 }
                                 // Continue the polling timeout (return Continue(true))

@@ -27,13 +27,13 @@ const DEBUG_CAT: bool = false;
 
 pub enum CatMessage {
     UpdateMox(bool),
-    UpdateFrequencyA(),
-    UpdateFrequencyB(),
+    UpdateFrequencyA(f64),
+    UpdateFrequencyB(f64),
 }
 
 impl Default for CatMessage {
     fn default() -> Self {
-        CatMessage::UpdateFrequencyA()
+        CatMessage::UpdateMox(false)
     }
 }
 
@@ -148,7 +148,7 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
         let mut r = radio_mutex.radio.lock().unwrap();
         let mut reply = "".to_string();
         if suffix == "" {
-            // return current frequenxcy
+            // return current frequency
             if r.receiver[0].ctun {
                 reply = format!("FA{:011};", r.receiver[0].ctun_frequency);
             } else {
@@ -157,12 +157,7 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
         } else {
             // set the frequency
             let f = suffix.parse::<f64>().unwrap();
-            if r.receiver[0].ctun {
-                r.receiver[0].ctun_frequency = f;
-            } else {
-                r.receiver[0].frequency = f;
-            }
-            if tx.send(CatMessage::UpdateFrequencyA()).is_err() {
+            if tx.send(CatMessage::UpdateFrequencyA(f)).is_err() {
                 eprintln!("TX_cmd: Main thread receiver was dropped.");
             }
         }
@@ -182,12 +177,7 @@ if DEBUG_CAT {eprintln!("CAT::parse_command: {} = {} {}", cmd, command_code, suf
         } else {
             // set the frequency
             let f = suffix.parse::<f64>().unwrap();
-            if r.receiver[1].ctun {
-                r.receiver[1].ctun_frequency = f;
-            } else {
-                r.receiver[1].frequency = f;
-            }
-            if tx.send(CatMessage::UpdateFrequencyB()).is_err() {
+            if tx.send(CatMessage::UpdateFrequencyB(f)).is_err() {
                 eprintln!("TX_cmd: Main thread receiver was dropped.");
             }
         }

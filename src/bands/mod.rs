@@ -105,7 +105,7 @@ pub struct BandInfo {
 
 impl BandInfo {
     pub fn new() -> Vec<BandInfo> {
-        let data = vec![
+        let bands = vec![
             BandInfo{ band: Bands::Band160, label: String::from("160"), low: 1800000.0, high: 2000000.0, current: 1900000.0, ctun: 1900000.0, filters: 0x01800040, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, ext_antenna: Antenna::NONE, xvtr_antenna: Antenna::NONE, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band80, label: String::from("80"), low: 3500000.0, high: 3800000.0, current: 3750000.0, ctun: 3750000.0, filters: 0x01400020, spectrum_low: -100.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, ext_antenna: Antenna::NONE, xvtr_antenna: Antenna::NONE, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
             BandInfo{ band: Bands::Band60, label: String::from("60"), low: 5330500.0, high: 5403500.0, current: 5365500.0, ctun: 5365500.0, filters: 0x01200020, spectrum_low: -110.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::LSB, filter: Filters::F5, antenna: Antenna::ANT1, ext_antenna: Antenna::NONE, xvtr_antenna: Antenna::NONE, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 0.0, lo_error: 0.0},
@@ -122,9 +122,16 @@ impl BandInfo {
             BandInfo{ band: Bands::XVTR2, label: String::from("432"), low: 432000000.0, high: 436000000.0, current: 435000000.0, ctun: 435000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, antenna: Antenna::XVTR, ext_antenna: Antenna::NONE, xvtr_antenna: Antenna::NONE, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 404000000.0, lo_error: 0.0},
             BandInfo{ band: Bands::XVTR3, label: String::from("XVTR3"), low: 144000000.0, high: 148000000.0, current: 145000000.0, ctun: 145000000.0, filters: 0x41000004, spectrum_low: -120.0, spectrum_high: -60.0, waterfall_low: -130.0, waterfall_high: -80.0, mode: Modes::FMN, filter: Filters::F3, antenna: Antenna::XVTR, ext_antenna: Antenna::NONE, xvtr_antenna: Antenna::NONE, tx_antenna: Antenna::ANT1, attenuation: 0, lo: 116000000.0, lo_error: 0.0},
         ];
-        data
+        bands
     }
 
+/*
+    pub fn find_band_for_freq(&self, freq: f64) -> Option<&BandInfo> {
+        self.bands.iter().find(|band| {
+            freq >= band.low && freq < band.high
+        })
+    }
+*/
 }
 
 #[derive(Clone)]

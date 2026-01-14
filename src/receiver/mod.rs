@@ -30,6 +30,7 @@ use crate::wdsp::*;
 const DEFAULT_SAMPLE_RATE: i32 = 384000; // 1536000;// 768000; // 384000;
 const DEFAULT_SPECTRUM_AVERAGE_TIME: f32 = 250.0;
 const DEFAULT_WATERFALL_AVERAGE_TIME: f32 = 10.0;
+const DEFAULT_WATERFALL_LEVEL: f32 = 6.0;
 const SUBRX_BASE_CHANNEL: i32 = 16;
 
 #[derive(PartialEq, Serialize, Deserialize, Copy, Clone, Debug)]
@@ -154,6 +155,7 @@ pub struct Receiver {
 
     pub spectrum_average_time: f32,
     pub waterfall_average_time: f32,
+    pub waterfall_level: f32,
     pub band_info: Vec<BandInfo>,
 
     pub remote_output: bool,
@@ -264,6 +266,7 @@ impl Receiver {
 
         let spectrum_average_time: f32 = DEFAULT_SPECTRUM_AVERAGE_TIME;
         let waterfall_average_time: f32 = DEFAULT_WATERFALL_AVERAGE_TIME;
+        let waterfall_level: f32 = DEFAULT_WATERFALL_LEVEL;
         let band_info = BandInfo::new();
 
         let remote_output = true;
@@ -365,6 +368,7 @@ impl Receiver {
                             equalizer_high,
                             spectrum_average_time,
                             waterfall_average_time,
+                            waterfall_level,
                             band_info,
                             remote_output,
                             local_output,
@@ -882,4 +886,9 @@ impl Receiver {
         }
     }
 
+    pub fn find_band_from_frequency(&self, frequency: f64) -> Option<BandInfo> {
+        self.band_info.iter().find(|band| {
+            frequency >= band.low && frequency < band.high
+        }).cloned()
+    }
 }
