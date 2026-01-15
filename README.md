@@ -51,5 +51,5 @@ I have now added the first attempt at Zoom and Pan
 <img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/zoom1.png">
 
 
-# Please look at the Wiki (tab at top of page) for instructions to build the application and also to configure the system to run with WSJT-X.
+# Please look at the Wiki (tab at top of page) for instructions describing how to build the application and also how to configure the system (tested with Ubuntu 25.10) to run with WSJT-X.
 
