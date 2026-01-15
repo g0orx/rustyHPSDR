@@ -41,7 +41,7 @@ depends = ["$auto", "libfftw3-dev"]
 section = "utility"
 priority = "optional"
 assets = [
-    ["target/release/rustyHPSDR", "usr/bin/", "755"],
+    ["target/release/rustyHPSDR", "/usr/local/bin/", "755"],
     ["assets/rustyHPSDR.desktop", "/usr/share/applications/", "644"],
     ["assets/rustyHPSDR.png", "/usr/share/pixmaps/rustyHPSDR.png", "644"],
     { source = "README.md", dest = "usr/share/doc/rustyHPSDR/README", mode = "644"},
