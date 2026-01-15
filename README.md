@@ -50,55 +50,6 @@ I have now added the first attempt at Zoom and Pan
 
 <img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/zoom1.png">
 
-# Build pre-requisises
-<pre>
-sudo apt install -y build-essential curl git libfftw3-dev libgtk-4-dev libasound2-dev
-</pre>
 
-# install Rust
-<pre>
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-</pre>
+# Please look at the Wiki "https://github.com/g0orx/rustyHPSDR/wiki" for instructions to build the application and also to configure the system to run with WSJT-X.
 
-# Download and compile rustyHPSDR
-<pre>
-git clone https://github.com/g0orx/rustyHPSDR.git
-cd rustyHPSDR
-cargo clean
-cargo build --release
-</pre>
-
-# Running rustyHPSDR
-<pre>
-./target/release/rustyHPSDR
-</pre>
-
-Note that the first time it is run it will create the FFTW3 Wisdom File, which may take several minutes to complete.
-
-# Creating a debian package
-
-## Install cargo-deb crate
-<pre>
-cargo install cargo-deb
-</pre>
-
-## Create the Debian package
-<pre>
-cargo deb
-</pre>
-
-## Install Debian package
-
-### x86-64 system
-<pre>
-dpkg -i target/debian/rustyhpsdr_0.1.0-1_amd64.deb
-</pre>
-
-### Arm-64 system (Raspberry Pi 5)
-<pre>
-dpkg -i target/debian/rustyhpsdr_0.1.0-1_arm64.deb
-</pre>
-
-# System Utilization with 2 receivers running Ubuntu 25.04 on a BOSGAME P3 Ryzen 9 Mini PC - 8 Cores (16 threads), 32GB Memory
-
-<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/system.png">
