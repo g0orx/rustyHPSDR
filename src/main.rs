@@ -25,9 +25,10 @@ use glib::ControlFlow::Continue;
 use glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{Application, Builder, Label, Window};
-use gtk::{EventController, EventControllerMotion, EventControllerScroll, EventControllerScrollFlags, GestureClick};
+use gtk::{EventController, EventControllerMotion, EventControllerScroll, EventControllerScrollFlags, EventControllerKey, GestureClick};
 use gtk::gdk::Cursor;
 use gtk::glib::Propagation;
+use gtk::gdk::Key;
 
 use std::cell::{Cell, RefCell};
 use std::env;
@@ -129,6 +130,8 @@ fn build_ui(app: &Application) {
 
     wisdom_window.present();
 
+     
+
     let wisdom_label: Label = wisdom_builder
             .object("wisdom_label")
             .expect("Could not get object `wisdom_label` from builder.");
@@ -167,6 +170,35 @@ fn build_ui(app: &Application) {
     let rc_app_widgets_clone = rc_app_widgets.clone();
     let app_widgets = rc_app_widgets_clone.borrow();
     app_widgets.main_window.set_application(Some(app));
+
+    {
+    let controller = EventControllerKey::new();
+    let window: Window = app_widgets.main_window.clone().into();
+    controller.connect_key_pressed(clone!(
+        #[weak] window,
+        #[upgrade_or] glib::Propagation::Proceed,
+        move |_, key, _keycode, state| {
+            if key == Key::F11 {
+                if state.contains(gtk::gdk::ModifierType::SHIFT_MASK) {
+                    if window.is_fullscreen() {
+                        window.unfullscreen();
+                    } else {
+                        window.fullscreen();
+                    }
+                } else {
+                    if window.is_maximized() {
+                        window.unmaximize();
+                    } else {
+                        window.maximize();
+                    }
+                }
+                return glib::Propagation::Stop;
+            }
+            glib::Propagation::Proceed
+        }
+    ));
+    window.add_controller(controller);
+    }
 
     let spectrum = Spectrum::new(0,1024,168);
     let rc_spectrum = Rc::new(RefCell::new(spectrum));
@@ -2085,10 +2117,6 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     // update CTUN
     app_widgets.ctun_button.set_active(ctun);
 
-    // Zoom and Pan
-    app_widgets.zoom_adjustment.set_value(zoom.into());
-    app_widgets.pan_adjustment.set_value(pan.into());
-
     // Attenuation
     app_widgets.attenuation_adjustment.set_value(attenuation.into());
 
@@ -2098,5 +2126,12 @@ fn update_ui(radio_mutex: &RadioMutex, rc_app_widgets: &Rc<RefCell<AppWidgets>>)
     } else {
         app_widgets.squelch_adjustment.set_value(am_squelch_threshold);
     }
+    
+    // Zoom and Pan
+    let zoom_adjust = app_widgets.zoom_adjustment.clone();
+    let pan_adjust = app_widgets.pan_adjustment.clone();
+    drop(app_widgets);
+    zoom_adjust.set_value(zoom.into());
+    pan_adjust.set_value(pan.into());
 
 }
