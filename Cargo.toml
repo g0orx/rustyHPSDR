@@ -1,6 +1,6 @@
 [package]
 name = "rustyHPSDR"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "An SDR Radio application for HPSDR radios"
 authors = ["John Melton G0ORX <john.d.melton@googlemail.com>"]
