@@ -91,7 +91,6 @@ pub fn protocol1_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: Socke
         match socket.recv_from(&mut buf) {
             Ok((amt,src)) => {
                 let local_addr = socket.local_addr().expect("failed to get local address");
-eprintln!("Protocol 1 discovery received: amt={} src={:?} local={:?}", amt, src, local_addr);
                 if amt == 60  && src.port()==1024 {
                     let mac: [u8;6] = [buf[3],buf[4],buf[5],buf[6],buf[7],buf[8]];
                     let mut board = Boards::Unknown; 
@@ -197,7 +196,6 @@ pub fn protocol2_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: Socke
         match socket.recv_from(&mut buf) {
             Ok((amt,src)) => {
                 let local_addr = socket.local_addr().expect("failed to get local address");
-eprintln!("Protocol 2 discovery received: amt={} src={:?} local={:?}", amt, src, local_addr);
                 if amt == 60  && src.port() == 1024 {
                     let mac: [u8;6] = [buf[5],buf[6],buf[7],buf[8],buf[9],buf[10]];
                     let mut board = Boards::Unknown;
