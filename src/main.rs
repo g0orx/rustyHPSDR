@@ -51,6 +51,7 @@ use rustyHPSDR::bands::*;
 use rustyHPSDR::cat::{CatMessage, CAT};
 use rustyHPSDR::midi::{MidiMessage, MIDI};
 use rustyHPSDR::modes::*;
+use rustyHPSDR::filters::*;
 use rustyHPSDR::discovery::create_discovery_dialog;
 use rustyHPSDR::discovery::device_name;
 use rustyHPSDR::discovery::Boards;
@@ -1001,6 +1002,8 @@ fn build_ui(app: &Application) {
                             // save current band info
                             r.receiver[rx].band_info[b].current = r.receiver[rx].frequency;
                             r.receiver[rx].band_info[b].ctun = r.receiver[rx].ctun_frequency;
+                            r.receiver[rx].band_info[b].mode = Modes::from_usize(r.receiver[rx].mode).expect("Invalid mode");
+                            r.receiver[rx].band_info[b].filter = Filters::from_usize(r.receiver[rx].filter).expect("Invalid Filter");
 
                             // get new band info
                             r.receiver[rx].band = Bands::from_usize(index).expect("invalid band index");
