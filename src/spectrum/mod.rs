@@ -51,7 +51,7 @@ impl Spectrum {
 
     pub fn update(&mut self, width: i32, height: i32, radio_mutex: &RadioMutex, pixels: &Vec<f32>) {
         let r = radio_mutex.radio.lock().unwrap();
-        let spectrum_height = height - 10; // leave space for the frequency
+        let spectrum_height = height - 20; // leave space for the frequency
         let cr = Context::new(self.surface.clone()).expect("Couldn't create cairo context from surface");
         if r.receiver[self.rx].active {
             cr.set_source_rgb(0.0, 0.0, 1.0); // dark blue
@@ -95,6 +95,19 @@ impl Spectrum {
             cr.rectangle(filter_left.into(), 0.0, filter_right-filter_left, spectrum_height.into());
             let _ = cr.fill();
 
+            // draw the frequency markers
+            let x = center as f64;
+            let f = if r.receiver[0].ctun { r.receiver[0].ctun_frequency } else { r.receiver[0].frequency };
+            let text = format_u32_with_separators((f / 1000.0) as u32);
+            cr.set_source_rgb(1.0, 1.0, 1.0);
+            cr.select_font_face("Sans", cairo::FontSlant::Normal, cairo::FontWeight::Bold);
+            cr.set_font_size(20.0);
+            let pango_layout = pangocairo::functions::create_layout(&cr);
+            pango_layout.set_text(&text);
+            let (text_width, _text_height) = pango_layout.pixel_size();
+            cr.move_to( x - (text_width as f64 / 2.0), height as f64 - 2.0);
+            let _ = cr.show_text(&text);
+            
             // draw the cursor
             cr.set_source_rgb (1.0, 0.0, 0.0);
             cr.set_line_width(2.0);
@@ -214,6 +227,7 @@ impl Spectrum {
                 cr.line_to(i as f64, y.into());
             }
             cr.line_to(width as f64, spectrum_height as f64);
+
             // fill the spectrum
             let pattern = LinearGradient::new(0.0, (spectrum_height-20) as f64, 0.0, 0.0);
             let mut s9: f32 = -73.0;
@@ -232,6 +246,8 @@ impl Spectrum {
 
             // draw the frequency markers
             cr.set_line_width(1.0);
+            cr.select_font_face("Sans", cairo::FontSlant::Normal, cairo::FontWeight::Normal);
+            cr.set_font_size(20.0);
             let mut f: f64 = (((display_frequency_low as i32 + step as i32) / step as i32) * step as i32) as f64;
             while f < display_frequency_high {
                 let x = (f - display_frequency_low) / display_hz_per_pixel;
@@ -244,7 +260,7 @@ impl Spectrum {
                 let pango_layout = pangocairo::functions::create_layout(&cr);
                 pango_layout.set_text(&text);
                 let (text_width, _text_height) = pango_layout.pixel_size();
-                cr.move_to( x - (text_width as f64 / 2.0), height as f64);
+                cr.move_to( x - (text_width as f64 / 2.0), height as f64 - 2.0);
                 let _ = cr.show_text(&text);
                 f += step;
             }
