@@ -1,0 +1,534 @@
+<!--
+    Copyright (C) 2025  John Melton G0ORX/N6LYT
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkWindow" id="vfo_window">
+    <property name="title">VFO</property>
+    <property name="default-width">800</property>
+    <property name="default-height">300</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <child>
+          <object class="GtkFrame" id="band_frame">
+            <property name="label">Band</property>
+            <child>
+              <object class="GtkGrid" id="band_grid">
+                <property name="margin-start">0</property>
+                <property name="margin-end">0</property>
+                <property name="margin-top">0</property>
+                <property name="margin-bottom">0</property>
+                <property name="row-spacing">2</property>
+                <property name="column-spacing">5</property>
+                <property name="column-homogeneous">true</property>
+                <child>
+                  <object class="GtkButton" id="Band160_button">
+                    <property name="label">160</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band80_button">
+                    <property name="label">80</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band60_button">
+                    <property name="label">60</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band40_button">
+                    <property name="label">40</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band30_button">
+                    <property name="label">30</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band20_button">
+                    <property name="label">20</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band17_button">
+                    <property name="label">17</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band15_button">
+                    <property name="label">15</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band12_button">
+                    <property name="label">12</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band10_button">
+                    <property name="label">10</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">3</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="Band6_button">
+                    <property name="label">6</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">3</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="BandWWV_button">
+                    <property name="label">WWV</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">3</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="XVTR1_button">
+                    <property name="label">XVTR1</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">4</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="XVTR2_button">
+                    <property name="label">XVTR2</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">4</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="XVTR3_button">
+                    <property name="label">XVTR3</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">4</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkFrame" id="mode_frame">
+            <property name="label">Mode</property>
+            <child>
+              <object class="GtkGrid" id="mode_grid">
+                <property name="margin-start">0</property>
+                <property name="margin-end">0</property>
+                <property name="margin-top">0</property>
+                <property name="margin-bottom">0</property>
+                <property name="row-spacing">0</property>
+                <property name="column-spacing">5</property>
+                <property name="column-homogeneous">true</property>
+                <child>
+                  <object class="GtkButton" id="lsb_button">
+                    <property name="label">LSB</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="usb_button">
+                    <property name="label">USB</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="dsb_button">
+                    <property name="label">DSB</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="cwl_button">
+                    <property name="label">CWL</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="cwu_button">
+                    <property name="label">CWU</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="fmn_button">
+                    <property name="label">FMN</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="digl_button">
+                    <property name="label">DIGL</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                    <child>
+                      <object class="GtkButton" id="digu_button">
+                        <property name="label">DIGU</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="spec_button">
+                        <property name="label">SPEC</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="am_button">
+                        <property name="label">AM</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="sam_button">
+                        <property name="label">SAM</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="drm_button">
+                        <property name="label">DRM</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFrame" id="filter_frame">
+                <property name="label">Filter</property>
+                <child>
+                  <object class="GtkGrid" id="filter_grid">
+                    <property name="margin-start">0</property>
+                    <property name="margin-end">0</property>
+                    <property name="margin-top">0</property>
+                    <property name="margin-bottom">0</property>
+                    <property name="row-spacing">0</property>
+                    <property name="column-spacing">5</property>
+                    <property name="column-homogeneous">true</property>
+                    <child>
+                      <object class="GtkButton" id="f0_button">
+                        <property name="label">F0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f1_button">
+                        <property name="label">F1</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f2_button">
+                        <property name="label">F2</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f3_button">
+                        <property name="label">F3</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f4_button">
+                        <property name="label">F4</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f5_button">
+                        <property name="label">F5</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f6_button">
+                        <property name="label">F6</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f7_button">
+                        <property name="label">F7</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="f8_button">
+                        <property name="label">F8</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child><child>
+                      <object class="GtkButton" id="f9_button">
+                        <property name="label">F9</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="var1_button">
+                        <property name="label">Var1</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="var2_button">
+                        <property name="label">Var2</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="low_label">
+                        <property name="label">Low</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="low_spinbutton">
+                        <style>
+                          <class name="basic-button"/>
+                        </style>
+                        <property name="adjustment">
+                          <object class="GtkAdjustment" id="low_adjustment">
+                            <property name="lower">-8000</property>
+                            <property name="upper">8000</property>
+                            <property name="step-increment">1</property>
+                          </object>
+                        </property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">2</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="high_label">
+                        <property name="label">High</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">4</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="high_spinbutton">
+                        <style>
+                          <class name="basic-button"/>
+                        </style>
+                        <property name="adjustment">
+                          <object class="GtkAdjustment" id="high_adjustment">
+                            <property name="lower">-8000</property>
+                            <property name="upper">8000</property>
+                            <property name="step-increment">1</property>
+                          </object>
+                        </property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">2</property>
+                          <property name="row">4</property>
+                        </layout>
+                      </object>
+                     </child>
+
+
+                    <child>
+                      <object class="GtkLabel" id="cw_pitch_label">
+                        <property name="label">CW Pitch</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">5</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="cw_pitch_spinbutton">
+                        <style>
+                          <class name="basic-button"/>
+                        </style>
+                        <property name="adjustment">
+                          <object class="GtkAdjustment" id="cw_pitch_adjustment">
+                            <property name="lower">200</property>
+                            <property name="upper">1000</property>
+                            <property name="step-increment">10</property>
+                          </object>
+                        </property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">2</property>
+                          <property name="row">5</property>
+                        </layout>
+                      </object>
+                     </child>
+
+
+
+
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="halign">end</property>
+            <child>
+              <object class="GtkButton" id="ok_button">
+                <property name="label">Ok</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

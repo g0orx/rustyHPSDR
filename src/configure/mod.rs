@@ -16,7 +16,7 @@
 */
 
 use gtk::prelude::*;
-use gtk::{Adjustment, Builder, Button, CheckButton, DropDown, Entry, Frame, Grid, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
+use gtk::{Adjustment, Builder, Button, CheckButton, DrawingArea, DropDown, Entry, Frame, Grid, Label, ListBox, ListBoxRow, Orientation, PositionType, Scale, StringList, ToggleButton, Window};
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -1872,6 +1872,23 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         r.receiver[0].spectrum_average_time = adjustment.value() as f32;
         r.receiver[0].update_spectrum_average(r.receiver[0].channel);
     }); 
+
+    let r = radio_mutex.radio.lock().unwrap();
+    let window_type = r.receiver[0].win_type;
+    drop(r);
+    let win_type_dropdown: DropDown = builder
+            .object("win_type_dropdown")
+            .expect("Could not get object `win_type_dropdown` from builder.");
+    win_type_dropdown.set_selected(window_type as u32); 
+    let radio_mutex_clone = radio_mutex.clone();
+    win_type_dropdown.connect_selected_notify(move |dropdown| { 
+        let i = dropdown.selected();
+        let mut r = radio_mutex_clone.radio.lock().unwrap();
+        r.receiver[0].win_type_changed(i);
+        r.receiver[1].win_type_changed(i);
+    });
+
+ 
     let r = radio_mutex.radio.lock().unwrap();
     let waterfall_average_time = r.receiver[0].waterfall_average_time;
     drop(r);
@@ -1885,6 +1902,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         r.receiver[0].waterfall_average_time = adjustment.value() as f32;
         r.receiver[0].update_waterfall_average(r.receiver[0].channel);
     }); 
+
     let r = radio_mutex.radio.lock().unwrap();
     let waterfall_level = r.receiver[0].waterfall_level;
     drop(r);
@@ -2043,6 +2061,23 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         r.transmitter.pa_calibration[Bands::Band6.to_usize()] = adjustment.value() as f32;
     }); 
 
+    // Pure Signal
+    let ps_correcting: DrawingArea = builder
+            .object("ps_correcting")
+            .expect("Could not get object `ps_correcting` from builder.");
+    ps_correcting.set_draw_func(move | _, cr, _, _| {
+         cr.set_source_rgb(0.0, 0.0, 0.0); // black need to update color based on status
+         cr.paint().unwrap();
+    });
+    let ps_feedback_level: DrawingArea = builder
+            .object("ps_feedback_level")
+            .expect("Could not get object `ps_feedback_level` from builder.");
+    ps_feedback_level.set_draw_func(move | _, cr, _, _| {
+         cr.set_source_rgb(0.0, 0.0, 0.0); // black need to update color based on status
+         cr.paint().unwrap();
+    });
+
+
     // Radio
 
     let r = radio_mutex.radio.lock().unwrap();
@@ -2095,7 +2130,6 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         });
 
     }
-
 
     let r = radio_mutex.radio.lock().unwrap();
         let cw_keyer_mode = r.cw_keyer_mode;
@@ -2679,7 +2713,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
 
 
 
-    // Equalizer
+    // RX Equalizer
     let r = radio_mutex.radio.lock().unwrap();
     let rx = r.active_receiver;
     let enabled = r.receiver[rx].equalizer_enabled;
@@ -2687,6 +2721,7 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
     let low = r.receiver[rx].equalizer_low as f64;
     let mid = r.receiver[rx].equalizer_mid as f64;
     let high = r.receiver[rx].equalizer_high as f64;
+    let cw_pitch = r.receiver[rx].cw_pitch;
     drop(r);
 
     let equalizer_enabled_check_button: CheckButton = builder
@@ -2796,8 +2831,8 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         let text = xvtr1_id_clone.text();
         let rx = r.active_receiver;
         r.receiver[rx].band_info[Bands::XVTR1.to_usize()].label = text.to_string();
-        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
-        app_widgets.band_grid.update_band_label(Bands::XVTR1, &text.to_string());
+        //let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+        //app_widgets.band_grid.update_band_label(Bands::XVTR1, &text.to_string());
     });
     let xvtr1_low: Entry = builder
             .object("xvtr1_low")
@@ -2901,8 +2936,8 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         let text = xvtr2_id_clone.text();
         let rx = r.active_receiver;
         r.receiver[rx].band_info[Bands::XVTR2.to_usize()].label = text.to_string();
-        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
-        app_widgets.band_grid.update_band_label(Bands::XVTR2, &text.to_string());
+//        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+//        app_widgets.band_grid.update_band_label(Bands::XVTR2, &text.to_string());
     });
     let xvtr2_low: Entry = builder
             .object("xvtr2_low")
@@ -3005,8 +3040,8 @@ pub fn create_configure_dialog(rc_app_widgets: &Rc<RefCell<AppWidgets>>, radio_m
         let text = xvtr3_id_clone.text();
         let rx = r.active_receiver;
         r.receiver[rx].band_info[Bands::XVTR3.to_usize()].label = text.to_string();
-        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
-        app_widgets.band_grid.update_band_label(Bands::XVTR3, &text.to_string());
+//        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+//        app_widgets.band_grid.update_band_label(Bands::XVTR3, &text.to_string());
     });
     let xvtr3_low: Entry = builder
             .object("xvtr3_low")

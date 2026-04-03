@@ -233,6 +233,7 @@ pub struct Radio {
     pub notches: Vec<Notch>,
 
     pub cat_enabled: bool,
+    pub rigctl_enabled: bool,
     pub midi_enabled: bool,
 
 }
@@ -297,13 +298,18 @@ impl Radio {
         let sample_rate = 384000;
         let sample_rate_changed = false;
         let active_receiver = 0;
-        let receivers: u8 = 2;
+        let mut receivers: u8 = 2;
         let rx2_enabled: bool = true;
         let split: bool = false;
         let mut receiver: Vec<Receiver> = Vec::new();
         for i in 0..receivers {
             receiver.push(Receiver::new(i, device.protocol, spectrum_width));
         }
+// Pure Signal
+        //receivers = receivers + 2;
+        //receiver.push(Receiver::new(receivers, device.protocol, 0));  // TX Feedback
+        //receiver.push(Receiver::new(receivers+1, device.protocol, 0)); // RX Feedback
+
         let s_meter_dbm = -121.0;
         let ptt = false;
         let mox = false;
@@ -381,6 +387,7 @@ impl Radio {
         let notches = vec![];
 
         let cat_enabled = false;
+        let rigctl_enabled = false;
         let midi_enabled = false;
 
         Radio {
@@ -458,6 +465,7 @@ impl Radio {
             notches,
 
             cat_enabled,
+            rigctl_enabled,
             midi_enabled,
         }
     }

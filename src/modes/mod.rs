@@ -154,6 +154,7 @@ impl ModeGrid {
     }
 
     pub fn set_active_index(&self, index: usize) {
+eprintln!("Modes::set_active_index {}", index);
         let old_index: usize = self.active_index.borrow().expect("Modes: set_active_index error using active_index");
         self.buttons[old_index].remove_css_class("active-button");
         self.buttons[old_index].add_css_class("inactive-button");
@@ -171,5 +172,13 @@ impl ModeGrid {
         &self.grid
     }
 
+    pub fn get_current_label(&self) -> String {
+        let active_idx: usize = self.active_index.borrow().expect("Bands: set_active_index error using active_index");
+        if let Some(text) = &self.buttons[active_idx].label() {
+            text.to_string()
+        } else {
+            "".to_string()
+        }
+    }
 }
 

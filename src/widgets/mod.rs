@@ -33,6 +33,7 @@ pub struct AppWidgets {
     pub ctun_button: ToggleButton,
     pub rx2_button: ToggleButton,
     pub cat_button: ToggleButton,
+    pub rigctl_button: ToggleButton,
     pub midi_button: ToggleButton,
     pub step_dropdown: DropDown,
     pub meter_1_display: DrawingArea,
@@ -56,20 +57,10 @@ pub struct AppWidgets {
     pub squelch_adjustment: Adjustment,
     pub micgain_adjustment: Adjustment,
     pub drive_adjustment: Adjustment,
-    pub band_frame: Frame,
-    pub mode_frame: Frame,
-    pub filter_frame: Frame,
-    pub band_grid: BandGrid,
-    pub mode_grid: ModeGrid,
-    pub filter_grid: FilterGrid,
-    pub cwpitch_adjustment: Adjustment,
-    pub low_adjustment: Adjustment,
-    pub high_adjustment: Adjustment,
     pub tx_power: Label,
     pub tx_swr: Label,
     pub tx_alc: Label,
     pub input_level: ProgressBar,
-    pub band_6_button: Button,
 }
 
 impl AppWidgets {
@@ -119,6 +110,10 @@ impl AppWidgets {
             .object("cat_button")
             .expect("Could not get cat_button from builder");
 
+        let rigctl_button: ToggleButton = builder
+            .object("rigctl_button")
+            .expect("Could not get rigctl_button from builder");
+
         let midi_button: ToggleButton = builder
             .object("midi_button")
             .expect("Could not get midi_button from builder");
@@ -150,18 +145,6 @@ impl AppWidgets {
         let waterfall_2_display: DrawingArea = builder
             .object("waterfall_2_display")
             .expect("Could not get waterfall_2_display from builder");
-
-        let band_grid: Grid = builder
-            .object("band_grid")
-            .expect("Could not get band_grid from builder");
-
-        let mode_grid: Grid = builder
-            .object("mode_grid")
-            .expect("Could not get mode_grid from builder");
-
-        let filter_grid: Grid = builder
-            .object("filter_grid")
-            .expect("Could not get filter_grid from builder");
 
         let zoom_adjustment: Adjustment = builder
             .object("zoom_adjustment")
@@ -223,34 +206,6 @@ impl AppWidgets {
             .object("drive_adjustment")
             .expect("Could not get drive_adjustment from builder");
 
-        let cwpitch_adjustment: Adjustment = builder
-            .object("cwpitch_adjustment")
-            .expect("Could not get cwpitch_adjustment from builder");
-
-        let low_adjustment: Adjustment = builder
-            .object("low_adjustment")
-            .expect("Could not get low_adjustment from builder");
-
-        let high_adjustment: Adjustment = builder
-            .object("high_adjustment")
-            .expect("Could not get high_adjustment from builder");
-
-        let band_frame: Frame = builder
-            .object("band_frame")
-            .expect("Could not get band_frame from builder");
-
-        let mode_frame: Frame = builder
-            .object("mode_frame")
-            .expect("Could not get mode_frame from builder");
-
-        let filter_frame: Frame = builder
-            .object("filter_frame")
-            .expect("Could not get filter_frame from builder");
-
-        let band_grid = BandGrid::new(builder);
-        let mode_grid = ModeGrid::new(builder);
-        let filter_grid = FilterGrid::new(builder);
-
         let tx_power: Label = builder
             .object("tx_power")
             .expect("Could not get tx_power from builder");
@@ -268,10 +223,6 @@ impl AppWidgets {
             .object("input_level")
             .expect("Could not get input_level from builder");
 
-        let band_6_button: Button = builder
-            .object("Band6_button")
-            .expect("Could not get Band6_button from builder");
-
         AppWidgets {
             main_window,
             configure_button,
@@ -284,6 +235,7 @@ impl AppWidgets {
             ctun_button,
             rx2_button,
             cat_button,
+            rigctl_button,
             midi_button,
             step_dropdown,
             meter_1_display,
@@ -307,20 +259,10 @@ impl AppWidgets {
             squelch_adjustment,
             micgain_adjustment,
             drive_adjustment,
-            cwpitch_adjustment,
-            low_adjustment,
-            high_adjustment,
-            band_frame,
-            mode_frame,
-            filter_frame,
-            band_grid,
-            mode_grid,
-            filter_grid,
             tx_power,
             tx_swr,
             tx_alc,
             input_level,
-            band_6_button,
         }
     }
 }

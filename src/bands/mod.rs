@@ -125,13 +125,6 @@ impl BandInfo {
         bands
     }
 
-/*
-    pub fn find_band_for_freq(&self, freq: f64) -> Option<&BandInfo> {
-        self.bands.iter().find(|band| {
-            freq >= band.low && freq < band.high
-        })
-    }
-*/
 }
 
 #[derive(Clone)]
@@ -213,6 +206,7 @@ impl BandGrid {
     }
 
     pub fn set_active_index(&mut self, index: usize) {
+eprintln!("Bands::set_active_index {}", index);
         let old_index: usize = self.active_index.borrow().expect("Bands: set_active_index error using active_index");
         self.buttons[old_index].remove_css_class("active-button");
         self.buttons[old_index].add_css_class("inactive-button");
@@ -234,5 +228,13 @@ impl BandGrid {
         self.buttons[band.to_usize()].set_label(label);
     }
 
-}
+    pub fn get_current_label(&self) -> String {
+        let active_idx: usize = self.active_index.borrow().expect("Bands: set_active_index error using active_index");
+        if let Some(text) = &self.buttons[active_idx].label() {
+            text.to_string()
+        } else {
+            "".to_string()
+        }
+    }
 
+}

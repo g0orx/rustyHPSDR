@@ -174,6 +174,7 @@ pub struct Receiver {
     pub fm_squelch: bool,
     pub fm_squelch_threshold: f64,
 
+    pub win_type:  u32,
 }
 
 impl Receiver {
@@ -280,6 +281,7 @@ impl Receiver {
         let fm_squelch: bool = false;
         let fm_squelch_threshold: f64 = 0.0;
 
+        let win_type: u32 = 2; // Hann
         
 
         Receiver { protocol,
@@ -380,6 +382,7 @@ impl Receiver {
                             am_squelch_threshold,
                             fm_squelch,
                             fm_squelch_threshold,
+                            win_type,
         }
     }
 
@@ -583,7 +586,7 @@ impl Receiver {
         let n_fft = 1; // not using spur elimination
         let typ = 1; // Complex samples
         let n_stch = 1;
-        let win_type = 5; // Kaiser
+        let win_type = self.win_type;
         let pi = 14.0;
         let clp = 0;
         let fscLin = 0.0;
@@ -606,7 +609,7 @@ impl Receiver {
                 flp.as_mut_ptr(),
                 self.a_fft_size,
                 buffer_size,
-                win_type,
+                win_type as i32,
                 pi,
                 overlap,
                 clp,
@@ -835,6 +838,17 @@ impl Receiver {
             SetChannelState(self.channel, 1, 0);
         }
         self.sample_rate_changed = false;
+    }
+
+    pub fn win_type_changed(&mut self, win_type: u32) {
+        self.win_type = win_type;
+        unsafe {
+            SetChannelState(self.channel, 0, 1);
+        }
+        self.init_analyzer(self.channel, self.spectrum_width);
+        unsafe {
+            SetChannelState(self.channel, 1, 0);
+        }
     }
 
     pub fn update_nr4_agc_position(&mut self, position: i32) {

@@ -59,7 +59,7 @@
               </child>
               <child>
                 <object class="GtkFrame" id="vfo_a_frame">
-                  <property name="label">VFO A (RX1)</property>
+                  <property name="label">VFO A</property>
                   <layout>
                     <property name="column">1</property>
                     <property name="row">0</property>
@@ -83,7 +83,7 @@
                         <object class="GtkDrawingArea" id="meter_1_display">
                           <property name="content-width">256</property>
                           <property name="content-height">36</property>
-              <property name="hexpand">False</property>
+                          <property name="hexpand">False</property>
                         </object>
                       </child>
                     </object>
@@ -171,10 +171,19 @@
                     </object>
                   </child>
                   <child>
+                    <object class="GtkToggleButton" id="rigctl_button">
+                      <property name="label">RIGCTL</property>
+                      <layout>
+                        <property name="column">1</property>
+                        <property name="row">2</property>
+                      </layout>
+                    </object>
+                  </child>
+                  <child>
                     <object class="GtkToggleButton" id="midi_button">
                       <property name="label">MIDI</property>
                       <layout>
-                        <property name="column">1</property>
+                        <property name="column">2</property>
                         <property name="row">2</property>
                       </layout>
                     </object>
@@ -183,7 +192,7 @@
               </child>
               <child>
                 <object class="GtkFrame" id="vfo_b_frame">
-                  <property name="label">VFO B (RX2)</property>
+                  <property name="label">VFO B</property>
                   <layout>
                     <property name="column">3</property>
                     <property name="row">0</property>
@@ -707,6 +716,7 @@
           </child>
         </object>
         </child>
+<!--
         <child>
           <object class="GtkBox" id="rx1_v_box">
             <property name="orientation">vertical</property>
@@ -1215,6 +1225,7 @@
             </child>
           </object>
         </child>
+-->
       </object>
     </child>
   </object>

@@ -612,7 +612,6 @@ impl Protocol2 {
             filter1 |= LPF_BYPASS;
         }
 
-        
         buf[1432]=((filter1 >> 24) & 0xFF) as u8;
         buf[1433]=((filter1 >> 16) & 0xFF) as u8;
         buf[1434]=((filter1 >> 8) & 0xFF) as u8;
@@ -668,6 +667,15 @@ impl Protocol2 {
         } else {
             buf[1443] = attenuation as u8;
             buf[1442] = attenuation as u8;
+        }
+
+        if filter1 != self.previous_filter1 {
+            eprintln!("filter1={} previous_filter1={}", filter1, self.previous_filter1);
+            self.previous_filter1 = filter1;
+        }
+        if filter2 != self.previous_filter2 {
+            eprintln!("filter2={} previous_filter2={}", filter2, self.previous_filter2);
+            self.previous_filter2 = filter2;
         }
 
         self.device.address.set_port(1027);

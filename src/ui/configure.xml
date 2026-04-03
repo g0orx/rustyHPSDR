@@ -1307,6 +1307,7 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
+                <property name="spacing">8</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="label">Spectrum Average Time (ms):</property>
@@ -1323,11 +1324,35 @@
                     </property>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Window Type</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkDropDown" id="win_type_dropdown">
+                    <property name="model">
+                    <object class="GtkStringList">
+                    <items>
+                      <item>Rectangular</item>
+                      <item>4-term Blackman-Harris</item>
+                      <item>Hann</item>
+                      <item>Flat-top</item>
+                      <item>Hamming</item>
+                      <item>Kaiser</item>
+                      <item>7-term Blackman-Harris</item>
+                    </items>
+                    </object>
+                    </property>
+                    <property name="selected">0</property>
+                  </object>
+                </child>
               </object>
             </child>
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
+                <property name="spacing">8</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="label">Waterfall Average Time (ms):</property>
@@ -1335,7 +1360,6 @@
                 </child>
                 <child>
                   <object class="GtkSpinButton" id="waterfall_average_spinbutton">
-                    <property name="margin-end">10</property>
                     <property name="adjustment">
                       <object class="GtkAdjustment" id="waterfall_average_adjustment">
                         <property name="lower">10</property>
@@ -1347,7 +1371,7 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">Waterfall Level:</property>
+                    <property name="label">Waterfall Level Adjust:</property>
                   </object>
                 </child>
                 <child>
@@ -1479,7 +1503,7 @@
                             <child>
                               <object class="GtkSpinButton" id="nr_taps_spinbutton">
                                 <property name="adjustment">
-                                  <object class="GtkAdjustment" id="nr_taps_adjustment">
+                                <object class="GtkAdjustment" id="nr_taps_adjustment">
                                     <property name="lower">1</property>
                                     <property name="upper">1024</property>
                                     <property name="step-increment">1</property>
@@ -1885,7 +1909,6 @@
                             <property name="group">nr4_0_check_button</property>
                           </object>>
                         </child>
-
                       </object>
                     </child>
                   </object>
@@ -2181,6 +2204,315 @@
           </object>
         </child>
 
+        <!-- Pure Signal -->
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">8</property>
+                <child>
+                  <object class="GtkCheckButton" id="ps_enable">
+                    <property name="label">PS Enable</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkDrawingArea" id="ps_feedback_level">
+                    <property name="content-width">20</property>
+                    <property name="content-height">20</property>
+                    <property name="valign">center</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Correcting</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkDrawingArea" id="ps_correcting">
+                    <property name="content-width">20</property>
+                    <property name="content-height">20</property>
+                    <property name="valign">center</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Feedback Level</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="label">Calibration Information</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="margin-end">10</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">bldr.rx</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="bldr_rx">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">bldr.cm</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="bldr_cm">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">bldr.cc</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="bldr_cc">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">bldr.cs</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="bldr_cs">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="margin-end">10</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">sln.chk</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="sln_chk">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">dg.cnt</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="dg_cnt">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">cor.cnt</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="cor_cnt">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="margin-end">10</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">state</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="state">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">feedbk</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="feedbk">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">GetPk</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="get_pk">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="halign">end</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">SetPk</property>
+                                <property name="margin-end">10</property>
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="set_pk">
+                                <style>
+                                  <class name="ps-label"/>
+                                </style>
+                                <property name="label">  0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="puresignal_calibration_label">
+            <property name="label">Pure Signal</property>
+          </object>
+        </child>
+
+
         <!-- Radio -->
         <child>
           <object class="GtkBox">
@@ -2394,6 +2726,30 @@
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">Pitch</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="cw_pitch_spinbutton">
+                            <style>
+                              <class name="basic-button"/>
+                            </style>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="cw_pitch_adjustment">
+                                <property name="lower">200</property>
+                                <property name="upper">1000</property>
+                                <property name="step-increment">10</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkCheckButton" id="cw_keyer_internal_check_button">
                         <property name="label">CW Keyer Internal</property>

@@ -195,7 +195,6 @@ pub fn protocol2_discovery(devices: Rc<RefCell<Vec<Device>>>, socket_addr: Socke
         let mut buf = [0; 1024];
         match socket.recv_from(&mut buf) {
             Ok((amt,src)) => {
-                let local_addr = socket.local_addr().expect("failed to get local address");
                 if amt == 60  && src.port() == 1024 {
                     let mac: [u8;6] = [buf[5],buf[6],buf[7],buf[8],buf[9],buf[10]];
                     let mut board = Boards::Unknown;
@@ -296,7 +295,7 @@ pub fn discover(devices: Rc<RefCell<Vec<Device>>>) {
                 Addr::V4(v4_info) => {
                     let ip = v4_info.ip;
                     eprintln!("IPv4 Address {}",ip);
-                    if let Ok(socket) = std::net::UdpSocket::bind((ip,5000)) {
+                    if let Ok(_socket) = std::net::UdpSocket::bind((ip,5000)) {
                         eprintln!("Interface {} is active and bindable on {}", itf.name, ip);
                         let socket_address = SocketAddr::new(std::net::IpAddr::V4(ip), 50000);
                         protocol1_discovery(Rc::clone(&devices), socket_address);

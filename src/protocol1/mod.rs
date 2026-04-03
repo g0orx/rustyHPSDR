@@ -164,17 +164,36 @@ impl Protocol1 {
 
         self.metis_start();
         let mut buffer = vec![0; 2048];
+        let mut previous_sequence: u32 = 0;
         loop {
             match self.socket.recv_from(&mut buffer) {
                 Ok((_size, src)) => {
                     match src.port() {
                         1024 => {
                                 if buffer[0] == 0xEF && buffer[1] == 0xFE {
-                                    let _seq = u32::from_be_bytes([buffer[4], buffer[5], buffer[6], buffer[7]]);
+                                    let sequence = u32::from_be_bytes([buffer[4], buffer[5], buffer[6], buffer[7]]);
+                                    /*
+                                    if previous_sequence != 0 {
+                                        if (sequence-previous_sequence) != 1 {
+                                            eprintln!("sequence error {} {}", previous_sequence, sequence);
+                                        }
+                                    }
+                                    previous_sequence = sequence;
+                                    eprintln!("sequence {} {} {} {}", buffer[2], buffer[3], sequence, previous_sequence);
+                                    */
+                                  
                                     match buffer[2] {
                                         1 => {
                                              match buffer[3] {
                                                  6 => { // IQ samples
+/*
+                                                      if previous_sequence != 0 {
+                                                          if (sequence-previous_sequence) != 1 {
+                                                              eprintln!("sequence error {} {}", previous_sequence, sequence);
+                                                          }
+                                                      }
+                                                      previous_sequence = sequence;
+*/
                                                       self.process_ozy_buffer(&buffer,8,radio_mutex);
                                                       self.process_ozy_buffer(&buffer,520,radio_mutex);
                                                       },

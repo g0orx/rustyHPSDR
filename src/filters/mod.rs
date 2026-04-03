@@ -81,6 +81,8 @@ pub struct FilterGrid {
     low_adjustment: Adjustment,
     high_spinbutton: SpinButton,
     high_adjustment: Adjustment,
+    cw_pitch_spinbutton: SpinButton,
+    cw_pitch_adjustment: Adjustment,
     active_index: Rc<RefCell<Option<usize>>>,
     callback: Rc<RefCell<Box<dyn Fn(usize) + 'static>>>
 }
@@ -309,6 +311,13 @@ impl FilterGrid {
             .object("high_adjustment")
             .expect("Could not get object high_adjustment from builder.");
 
+        let cw_pitch_spinbutton: SpinButton = builder
+            .object("cw_pitch_spinbutton")
+            .expect("Could not get object cw_pitch_spinbutton from builder.");
+
+        let cw_pitch_adjustment: Adjustment = builder
+            .object("cw_pitch_adjustment")
+            .expect("Could not get object cw_pitch_adjustment from builder.");
 
         FilterGrid {
             grid,
@@ -317,6 +326,8 @@ impl FilterGrid {
             low_adjustment,
             high_spinbutton,
             high_adjustment,
+            cw_pitch_spinbutton,
+            cw_pitch_adjustment,
             active_index,
             callback,
         }
@@ -431,6 +442,7 @@ impl FilterGrid {
     }
 
     pub fn set_active_index(&self, index: usize) {
+eprintln!("Filters::set_active_index {}", index);
         let old_index: usize = self.active_index.borrow().expect("Filters: set_active_index error using active_index");
         self.buttons[old_index].remove_css_class("active-button");
         self.buttons[old_index].add_css_class("inactive-button");
@@ -492,6 +504,20 @@ impl FilterGrid {
            None => Self::filterUSB,
         };
         m[filter].high = high;
+    }
+
+    pub fn set_cw_pitch(&self, pitch: f64) {
+        self.cw_pitch_adjustment.set_value(pitch);
+
+    }
+
+    pub fn get_current_label(&self) -> String {
+        let active_idx: usize = self.active_index.borrow().expect("Bands: set_active_index error using active_index");
+        if let Some(text) = &self.buttons[active_idx].label() {
+            text.to_string()
+        } else {
+            "".to_string()
+        }
     }
 
 }
