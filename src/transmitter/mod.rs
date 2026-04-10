@@ -226,9 +226,13 @@ impl Transmitter {
         let keep_time: f32 = 0.1;
         let max_w = self.fft_size + min((keep_time * self.fps) as i32, (keep_time * self.fft_size as f32  * self.fps) as i32);
         //let buffer_size: i32 = self.output_samples * 4;
-        let mut multiplier = 3; // protocol1
+        //let mut multiplier = 3; // protocol1
+        //if self.protocol == 2 {
+        //    multiplier = 12; // protocol2
+        //}
+        let mut multiplier = 2; // protocol1
         if self.protocol == 2 {
-            multiplier = 12; // protocol2
+            multiplier = 8; // protocol2
         }
         let pixels = self.spectrum_width * multiplier;
         unsafe {

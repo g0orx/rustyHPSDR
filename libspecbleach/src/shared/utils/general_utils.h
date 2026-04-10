@@ -31,7 +31,7 @@ _Static_assert(sizeof(double) >= 8, "double must be at least 64 bits");
 */
 
 #if !defined(linux)
-define __attibute__(x) 
+#define __attibute__(x) 
 #endif
 
 __attribute__((warn_unused_result)) float sanitize_denormal(float value);

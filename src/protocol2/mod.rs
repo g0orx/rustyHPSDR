@@ -78,8 +78,6 @@ pub struct Protocol2 {
     transmit_specific_sequence: u32,
     audio_sequence: u32,
     tx_iq_sequence: u32,
-    previous_filter1: u32,
-    previous_filter2: u32,
     rx_audio: Vec<Audio>,
     tx_audio: Audio,
 }   
@@ -104,8 +102,6 @@ impl Protocol2 {
         let transmit_specific_sequence: u32 = 0; 
         let audio_sequence: u32 = 0; 
         let tx_iq_sequence: u32 = 0; 
-        let previous_filter1: u32 = 0;
-        let previous_filter2: u32 = 0;
         let mut rx_audio: Vec<Audio> = Vec::new();
         for _i in 0..receivers {
             rx_audio.push(Audio::new());
@@ -123,8 +119,6 @@ impl Protocol2 {
                            transmit_specific_sequence,
                            audio_sequence,
                            tx_iq_sequence,
-                           previous_filter1,
-                           previous_filter2,
                            rx_audio,
                            tx_audio,
         }
@@ -667,15 +661,6 @@ impl Protocol2 {
         } else {
             buf[1443] = attenuation as u8;
             buf[1442] = attenuation as u8;
-        }
-
-        if filter1 != self.previous_filter1 {
-            eprintln!("filter1={} previous_filter1={}", filter1, self.previous_filter1);
-            self.previous_filter1 = filter1;
-        }
-        if filter2 != self.previous_filter2 {
-            eprintln!("filter2={} previous_filter2={}", filter2, self.previous_filter2);
-            self.previous_filter2 = filter2;
         }
 
         self.device.address.set_port(1027);

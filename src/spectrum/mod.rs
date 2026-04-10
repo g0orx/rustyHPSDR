@@ -66,10 +66,9 @@ impl Spectrum {
             let spectrum_high = r.transmitter.spectrum_high;
             let spectrum_width = r.transmitter.spectrum_width;
 
-            let mut multiplier = 3; // protocol 1
-            if r.protocol == 2 {
-                multiplier = 12; // protocol 2
-            }               
+            // set the width to 12k
+            //let multiplier =  if r.protocol == 1 { 3 } else { 12 };
+            let multiplier =  if r.protocol == 1 { 2 } else { 8 };
             let pixel_len = spectrum_width * multiplier;
 
             let hz_per_pixel = r.transmitter.output_rate as f64 / pixel_len as f64;
