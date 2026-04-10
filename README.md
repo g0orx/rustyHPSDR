@@ -49,9 +49,9 @@ If you move the mouse over to the left side of the spectrum display the cursor w
 
 # Zoom and Pan
 
-I have now added the first attempt at Zoom and Pan
+I have now added Zoom and Pan
 
-<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui">
+<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui.png">
 
 
 # Please look at the Wiki (tab at top of page) for instructions describing how to build the application and also how to configure the system (tested with Ubuntu 25.10) to run with WSJT-X.
