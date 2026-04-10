@@ -15,6 +15,8 @@ You will need to install Rust and Cargo. See [Rust install](https://www.rust-lan
 This version of the code has many major changes. A major change to the UI where the Band, Mode and Filter buttons are no longer displayed on the main window. A left click on the VFO now displays the Band, Mode and Filter as a popup window.
 The updated main display xml file is ui2.xml and the popup widnow is vfo.xml.
 
+This version also has an additional button RIGCTL. When enabled this allows WSJT-X to communicate with rustyHPSDR using the Hamlib NET rigctl protocol over the network using port 4532. This is in addition to the CAT interface using a subset of the Kenwood TS-2000 protocol.
+
 This is the current UI:
 
 <img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui.png">
