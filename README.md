@@ -12,11 +12,12 @@ WDSP is now included in the source tree and is built as a static library, so the
 
 You will need to install Rust and Cargo. See [Rust install](https://www.rust-lang.org/tools/install) for information on installing Rust and Cargo.
 
-This version of the code has many major changes. A major change is that the UI is now 3 xml files: ui.xml, discovery.xml. configure.xml that are used at run time to build the ui interface.
+This version of the code has many major changes. A major change to the UI where the Band, Mode and Filter buttons are no longer displayed on the main window. A left click on the VFO now displays the Band, Mode and Filter as a popup window.
+The updated main display xml file is ui2.xml and the popup widnow is vfo.xml.
 
-Please note that not all images or the current UI. My antenna came down in a recent storm. This is the latest UI ...
+This is the current UI:
 
-<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/latest.png">
+<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui.png">
 
 # When the application is run it will first discovery all the HPSDR compatable devices on the network interfaces.
 
