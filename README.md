@@ -37,19 +37,19 @@ The scroll wheel can be used to change frequency when the curosr is in the VFO w
 
 The CTUN button enables Click Tuning. When active it allows you to click within the Spectrum or Waterfall to QSY without shifting the Spectrum or Waterfall display. When "CTUN" is inactive, clicking on the Spectrum re-centers the Spectrum, thereby shifting the entire Spectrum. 
 
-<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/screenshot1.png">
+<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui.png">
 
 # Adjusting spectrum and waterfall display
 
 If you move the mouse over to the left side of the spectrum display the cursor will change to an up arrow, down arrow or up/down arrow that will allow you to use the scroll wheel to move the limits up and down for the current band. When the up arrow shows it moves the upper limiit, when the down arrow shows it moves the lower limit and when the up/down arrow shows it moves the upper and lower limits.
 
-<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/cursor.png">
+<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui.png">
 
 # Zoom and Pan
 
 I have now added the first attempt at Zoom and Pan
 
-<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/zoom1.png">
+<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui">
 
 
 # Please look at the Wiki (tab at top of page) for instructions describing how to build the application and also how to configure the system (tested with Ubuntu 25.10) to run with WSJT-X.
