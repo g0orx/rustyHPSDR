@@ -53,6 +53,11 @@ I have now added Zoom and Pan
 
 <img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/new-ui.png">
 
+# TCI Server
+
+I have started working on support for TCI. Currently the Server code works partially with TCI Remote from ON7OFF.
+
+<img src="https://github.com/g0orx/rustyHPSDR/blob/main/images/tci.png">
 
 # Please look at the Wiki (tab at top of page) for instructions describing how to build the application and also how to configure the system (tested with Ubuntu 25.10) to run with WSJT-X.
 
