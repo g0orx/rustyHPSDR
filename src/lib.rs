@@ -38,6 +38,7 @@ pub mod notches;
 pub mod cat;
 pub mod midi;
 pub mod rigctl;
+pub mod tci;
 pub mod widgets;
 pub mod antenna;
 pub mod vfo;

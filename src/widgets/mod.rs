@@ -34,7 +34,8 @@ pub struct AppWidgets {
     pub rx2_button: ToggleButton,
     pub cat_button: ToggleButton,
     pub rigctl_button: ToggleButton,
-    pub midi_button: ToggleButton,
+    //pub midi_button: ToggleButton,
+    pub tci_button: ToggleButton,
     pub step_dropdown: DropDown,
     pub meter_1_display: DrawingArea,
     pub meter_2_display: DrawingArea,
@@ -114,9 +115,13 @@ impl AppWidgets {
             .object("rigctl_button")
             .expect("Could not get rigctl_button from builder");
 
-        let midi_button: ToggleButton = builder
-            .object("midi_button")
-            .expect("Could not get midi_button from builder");
+        //let midi_button: ToggleButton = builder
+        //    .object("midi_button")
+        //    .expect("Could not get midi_button from builder");
+
+        let tci_button: ToggleButton = builder
+            .object("tci_button")
+            .expect("Could not get tci_button from builder");
 
         let step_dropdown = builder
             .object("step_dropdown")
@@ -236,7 +241,8 @@ impl AppWidgets {
             rx2_button,
             cat_button,
             rigctl_button,
-            midi_button,
+            //midi_button,
+            tci_button,
             step_dropdown,
             meter_1_display,
             meter_2_display,

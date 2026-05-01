@@ -140,6 +140,8 @@ pub struct Radio {
     pub dev: u8,
     pub board: Boards,
     pub model: RadioModels,
+    pub frequency_min: u64,
+    pub frequency_max: u64,
     pub protocol: u8,
     pub supported_receivers: u8,
     pub sample_rate: i32,
@@ -235,6 +237,7 @@ pub struct Radio {
     pub cat_enabled: bool,
     pub rigctl_enabled: bool,
     pub midi_enabled: bool,
+    pub tci_enabled: bool,
 
 }
 
@@ -293,6 +296,8 @@ impl Radio {
             Boards::HermesLite2 => RadioModels::HermesLite2,
             _ => RadioModels::Undefined,
         };
+        let frequency_min = device.frequency_min;
+        let frequency_max = device.frequency_max;
         let protocol = device.protocol;
         let supported_receivers = device.supported_receivers;
         let sample_rate = 384000;
@@ -389,12 +394,15 @@ impl Radio {
         let cat_enabled = false;
         let rigctl_enabled = false;
         let midi_enabled = false;
+        let tci_enabled = false;
 
         Radio {
             name,
             dev,
             board,
             model,
+            frequency_min,
+            frequency_max,
             protocol,
             supported_receivers,
             sample_rate,
@@ -467,6 +475,7 @@ impl Radio {
             cat_enabled,
             rigctl_enabled,
             midi_enabled,
+            tci_enabled,
         }
     }
 

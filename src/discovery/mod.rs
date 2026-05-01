@@ -643,8 +643,8 @@ pub fn create_discovery_dialog(parent: &ApplicationWindow, discovery_data: Rc<Re
     window
 }
 
-pub fn device_name(device: Device) -> String {
-    let board = format!("{:?}", device.board);
+pub fn device_name(board: Boards) -> String {
+    let board = format!("{:?}", board);
     board
 }
 
@@ -662,7 +662,7 @@ fn populate_list_box(list: &ListBox, discovery_data: Rc<RefCell<Vec<Device>>>) {
 
     let discovery_iter = discovery_data.borrow().clone().into_iter();
     for val in discovery_iter {
-        let radio = device_name(val);
+        let radio = device_name(val.board);
         let iface=format!("{}",val.my_address.ip());
         let ip=format!("{}",val.address.ip());
         let mac=format!("{:02X?}",val.mac);

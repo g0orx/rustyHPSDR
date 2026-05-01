@@ -1283,23 +1283,6 @@
           </object>
         </child>
 
-        <!-- CAT -->
-        <child>
-          <object class="GtkBox">
-            <property name="orientation">horizontal</property>
-            <child>
-                <object class="GtkLabel" id="cat_address">
-                  <property name="label">Kenwood TS-2000 and currently the address is set to 127.0.0.1:19001.</property>
-                </object>
-            </child>
-          </object>
-        </child>
-        <child type="tab">
-          <object class="GtkLabel" id="cat_label">
-            <property name="label">CAT</property>
-          </object>
-        </child>
-        
         <!-- Display -->
         <child>
           <object class="GtkBox">
@@ -1478,6 +1461,33 @@
           </object>
         </child>
 
+        <!-- Network -->
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+                <object class="GtkLabel" id="cat_address">
+                  <property name="label">CAT emulates a Kenwood TS-2000 and address is set to 127.0.0.1:19001.</property>
+                </object>
+            </child>
+            <child>
+                <object class="GtkLabel" id="rigctl_address">
+                  <property name="label">RIGCTL (Hamlib NET rigctl) address is set to 127.0.0.1:4532.</property>
+                </object>
+            </child>
+            <child>
+                <object class="GtkLabel" id="cli_address">
+                  <property name="label">TCI Server address is set to ws://192.168.1.103:50001.</property>
+                </object>
+            </child>
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="network_label">
+            <property name="label">Network</property>
+          </object>
+        </child>
+        
   <!-- Noise -->
         <child>
           <object class="GtkBox">

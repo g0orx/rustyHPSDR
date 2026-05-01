@@ -41,16 +41,19 @@ use std::process;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use std::sync::{atomic::{AtomicBool, Ordering}};
-use std::sync::mpsc::{self, TryRecvError};
+//use std::sync::mpsc::{self, TryRecvError};
+use tokio::sync::mpsc::{self};
+use tokio::sync::mpsc::error::TryRecvError;
 use std::thread;
 use std::time::Duration;
-
+use futures::{StreamExt, SinkExt};
 
 use rustyHPSDR::agc::*;
 use rustyHPSDR::bands::*;
 use rustyHPSDR::cat::{CatMessage, CAT};
 use rustyHPSDR::rigctl::{RIGCTLMessage, RIGCTL};
-use rustyHPSDR::midi::{MidiMessage, MIDI};
+//use rustyHPSDR::midi::{MidiMessage, MIDI};
+use rustyHPSDR::tci::{TCIMessage, TCIDataMessage, TCI};
 use rustyHPSDR::modes::*;
 use rustyHPSDR::filters::*;
 use rustyHPSDR::discovery::create_discovery_dialog;
@@ -70,7 +73,8 @@ use rustyHPSDR::notches::*;
 use rustyHPSDR::widgets::*;
 use rustyHPSDR::vfo::*;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let id = format!("org.g0orx.rustyHPSDR.pid{}", process::id());
     let application = Application::builder()
         .application_id(id)
@@ -254,7 +258,7 @@ fn build_ui(app: &Application) {
 
                     {
                     let r = radio_mutex.radio.lock().unwrap();
-                    let title = format!("rustyHPSDR: {:?} ({}) {:?} Protocol {}", r.model, device_name(device), device.address.ip(), device.protocol);
+                    let title = format!("rustyHPSDR: {:?} ({}) {:?} Protocol {}", r.model, device_name(device.board), device.address.ip(), device.protocol);
                     app_widgets.main_window.set_title(Some(&title));
                     }
 
@@ -354,9 +358,13 @@ fn build_ui(app: &Application) {
                         style_context.add_class("toggle");
                         app_widgets.rigctl_button.set_active(r.rigctl_enabled);
 
-                        let style_context = app_widgets.midi_button.style_context();
+                        //let style_context = app_widgets.midi_button.style_context();
+                        //style_context.add_class("toggle");
+                        //app_widgets.midi_button.set_active(r.midi_enabled);
+
+                        let style_context = app_widgets.tci_button.style_context();
                         style_context.add_class("toggle");
-                        app_widgets.midi_button.set_active(r.midi_enabled);
+                        app_widgets.tci_button.set_active(r.tci_enabled);
 
                         let style_context = app_widgets.split_button.style_context();
                         style_context.add_class("toggle");
@@ -1313,7 +1321,7 @@ fn build_ui(app: &Application) {
                     });
 
                     let radio_mutex_clone = radio_mutex.clone();
-                    app_widgets.afgain_adjustment.connect_value_changed(move |adjustment| {
+                    let afgain_adjustment_id = app_widgets.afgain_adjustment.connect_value_changed(move |adjustment| {
                         let mut r = radio_mutex_clone.radio.lock().unwrap();
                         let rx = if r.receiver[0].active { 0 } else { 1 };
                         r.receiver[rx].afgain = (adjustment.value() / 100.0) as f32;
@@ -1655,7 +1663,7 @@ fn build_ui(app: &Application) {
                     drop(r);
 
                     let cat = CAT::new("127.0.0.1:19001".to_string());
-                    let (tx, rx): (mpsc::Sender<CatMessage>, mpsc::Receiver<CatMessage>) = mpsc::channel();
+                    let (tx, rx): (std::sync::mpsc::Sender<CatMessage>, std::sync::mpsc::Receiver<CatMessage>) = std::sync::mpsc::channel();
                     let stop_cat_flag = Arc::new(AtomicBool::new(false));
                     let tx_clone = tx.clone();
                     let stop_flag = Arc::clone(&stop_cat_flag);
@@ -1735,7 +1743,7 @@ fn build_ui(app: &Application) {
                                                 r.receiver[0].band = band_info.band;
                                                 //app_widgets.band_grid.set_active_index(band_info.band.to_usize());
                                             }
-                                            r.receiver[0].frequency = f;
+                                            r.receiver[0].set_frequency(f);
                                             let formatted_value = format_u32_with_separators(r.receiver[0].frequency as u32);
                                             app_widgets.vfo_a_frequency.set_label(&formatted_value);
                                         } else {
@@ -1761,11 +1769,11 @@ fn build_ui(app: &Application) {
                                 // Continue the polling timeout (return Continue(true))
                                 glib::ControlFlow::Continue
                             }
-                            Err(TryRecvError::Empty) => {
+                            Err(std::sync::mpsc::TryRecvError::Empty) => {
                                 // No message yet, keep polling
                                 glib::ControlFlow::Continue
                             }
-                            Err(TryRecvError::Disconnected) => {
+                            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                                 // The Sender (tx) has been dropped, meaning the thread finished.
                                 eprintln!("Thread disconnected!");
                                 // Stop the polling timeout (return Break)
@@ -1779,7 +1787,7 @@ fn build_ui(app: &Application) {
                     drop(r);
 
                     let rigctl = RIGCTL::new("127.0.0.1:4532".to_string());
-                    let (tx, rx): (mpsc::Sender<RIGCTLMessage>, mpsc::Receiver<RIGCTLMessage>) = mpsc::channel();
+                    let (tx, mut rx): (std::sync::mpsc::Sender<RIGCTLMessage>, std::sync::mpsc::Receiver<RIGCTLMessage>) = std::sync::mpsc::channel();
                     let stop_rigctl_flag = Arc::new(AtomicBool::new(false));
                     let tx_clone = tx.clone();
                     let stop_flag = Arc::clone(&stop_rigctl_flag);
@@ -1865,7 +1873,7 @@ fn build_ui(app: &Application) {
                                                 r.receiver[0].band = band_info.band;
                                                 //app_widgets.band_grid.set_active_index(band_info.band.to_usize());
                                             }
-                                            r.receiver[0].frequency = f;
+                                            r.receiver[0].set_frequency(f);
                                             let formatted_value = format_u32_with_separators(r.receiver[0].frequency as u32);
                                             app_widgets.vfo_a_frequency.set_label(&formatted_value);
                                         } else {
@@ -1876,11 +1884,11 @@ fn build_ui(app: &Application) {
                                 // Continue the polling timeout (return Continue(true))
                                 glib::ControlFlow::Continue
                             }
-                            Err(TryRecvError::Empty) => {
+                            Err(std::sync::mpsc::TryRecvError::Empty) => {
                                 // No message yet, keep polling
                                 glib::ControlFlow::Continue
                             }
-                            Err(TryRecvError::Disconnected) => {
+                            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                                 // The Sender (tx) has been dropped, meaning the thread finished.
                                 eprintln!("Thread disconnected!");
                                 // Stop the polling timeout (return Break)
@@ -1890,11 +1898,12 @@ fn build_ui(app: &Application) {
                     }));
 
 
+/*
                     let r = radio_mutex.radio.lock().unwrap();
                     let midi_enabled = r.midi_enabled;
                     drop(r);
                     let midi = MIDI::new("Studio 2A:Studio 2A MIDI 1 28:0".to_string());
-                    let (tx, rx): (mpsc::Sender<MidiMessage>, mpsc::Receiver<MidiMessage>) = mpsc::channel();
+                    let (tx, rx): (std::sync::mpsc::Sender<MidiMessage>, std::sync::mpsc::Receiver<MidiMessage>) = std::sync::mpsc::channel();
                     let stop_midi_flag = Arc::new(AtomicBool::new(false));
                     let tx_clone = tx.clone();
                     let stop_flag = Arc::clone(&stop_midi_flag);
@@ -1933,7 +1942,7 @@ fn build_ui(app: &Application) {
                         }
                     });
 
-                    // handle CAT messages
+                    // handle MIDI messages
                     let radio_mutex_clone = radio_mutex.clone();
                     let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
                     glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone=> move || {
@@ -1954,7 +1963,171 @@ fn build_ui(app: &Application) {
                                 // Continue the polling timeout (return Continue(true))
                                 glib::ControlFlow::Continue
                             }
-                            Err(TryRecvError::Empty) => { 
+                            Err(std::sync::mpsc::TryRecvError::Empty) => { 
+                                // No message yet, keep polling
+                                glib::ControlFlow::Continue
+                            }
+                            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                                // The Sender (tx) has been dropped, meaning the thread finished.
+                                eprintln!("Thread disconnected!");
+                                // Stop the polling timeout (return Break)
+                                glib::ControlFlow::Break
+                            }
+                        }
+                    }));
+*/
+                    let r = radio_mutex.radio.lock().unwrap();
+                    let tci_enabled = r.tci_enabled;
+                    drop(r);
+
+                    let tci = TCI::new("192.168.1.120:50001".to_string());
+                    let (tx_from_tci, mut rx_at_main): (mpsc::Sender<TCIMessage>, mpsc::Receiver<TCIMessage>) = mpsc::channel(100);
+                    let (tx_from_main, mut rx_at_tci): (mpsc::Sender<TCIDataMessage>, mpsc::Receiver<TCIDataMessage>) = mpsc::channel(100);
+                    let rx_at_tci = Arc::new(tokio::sync::Mutex::new(rx_at_tci));
+                    let rx_for_run = Arc::clone(&rx_at_tci);
+
+                    let stop_tci_flag = Arc::new(AtomicBool::new(false));
+                    let tx_from_tci_clone = tx_from_tci.clone();
+                    let tx_from_main_clone = tx_from_main.clone();
+                    let stop_flag = Arc::clone(&stop_tci_flag);
+                    let tci_clone = tci.clone();
+                    let value_rx = rx_for_run.clone();
+                    if tci_enabled {
+eprintln!("TCI Server is enabled");
+                        let radio_mutex_clone = radio_mutex.clone();
+                        let tci_clone_clone = tci_clone.clone();
+                        let stop_flag_clone = stop_flag.clone();
+eprintln!("TCI Server spawning thread");
+                        tokio::spawn(async move {
+                            tci_clone_clone.run(radio_mutex_clone, &tx_from_tci_clone, value_rx, stop_flag_clone).await.unwrap();
+                        });
+                    }
+
+                    let radio_mutex_clone = radio_mutex.clone();
+                    let tx_from_tci_clone = tx_from_tci.clone();
+                    let tci_clone = tci.clone();
+                    app_widgets.tci_button.connect_clicked(move |button| {
+                        if button.is_active() {
+eprintln!("Enable TCI Server");
+                            let mut r = radio_mutex_clone.radio.lock().unwrap();
+                            r.tci_enabled = true;
+                            drop(r);
+                            stop_flag.store(false, Ordering::SeqCst);
+                            let radio_mutex_clone_clone = radio_mutex_clone.clone();
+                            let mut tci_clone_clone = tci_clone.clone();
+                            let stop_flag_clone = stop_flag.clone();
+                            let value_tx = tx_from_tci_clone.clone();
+                            let value_rx = rx_for_run.clone();
+eprintln!("TCI Server spawning thread");
+                            tokio::spawn(async move {
+                                tci_clone_clone.run(radio_mutex_clone_clone, &value_tx, value_rx, stop_flag_clone).await.unwrap();
+                            });
+                        } else {
+eprintln!("Disable TCI Server");
+                            let mut r = radio_mutex_clone.radio.lock().unwrap();
+                            r.tci_enabled = false;
+                            drop(r);
+                            stop_flag.store(true, Ordering::SeqCst);
+                        }
+                    });
+
+                    let radio_mutex_clone = radio_mutex.clone();
+                    let rc_app_widgets_clone2 = rc_app_widgets_clone.clone();
+                    let tx_from_main_for_timeout = tx_from_main.clone();
+                    glib::timeout_add_local(Duration::from_millis(100), clone!(@strong radio_mutex_clone, @strong rc_app_widgets_clone => move || {
+                    //glib::timeout_add_local(Duration::from_millis(100), move || {
+                        match rx_at_main.try_recv() {
+                            Ok(msg) => {
+                                // Message received, update the UI
+                                match msg {
+                                    TCIMessage::ClientConnected() => {
+                                        let app_widgets = rc_app_widgets_clone2.borrow();
+                                        app_widgets.tci_button.add_css_class("connected");
+                                    },
+                                    TCIMessage::ClientDisconnected() => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        r.receiver[0].tci_send_iq_samples = false;
+                                        drop(r);
+                                        let app_widgets = rc_app_widgets_clone2.borrow();
+                                        app_widgets.tci_button.remove_css_class("connected");
+                                    },
+                                    TCIMessage::IQStart(rx) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let tx = tx_from_main_for_timeout.clone();
+                                        r.receiver[rx].enable_tci_iq(tx);
+                                    },
+                                    TCIMessage::UpdateMox(state) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let app_widgets = rc_app_widgets_clone2.borrow();
+                                        r.mox = state;
+                                        r.updated = true;
+                                        r.set_state();
+                                        if r.mox {
+                                            if r.split {
+                                                app_widgets.vfo_b_frequency.remove_css_class("vfo-b-label");
+                                                app_widgets.vfo_b_frequency.add_css_class("vfo-tx-label");
+                                            } else {
+                                                app_widgets.vfo_a_frequency.remove_css_class("vfo-a-label");
+                                                app_widgets.vfo_a_frequency.add_css_class("vfo-tx-label");
+                                            }
+                                        } else if r.split {
+                                            app_widgets.vfo_b_frequency.remove_css_class("vfo-tx-label");
+                                            app_widgets.vfo_b_frequency.add_css_class("vfo-b-label");
+                                        } else {
+                                            app_widgets.vfo_a_frequency.remove_css_class("vfo-tx-label");
+                                            app_widgets.vfo_a_frequency.add_css_class("vfo-a-label");
+                                        }
+                                    },
+                                    TCIMessage::UpdateDDS(f) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        r.receiver[0].ctun = true;
+                                        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+                                        if let Some(band_info) = r.receiver[0].find_band_from_frequency(f) {
+                                            app_widgets.ctun_button.set_active(r.receiver[0].ctun);
+                                            if r.receiver[0].band != band_info.band {
+                                                r.receiver[0].band = band_info.band;
+                                            }
+                                            r.receiver[0].ctun = true;
+                                            r.receiver[0].frequency = f;
+                                            r.receiver[0].ctun_frequency = f;
+                                            let formatted_value = format_u32_with_separators(r.receiver[0].frequency as u32);
+                                            app_widgets.vfo_a_frequency.set_label(&formatted_value);
+                                        } else {
+                                            // ignore it as not a valid address for bands
+                                        }
+                                    },
+                                    TCIMessage::UpdateFrequencyA(f) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+                                        if let Some(band_info) = r.receiver[0].find_band_from_frequency(f) {
+                                            app_widgets.ctun_button.set_active(r.receiver[0].ctun);
+                                            if r.receiver[0].band != band_info.band {
+                                                r.receiver[0].band = band_info.band;
+                                            }
+                                            r.receiver[0].ctun = true;
+                                            r.receiver[0].set_frequency(f);
+                                            let formatted_value = format_u32_with_separators(r.receiver[0].ctun_frequency as u32);
+                                            app_widgets.vfo_a_frequency.set_label(&formatted_value);
+                                        } else {
+                                            // ignore it as not a valid address for bands
+                                        }
+                                    },
+
+                                    TCIMessage::UpdateAFGain(g) => {
+                                        let mut r = radio_mutex_clone.radio.lock().unwrap();
+                                        let mut app_widgets = rc_app_widgets_clone.borrow_mut();
+                                        let afgain = (g.clamp(-60.0, 0.0) + 60.0) / 60.0;
+                                        r.receiver[0].afgain = afgain;
+                                        r.receiver[0].set_afgain();
+                                        app_widgets.afgain_adjustment.block_signal(&afgain_adjustment_id);
+                                        app_widgets.afgain_adjustment.set_value((afgain * 100.0).into());
+                                        app_widgets.afgain_adjustment.unblock_signal(&afgain_adjustment_id);
+                                    },
+                                }
+                                // Continue the polling timeout (return Continue(true))
+                                glib::ControlFlow::Continue
+                            }
+                            Err(TryRecvError::Empty) => {
                                 // No message yet, keep polling
                                 glib::ControlFlow::Continue
                             }
@@ -1966,6 +2139,7 @@ fn build_ui(app: &Application) {
                             }
                         }
                     }));
+
                 } else {
                     // try again
                 }

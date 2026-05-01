@@ -21,11 +21,14 @@ use std::cmp::{max, min};
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
 
+use tokio::sync::mpsc::{self};
+
 use crate::agc::AGC;
 use crate::bands::{Bands, BandInfo};
 use crate::filters::Filters;
 use crate::modes::Modes;
 use crate::wdsp::*;
+use crate::tci::TCIDataMessage;
 
 const DEFAULT_SAMPLE_RATE: i32 = 384000; // 1536000;// 768000; // 384000;
 const DEFAULT_SPECTRUM_AVERAGE_TIME: f32 = 250.0;
@@ -175,6 +178,11 @@ pub struct Receiver {
     pub fm_squelch_threshold: f64,
 
     pub win_type:  u32,
+
+#[serde(skip_serializing, skip_deserializing)]
+    pub tci_send_iq_samples: bool,
+#[serde(skip_serializing, skip_deserializing)]
+    tci_iq_tx: Option<mpsc::Sender<TCIDataMessage>>,
 }
 
 impl Receiver {
@@ -282,6 +290,9 @@ impl Receiver {
         let fm_squelch_threshold: f64 = 0.0;
 
         let win_type: u32 = 2; // Hann
+
+        let tci_send_iq_samples: bool = false;
+        let tci_iq_tx = None;
         
 
         Receiver { protocol,
@@ -383,6 +394,8 @@ impl Receiver {
                             fm_squelch,
                             fm_squelch_threshold,
                             win_type,
+                            tci_send_iq_samples,
+                            tci_iq_tx,
         }
     }
 
@@ -428,7 +441,8 @@ impl Receiver {
         if self.snb {
             self.set_snb();
         }
-
+        self.tci_send_iq_samples = false;
+        self.tci_iq_tx = None;
     }
 
     fn init_wdsp(&mut self, channel: i32) {
@@ -821,6 +835,19 @@ impl Receiver {
             fexchange0(self.channel, raw_ptr, audio_ptr, &mut result);
             Spectrum0(1, self.channel, 0, 0, raw_ptr);
         }
+
+        if self.tci_send_iq_samples {
+            if let Some(ref tx) = self.tci_iq_tx {
+                let msg = TCIDataMessage::IQData(self.iq_input_buffer.clone());
+                if let Err(e) = tx.try_send(msg) {
+                }
+            }
+            if let Some(ref tx) = self.tci_iq_tx {
+                let msg = TCIDataMessage::AudioData(self.audio_buffer.clone());
+                if let Err(e) = tx.try_send(msg) {
+                }
+            }
+        }
     }
 
     pub fn sample_rate_changed(&mut self, rate: i32) {
@@ -904,5 +931,16 @@ impl Receiver {
         self.band_info.iter().find(|band| {
             frequency >= band.low && frequency < band.high
         }).cloned()
+    }
+
+    pub fn enable_tci_iq(&mut self, tx_from_tci: mpsc::Sender<TCIDataMessage>) {
+        self.tci_iq_tx = Some(tx_from_tci);
+        self.tci_send_iq_samples = true;
+        
+    }
+
+    pub fn disable_tci_iq(&mut self) {
+        self.tci_iq_tx = None;
+        self.tci_send_iq_samples = false;
     }
 }

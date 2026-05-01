@@ -25,6 +25,9 @@ cpal = "0.16"
 ringbuf = "0.4.8"
 midir = "0.10.3"
 socket2 = "0.5"
+tokio-tungstenite = "0.21"
+tungstenite = "0.21"     # For Message enum etc.
+futures = "0.3"
 
 [build-dependencies]
 cc = "1.0"

@@ -110,7 +110,7 @@ eprintln!("MIDI::run {}", self.device);
                         // message[0] is the function
                         // message[1] is the id
                         // message[2] is the value (note that for Note On/Off it is 127 for On and 0 for Off
-                        eprintln!("{} {} {}", message[0], message[1], message[2]);
+                        //eprintln!("{:?} {:?} {:?}", message[0], message[1], message[2]);
                         let index = message[1] as usize;
                         match message[0] & 0xF0 {
                             0x80 => {

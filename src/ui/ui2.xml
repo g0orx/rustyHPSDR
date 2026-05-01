@@ -179,9 +179,20 @@
                       </layout>
                     </object>
                   </child>
+<!--
                   <child>
                     <object class="GtkToggleButton" id="midi_button">
                       <property name="label">MIDI</property>
+                      <layout>
+                        <property name="column">2</property>
+                        <property name="row">2</property>
+                      </layout>
+                    </object>
+                  </child>
+-->
+                  <child>
+                    <object class="GtkToggleButton" id="tci_button">
+                      <property name="label">TCI</property>
                       <layout>
                         <property name="column">2</property>
                         <property name="row">2</property>

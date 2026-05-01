@@ -148,16 +148,16 @@ if DEBUG_RIGCTL {eprintln!("RIGCTL::run: exiting");}
         "get_powerstat" => {
             format!("1\n")
         }
-        "get_freq" | "f" => {
+        "get_freq" | "f" | "F" => {
             let r = radio_mutex.radio.lock().unwrap();
             let freq = if r.receiver[0].ctun { r.receiver[0].ctun_frequency } else { r.receiver[0].frequency };
             format!("{}\n", freq as u32)
         }
-        "get_ptt" | "t" => {
+        "get_ptt" | "t" | "T" => {
             let r = radio_mutex.radio.lock().unwrap();
             format!("{}\n", if r.is_transmitting() { 1 } else { 0 })
         }
-        "get_vfo" | "v" => {
+        "get_vfo" | "v" | "V" => {
             // return current vfo - currently always VFOA
             "VFOA\n".to_string()
         }
@@ -252,7 +252,7 @@ if DEBUG_RIGCTL {eprintln!("RIGCTL::parse_commands: clean_cmd={}",clean_cmd);}
                 let mut reply = "".to_string();
                 let val = c.split_whitespace().last().unwrap_or("0");
                 if let Ok(f) = c[2..].trim().parse::<f64>() {
-                    if tx.send(RIGCTLMessage::UpdateFrequencyA(f)).is_err() {
+                    if tx.send(RIGCTLMessage::UpdateFrequencyA(f)).await.is_err() {
                         eprintln!("TX_cmd: Main thread receiver was dropped.");
                     }
                     reply =
@@ -265,7 +265,7 @@ if DEBUG_RIGCTL {eprintln!("RIGCTL::parse_commands: clean_cmd={}",clean_cmd);}
                 let r = radio_mutex.radio.lock().unwrap();
                 let mut reply = "".to_string();
                 let val = c.split_whitespace().last().unwrap_or("0");
-                if tx.send(RIGCTLMessage::UpdateMox(val=="1")).is_err() {
+                if tx.send(RIGCTLMessage::UpdateMox(val=="1")).await.is_err() {
                     eprintln!("TX_cmd: Main thread receiver was dropped.");
                 }
                 reply =

@@ -1,0 +1,114 @@
+use std::io::{self, BufReader, BufWriter, Read, Write};
+use std::sync::mpsc::{self};
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::accept_async;
+use tokio_tungstenite::tungstenite::protocol::Message;
+use futures::{StreamExt, SinkExt};
+
+use crate::radio::RadioMutex;
+
+#[derive(Clone, Debug)]
+pub struct TCI {
+    addr: String,
+}
+
+pub enum TCIMessage {
+    ClientConnected(),
+    ClientDisconnected(),
+    UpdateMox(bool),
+    UpdateFrequencyA(f64),
+}
+
+impl Default for TCIMessage {
+    fn default() -> Self {
+        TCIMessage::UpdateMox(false)
+    }
+}
+
+impl TCI {
+    pub fn new(addr: String) -> Self {
+eprintln!("TCI Server new: ws://{}", addr);
+        Self {
+            addr: addr,
+        }
+    }
+
+    pub async fn run(&self, radio_mutex: RadioMutex, tx: &mpsc::Sender<TCIMessage>, stop_flag: Arc<AtomicBool>) -> Result<(), Box<dyn std::error::Error>> {
+eprintln!("TCI Server listening on: ws://{}", self.addr);
+        let listener = TcpListener::bind(&self.addr).await?;
+        while let Ok((stream, _)) = listener.accept().await {
+eprintln!("TCI Server client connected");
+            // Clone the Arc to move into the async task
+            let radio_mutex_clone = radio_mutex.clone();
+eprintln!("TCI Server spawning handle_connection");
+            tokio::spawn(async move {
+                if let Err(e) = Self::handle_connection(stream, radio_mutex_clone).await {
+                    eprintln!("TCI Client disconnected with error: {}", e);
+                }
+            });
+        }
+        Ok(())
+    }
+
+    async fn handle_connection(stream: TcpStream, radio_mutex: RadioMutex) -> Result<(), Box<dyn std::error::Error>> {
+eprintln!("TCI Server handle_connection");
+        let ws_stream = accept_async(stream).await?;
+eprintln!("TCI Server accepted connection");
+
+        let (mut ws_sender, mut ws_receiver) = ws_stream.split();
+
+        // TCI Requirement: Clients often expect an initial state dump.
+        // Send protocol version and initial frequency immediately.
+        let init_msg = "protocol:1.1;vfo:0,7074000;"; 
+        ws_sender.send(Message::Text(init_msg.into())).await?;
+
+        while let Some(msg) = ws_receiver.next().await {
+            let msg = msg?;
+            if msg.is_text() {
+                let incoming_text = msg.to_text()?;
+                
+                // TCI allows multiple commands in one message separated by ';'
+                for command in incoming_text.split(';').filter(|s| !s.is_empty()) {
+                    let radio_mutex_clone = radio_mutex.clone();
+                    if let Some(response) = Self::process_tci_command(command, radio_mutex_clone) {
+                        ws_sender.send(Message::Text(response.into())).await?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn process_tci_command(full_cmd: &str, radio_mutex: RadioMutex) -> Option<String> {
+        // TCI format is "command:param1,param2"
+        let parts: Vec<&str> = full_cmd.split(':').collect();
+        let cmd_name = parts[0].to_lowercase();
+        let args = if parts.len() > 1 { parts[1] } else { "" };
+
+        let mut r = radio_mutex.radio.lock().unwrap();
+
+        match cmd_name.as_str() {
+            "vfo" => {
+                // Logic for "vfo:receiver_index,frequency"
+                let params: Vec<&str> = args.split(',').collect();
+                if params.len() >= 2 {
+                    if let Ok(freq) = params[1].parse::<u64>() {
+                        // Update your Radio struct
+                        // r.set_frequency(freq); 
+                        println!("TCI set VFO to: {} Hz", freq);
+                    }
+                }
+                None
+            }
+            "modulations" => {
+                // Returning the modes your SDR supports
+                Some("modulations:fm,usb,lsb,cw;".to_string())
+            }
+            _ => {
+                println!("Unknown TCI command: {}", cmd_name);
+                None
+            }
+        }
+    }
+}
