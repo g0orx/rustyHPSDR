@@ -1,4 +1,4 @@
-# rustyHPSDR has been replaced with hpsdr-rs
+# Please Note that rustyHPSDR development has ended but it has been replaced by hpsdr-rs (http://github.com/g0orx/hpsdr-rs).
 
 # rustyHPSDR
 
