@@ -1,3 +1,5 @@
+# rustyHPSDR has been replaced with hpsdr-rs
+
 # rustyHPSDR
 
 My first attempt at a Rust application.
